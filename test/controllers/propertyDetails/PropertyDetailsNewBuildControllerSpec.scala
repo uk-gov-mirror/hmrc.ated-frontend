@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,17 +115,17 @@ class PropertyDetailsNewBuildControllerSpec extends PlaySpec with GuiceOneServer
       test(result)
     }
 
-    def submitWithAuthorisedUser(formBody: List[(String, String)])(test: Future[Result] => Any): Unit = {
-      val userId = s"user-${UUID.randomUUID}"
-      when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
-      when(mockPropertyDetailsService.saveDraftPropertyDetailsNewBuild(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).
-        thenReturn(Future.successful(OK))
-      val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
-      setAuthMocks(authMock)
-      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages, mockAppConfig)))
-      val result = testPropertyDetailsNewBuildController.save("1", periodKey, None)
-        .apply(SessionBuilder.updateRequestFormWithSession(FakeRequest().withFormUrlEncodedBody(formBody: _*), userId))
+  def submitWithAuthorisedUser(formBody: List[(String, String)])(test: Future[Result] => Any): Unit = {
+    val userId = s"user-${UUID.randomUUID}"
+    when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
+      (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+    when(mockPropertyDetailsService.saveDraftPropertyDetailsNewBuild(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).
+      thenReturn(Future.successful(OK))
+    val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
+    setAuthMocks(authMock)
+    when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
+    val result = testPropertyDetailsNewBuildController.save("1", periodKey, None)
+      .apply(SessionBuilder.updateRequestFormWithSession(FakeRequest().withMethod("POST").withFormUrlEncodedBody(formBody: _*), userId))
 
       test(result)
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
-import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{MessagesControllerComponents, Result}
+import play.api.mvc.{AnyContentAsFormUrlEncoded, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.{AddressLookupService, BackLinkCacheService, DataCacheService, PropertyDetailsService, ServiceInfoService}
@@ -131,16 +130,17 @@ class AddressLookupControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       test(result)
     }
 
-    def findWithAuthorisedUser(id: Option[String], inputJson: JsValue, results: AddressSearchResults)(test: Future[Result] => Any): Unit = {
-      val userId = s"user-${UUID.randomUUID}"
-      val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
-      setAuthMocks(authMock)
-      when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
-      when(mockAddressLookupService.find(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(results))
-      val result = testAddressLookupController.find(id, periodKey).apply(SessionBuilder.updateRequestWithSession(FakeRequest().withJsonBody(inputJson), userId))
-      test(result)
-    }
+  def findWithAuthorisedFormUser(id: Option[String], fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded],
+                                 results: AddressSearchResults)(test: Future[Result] => Any): Unit = {
+    val userId = s"user-${UUID.randomUUID}"
+    val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
+    setAuthMocks(authMock)
+    when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
+      (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+    when(mockAddressLookupService.find(ArgumentMatchers.any())(+ ArgumentMatchers.any())).thenReturn(Future.successful(results))
+    val result = testAddressLookupController.find(id, periodKey).apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
+    test(result)
+  }
 
     def saveWithUnAuthorisedUser(test: Future[Result] => Any): Unit = {
       val userId = s"user-${UUID.randomUUID}"
@@ -152,22 +152,21 @@ class AddressLookupControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       test(result)
     }
 
-    def saveWithAuthorisedUser(id: Option[String],
-                               periodKey: Int,
-                               inputJson: JsValue,
-                               results: Option[AddressSearchResults],
-                               selected: Option[PropertyDetailsAddress])(test: Future[Result] => Any): Unit = {
-      val userId = s"user-${UUID.randomUUID}"
-      val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
-      setAuthMocks(authMock)
-      when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
-      when(mockAddressLookupService.retrieveCachedSearchResults()(using ArgumentMatchers.any())).thenReturn(Future.successful(results))
-      when(mockAddressLookupService.findById(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(selected))
+  def saveWithAuthorisedFormUser(id: Option[String],
+                             periodKey: Int, fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded],
+                             results: Option[AddressSearchResults],
+                             selected: Option[PropertyDetailsAddress])(test: Future[Result] => Any): Unit = {
+    val userId = s"user-${UUID.randomUUID}"
+    val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
+    setAuthMocks(authMock)
+    when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
+      (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+    when(mockAddressLookupService.retrieveCachedSearchResults()(using ArgumentMatchers.any())).thenReturn(Future.successful(results))
+    when(mockAddressLookupService.findById(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(selected))
 
-      val result = testAddressLookupController.save(id, periodKey).apply(SessionBuilder.updateRequestWithSession(FakeRequest().withJsonBody(inputJson), userId))
-      test(result)
-    }
+    val result = testAddressLookupController.save(id, periodKey).apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
+    test(result)
+  }
 
     def manualAddressRedirect(id: Option[String])(test: Future[Result] => Any): Unit = {
       val userId = s"user-${UUID.randomUUID}"
@@ -232,7 +231,7 @@ class AddressLookupControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
       "submitting an invalid request should fail and return to the search page" in new Setup {
         val searchCriteria: AddressLookup = AddressLookup("", None)
-        when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
         findWithAuthorisedUser(None, Json.toJson(searchCriteria), AddressSearchResults(searchCriteria, Nil)) {
           result =>
             status(result) must be(BAD_REQUEST)
@@ -255,7 +254,7 @@ class AddressLookupControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       "submitting a valid request should lookup search results and return them to the screen" in new Setup {
         val searchCriteria: AddressLookup = AddressLookup("XX1 1XX", None)
         val results = List(address1, address2, address3)
-        when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
         findWithAuthorisedUser(None, Json.toJson(searchCriteria), AddressSearchResults(searchCriteria, results)) {
           result =>
             status(result) must be(OK)
@@ -298,7 +297,7 @@ class AddressLookupControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
       "submitting an invalid request should fail and return to the search results page" in new Setup {
         val searchCriteria: AddressLookup = AddressLookup("XX1 1XX", None)
-        val searchResults: AddressSearchResults = AddressSearchResults(searchCriteria, Nil)
+        val searchResults: AddressSearchResults =  AddressSearchResults(searchCriteria, Nil)
         saveWithAuthorisedUser(None, periodKey, Json.toJson(AddressSelected(None)), Some(searchResults), None) {
           result =>
             status(result) must be(BAD_REQUEST)
@@ -318,7 +317,7 @@ class AddressLookupControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
       "submitting a valid request should fail if we don't find the property" in new Setup {
         val searchCriteria: AddressLookup = AddressLookup("XX1 1XX", None)
-        val results: AddressSearchResults = AddressSearchResults(searchCriteria, List(address1, address2, address3))
+        val results: AddressSearchResults = AddressSearchResults(searchCriteria,List(address1, address2, address3))
 
         saveWithAuthorisedUser(None, periodKey, Json.toJson(AddressSelected(Some("1"))), Some(results), None) {
           result =>
@@ -343,8 +342,8 @@ class AddressLookupControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
         val value = 2015
         val foundProperty: PropertyDetailsAddress = PropertyDetailsAddress("", "", None, None, None)
         when(mockPropertyDetailsService.createDraftPropertyDetailsAddress
-          (ArgumentMatchers.eq(value), ArgumentMatchers.eq(foundProperty))(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful("newId"))
-        when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
+        (ArgumentMatchers.eq(value), ArgumentMatchers.eq(foundProperty))(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful("newId"))
+        when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(None))
         saveWithAuthorisedUser(None, periodKey, Json.toJson(AddressSelected(Some("1"))), None, Some(foundProperty)) {
           result =>
@@ -356,8 +355,8 @@ class AddressLookupControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       "submitting a valid request should update a return if we have an Id" in new Setup {
         val foundProperty: PropertyDetailsAddress = PropertyDetailsAddress("", "", None, None, None)
         when(mockPropertyDetailsService.saveDraftPropertyDetailsAddress
-          (ArgumentMatchers.any(), ArgumentMatchers.eq(foundProperty))(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful("1"))
-        when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
+        (ArgumentMatchers.any(), ArgumentMatchers.eq(foundProperty))(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful("1"))
+        when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(None))
         saveWithAuthorisedUser(Some("1"), periodKey, Json.toJson(AddressSelected(Some("1"))), None, Some(foundProperty)) {
           result =>

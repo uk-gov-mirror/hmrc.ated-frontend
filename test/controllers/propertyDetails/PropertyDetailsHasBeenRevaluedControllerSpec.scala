@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package controllers.propertyDetails
 
 import builders.SessionBuilder
-import models.HasBeenRevalued
 import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.AnyContentAsFormUrlEncoded
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.propertyDetails.propertyDetailsHasBeenRevalued
@@ -26,7 +26,7 @@ import views.html.propertyDetails.propertyDetailsHasBeenRevalued
 class PropertyDetailsHasBeenRevaluedControllerSpec extends PropertyDetailsTestFixture {
   val injectedViewInstance: propertyDetailsHasBeenRevalued = app.injector.instanceOf[views.html.propertyDetails.propertyDetailsHasBeenRevalued]
 
-  val testController: PropertyDetailsHasBeenRevaluedController = new PropertyDetailsHasBeenRevaluedController(
+  val testController: Propert   yDetailsHasBeenRevaluedController = new PropertyDetailsHasBeenRevaluedController(
     mockMcc,
     mockAuthAction,
     injectedViewInstance,
@@ -75,9 +75,13 @@ class PropertyDetailsHasBeenRevaluedControllerSpec extends PropertyDetailsTestFi
 
     "redirect to next page: date-of-change" when {
       "user clicks yes" in new Setup {
-        val inputJson: JsValue = Json.toJson(HasBeenRevalued(Some(true)))
+        val fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest()
+          .withMethod("POST")
+          .withFormUrlEncodedBody(
+            "isPropertyRevalued"   -> "true"
+          )
         setupPropertyDetailServiceMockExpectations()
-        val result = testController.save("1", 2015, None).apply(SessionBuilder.updateRequestWithSession(FakeRequest().withJsonBody(inputJson), userId))
+        val result = testController.save("1", 2015, None).apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must include("ated/liability/create/date-of-change/view")
       }
@@ -85,9 +89,13 @@ class PropertyDetailsHasBeenRevaluedControllerSpec extends PropertyDetailsTestFi
 
     "render the exit page" when {
       "user clicks no" in new Setup {
-        val inputJson: JsValue = Json.toJson(HasBeenRevalued(Some(false)))
+        val fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest()
+          .withMethod("POST")
+          .withFormUrlEncodedBody(
+            "isPropertyRevalued"   -> "false"
+          )
         setupPropertyDetailServiceMockExpectations()
-        val result = testController.save("1", 2015, None).apply(SessionBuilder.updateRequestWithSession(FakeRequest().withJsonBody(inputJson), userId))
+        val result = testController.save("1", 2015, None).apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must include("ated/liability/create/cannot-submit-return")
       }
