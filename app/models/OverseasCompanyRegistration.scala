@@ -23,5 +23,5 @@ case class OverseasCompanyRegistration(businessUniqueId: Option[String] = None,
                                        countryCode: Option[String] = None)
 
 object OverseasCompanyRegistration {
-  implicit val formats: OFormat[OverseasCompanyRegistration] = Json.format[OverseasCompanyRegistration]
+  given formats: OFormat[OverseasCompanyRegistration] = Json.format[OverseasCompanyRegistration]
 }

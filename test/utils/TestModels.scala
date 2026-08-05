@@ -17,14 +17,14 @@
 package utils
 
 import config.ApplicationConfig
-import models._
+import models.*
 
 import java.time.LocalDate
 import play.api.libs.json.{JsArray, JsObject, Json}
-import utils.AtedConstants._
+import utils.AtedConstants.*
 
 trait TestModels {
-  implicit val mockAppConfig: ApplicationConfig
+  given mockAppConfig: ApplicationConfig
   val organisationName: String = "OrganisationName"
 
   val formBundleNo1: String = "123456789012"

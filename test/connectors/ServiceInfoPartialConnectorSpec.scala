@@ -55,14 +55,14 @@ class ServiceInfoPartialConnectorSpec extends ControllerBaseSpec {
     "an unexpected Exception is returned" should {
       "return none" in new Test {
         override val result: Future[Option[NavContent]] = Future.failed(new GatewayTimeoutException(""))
-        await(connector.getNavLinks(ec, hc)) mustBe None
+        await(connector.getNavLinks(using ec, hc)) mustBe None
       }
     }
 
     "a successful response is returned" should {
       "return the Some(NavContent)" in new Test {
         override val result: Future[Option[NavContent]] = Future.successful(Some(navContent))
-        await(connector.getNavLinks(ec, hc)) mustBe Some(navContent)
+        await(connector.getNavLinks(using ec, hc)) mustBe Some(navContent)
       }
     }
   }

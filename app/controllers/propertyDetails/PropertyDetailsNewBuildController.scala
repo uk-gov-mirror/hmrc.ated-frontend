@@ -18,11 +18,11 @@ package controllers.propertyDetails
 
 import config.ApplicationConfig
 import controllers.auth.{AuthAction, ClientHelper}
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import javax.inject.Inject
 import models.PropertyDetailsNewBuild
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services._
+import services.*
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.AtedConstants.SelectedPreviousReturn
 import utils.AtedUtils
@@ -38,11 +38,11 @@ class PropertyDetailsNewBuildController @Inject()(mcc: MessagesControllerCompone
                                                   val dataCacheService: DataCacheService,
                                                   val backLinkCacheService: BackLinkCacheService,
                                                   template: views.html.propertyDetails.propertyDetailsNewBuild)
-                                                 (implicit val appConfig: ApplicationConfig)
+                                                 (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = "PropertyDetailsNewBuildController"
 
   def view(id: String): Action[AnyContent] = Action.async { implicit request =>

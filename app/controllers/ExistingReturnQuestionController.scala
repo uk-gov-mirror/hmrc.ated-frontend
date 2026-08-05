@@ -34,11 +34,11 @@ class ExistingReturnQuestionController @Inject()(mcc: MessagesControllerComponen
                                                  serviceInfoService: ServiceInfoService,
                                                  val dataCacheService: DataCacheService,
                                                  template: views.html.confirmPastReturn)
-                                                (implicit val appConfig: ApplicationConfig)
+                                                (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   def view(periodKey: Int, returnType: String): Action[AnyContent] = Action.async { implicit request =>
     authAction.authorisedAction { implicit authContext =>

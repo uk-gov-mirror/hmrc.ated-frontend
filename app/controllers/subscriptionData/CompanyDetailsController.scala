@@ -31,11 +31,11 @@ class CompanyDetailsController @Inject()(mcc: MessagesControllerComponents,
                                          serviceInfoService: ServiceInfoService,
                                          detailsDataService: DetailsService,
                                          template: views.html.subcriptionData.companyDetails)
-                                        (implicit val appConfig: ApplicationConfig)
+                                        (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   def view : Action[AnyContent] = Action.async { implicit request =>
     authAction.authorisedAction { implicit authContext =>

@@ -18,7 +18,7 @@ package views.propertyDetails
 
 import builders.TitleBuilder
 import config.ApplicationConfig
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import models.StandardAuthRetrievals
 import org.jsoup.Jsoup
 import org.scalatest.featurespec.AnyFeatureSpecLike
@@ -35,13 +35,17 @@ import views.html.propertyDetails.periodDatesLiable
 class PeriodDatesLiableSpec extends AnyFeatureSpecLike with GuiceOneAppPerSuite with MockitoSugar
   with BeforeAndAfterEach with GivenWhenThen with MockAuthUtil {
 
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
+
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
   val injectedViewInstance: periodDatesLiable = app.injector.instanceOf[views.html.propertyDetails.periodDatesLiable]
 
-Feature("The user can add a period that the property is liable") {
+  Feature("The user can add a period that the property is liable") {
 
     info("as a client i to indicate when my property is liable")
 
@@ -66,7 +70,7 @@ Feature("The user can add a period that the property is liable") {
 
       Then("The date fields should have the correct titles")
       assert(document.getElementsByTag("legend")
-        .text contains  "What was the start date when the property became liable for a charge during this period?")
+        .text contains "What was the start date when the property became liable for a charge during this period?")
       assert(document.getElementsByTag("legend")
         .text contains "What was the end date the property stopped being liable for a charge during this period?")
 
@@ -76,7 +80,7 @@ Feature("The user can add a period that the property is liable") {
       assert(document.getElementById("startDate.year").attr("value") === "")
       assert(document.getElementById("endDate.day").attr("value") === "")
       assert(document.getElementById("endDate.month").attr("value") === "")
-      assert( document.getElementById("endDate.year").attr("value") === "")
+      assert(document.getElementById("endDate.year").attr("value") === "")
 
       Then("The submit button should have the correct name")
       assert(document.getElementsByClass("govuk-button").text() === "Save and continue")
@@ -106,7 +110,7 @@ Feature("The user can add a period that the property is liable") {
 
       Then("The date fields should have the correct titles")
       assert(document.getElementsByTag("legend")
-        .text contains  "What was the start date when the property became liable for a charge during this period?")
+        .text contains "What was the start date when the property became liable for a charge during this period?")
       assert(document.getElementsByTag("legend")
         .text contains "What was the end date the property stopped being liable for a charge during this period?")
 
@@ -116,7 +120,7 @@ Feature("The user can add a period that the property is liable") {
       assert(document.getElementById("startDate.year").attr("value") === "")
       assert(document.getElementById("endDate.day").attr("value") === "")
       assert(document.getElementById("endDate.month").attr("value") === "")
-      assert( document.getElementById("endDate.year").attr("value") === "")
+      assert(document.getElementById("endDate.year").attr("value") === "")
 
       Then("The submit button should have the correct name")
       assert(document.getElementsByClass("govuk-button").text() === "Save and continue")

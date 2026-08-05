@@ -22,19 +22,20 @@ import javax.inject.Inject
 import models.{AddressLookup, AddressLookupRecord}
 import play.api.Logging
 import play.api.libs.json.Json
+import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.StringContextOps
 import scala.concurrent.{ExecutionContext, Future}
 
-class AddressLookupConnector @Inject()(appConf: ApplicationConfig, http: HttpClientV2)(implicit ec: ExecutionContext) extends RawResponseReads with Logging {
+class AddressLookupConnector @Inject()(appConf: ApplicationConfig, http: HttpClientV2)(using ec: ExecutionContext) extends RawResponseReads with Logging {
   val serviceURL: String = appConf.conf.baseUrl("address-lookup")
   private val LOOKUP = "/lookup"
   private val UPRN = "/by-uprn"
 
 
-  def findByPostcode(addressLookup: AddressLookup)(implicit hc: HeaderCarrier):Future[List[AddressLookupRecord]] = {
+  def findByPostcode(addressLookup: AddressLookup)(using hc: HeaderCarrier):Future[List[AddressLookupRecord]] = {
     val postUrl = s"$serviceURL$LOOKUP"
     http.post(url"$postUrl").withBody(Json.toJson(addressLookup)).execute[List[AddressLookupRecord]].recover {
       case e : UpstreamErrorResponse => {
@@ -48,7 +49,7 @@ class AddressLookupConnector @Inject()(appConf: ApplicationConfig, http: HttpCli
     }
   }
 
-  def findById(uprn: String)(implicit hc: HeaderCarrier):Future[List[AddressLookupRecord]] = {
+  def findById(uprn: String)(using hc: HeaderCarrier):Future[List[AddressLookupRecord]] = {
     val postUrl = s"$serviceURL$LOOKUP$UPRN"
     http.post(url"$postUrl").withBody(Json.obj("uprn" -> uprn)).execute[List[AddressLookupRecord]].recover {
       case e : UpstreamErrorResponse => {

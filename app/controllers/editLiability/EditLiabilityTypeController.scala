@@ -38,11 +38,11 @@ class EditLiabilityTypeController @Inject()(mcc: MessagesControllerComponents,
                                             val dataCacheService: DataCacheService,
                                             val backLinkCacheService: BackLinkCacheService,
                                             template: views.html.editLiability.editLiability)
-                                           (implicit val appConfig: ApplicationConfig)
+                                           (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with BackLinkService with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   val controllerId: String = "EditLiabilityTypeController"
 
@@ -58,7 +58,7 @@ class EditLiabilityTypeController @Inject()(mcc: MessagesControllerComponents,
     }
   }
 
-  def editLiabilityPrePop(form: Form[EditLiabilityReturnType])(implicit request: MessagesRequest[AnyContent]): Form[EditLiabilityReturnType] = {
+  def editLiabilityPrePop(form: Form[EditLiabilityReturnType])(using request: MessagesRequest[AnyContent]): Form[EditLiabilityReturnType] = {
     request.getQueryString("disposal") match {
       case Some("true") => form.fill(EditLiabilityReturnType(editLiabilityType = Some("DP")))
       case Some("false") => form.fill(EditLiabilityReturnType(editLiabilityType = Some("CR")))

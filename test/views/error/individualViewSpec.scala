@@ -27,9 +27,9 @@ import views.html.error.individual
 
 class individualViewSpec extends PlaySpec with GuiceOneAppPerSuite {
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
   val injectedViewInstance: individual = app.injector.instanceOf[views.html.error.individual]
 
   "individual" must {

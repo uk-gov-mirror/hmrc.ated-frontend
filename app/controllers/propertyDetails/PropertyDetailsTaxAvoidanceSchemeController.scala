@@ -18,8 +18,8 @@ package controllers.propertyDetails
 
 import config.ApplicationConfig
 import controllers.auth.{AuthAction, ClientHelper}
-import forms.PropertyDetailsForms._
-import models._
+import forms.PropertyDetailsForms.*
+import models.*
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{BackLinkCacheService, DataCacheService, PropertyDetailsCacheSuccessResponse, PropertyDetailsService, ServiceInfoService}
 import uk.gov.hmrc.play.bootstrap.controller.WithUnsafeDefaultFormBinding
@@ -39,10 +39,11 @@ class PropertyDetailsTaxAvoidanceSchemeController @Inject()(mcc: MessagesControl
                                                             val dataCacheService: DataCacheService,
                                                             val backLinkCacheService: BackLinkCacheService,
                                                             template: views.html.propertyDetails.propertyDetailsTaxAvoidanceScheme)
-                                                     (implicit val appConfig: ApplicationConfig)
+                                                           (using val appConfig: ApplicationConfig)
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
+
   val controllerId: String = "PropertyDetailsTaxAvoidanceSchemeController"
 
   def view(id: String): Action[AnyContent] = Action.async { implicit request =>
@@ -68,7 +69,7 @@ class PropertyDetailsTaxAvoidanceSchemeController @Inject()(mcc: MessagesControl
     }
   }
 
- def editFromSummary(id: String): Action[AnyContent] = Action.async { implicit request =>
+  def editFromSummary(id: String): Action[AnyContent] = Action.async { implicit request =>
     authAction.authorisedAction { implicit authContext =>
       ensureClientContext {
         serviceInfoService.getPartial.flatMap { serviceInfoContent =>
@@ -99,23 +100,23 @@ class PropertyDetailsTaxAvoidanceSchemeController @Inject()(mcc: MessagesControl
           propertyDetailsTaxAvoidanceSchemeForm.bindFromRequest().fold(
             formWithError =>
               currentBackLink.map(backLink => BadRequest(template(id, periodKey, formWithError, mode, serviceInfoContent, backLink))),
-              propertyDetails => {
-                propertyDetails.isTaxAvoidance match {
-                 case Some(true) =>
-                   propertyDetailsService.saveDraftPropertyDetailsTaxAvoidanceScheme(id, propertyDetails).flatMap(_ =>
-                     redirectWithBackLink(
-                       propertyDetailsTaxAvoidanceReferencesController.controllerId,
-                       controllers.propertyDetails.routes.PropertyDetailsTaxAvoidanceReferencesController.view(id),
-                       Some(controllers.propertyDetails.routes.PropertyDetailsTaxAvoidanceSchemeController.view(id).url))
-                   )
-                 case _ =>
-                   propertyDetailsService.saveDraftPropertyDetailsTaxAvoidanceScheme(id, propertyDetails).flatMap(_ =>
-                     redirectWithBackLink(
-                       propertyDetailsSupportingInfoController.controllerId,
-                       controllers.propertyDetails.routes.PropertyDetailsSupportingInfoController.view(id),
-                       Some(controllers.propertyDetails.routes.PropertyDetailsTaxAvoidanceSchemeController.view(id).url))
-                   )
-                }
+            propertyDetails => {
+              propertyDetails.isTaxAvoidance match {
+                case Some(true) =>
+                  propertyDetailsService.saveDraftPropertyDetailsTaxAvoidanceScheme(id, propertyDetails).flatMap(_ =>
+                    redirectWithBackLink(
+                      propertyDetailsTaxAvoidanceReferencesController.controllerId,
+                      controllers.propertyDetails.routes.PropertyDetailsTaxAvoidanceReferencesController.view(id),
+                      Some(controllers.propertyDetails.routes.PropertyDetailsTaxAvoidanceSchemeController.view(id).url))
+                  )
+                case _ =>
+                  propertyDetailsService.saveDraftPropertyDetailsTaxAvoidanceScheme(id, propertyDetails).flatMap(_ =>
+                    redirectWithBackLink(
+                      propertyDetailsSupportingInfoController.controllerId,
+                      controllers.propertyDetails.routes.PropertyDetailsSupportingInfoController.view(id),
+                      Some(controllers.propertyDetails.routes.PropertyDetailsTaxAvoidanceSchemeController.view(id).url))
+                  )
+              }
             }
           )
         }

@@ -33,11 +33,11 @@ class DraftDeleteConfirmationController @Inject()(mcc: MessagesControllerCompone
                                                   serviceInfoService: ServiceInfoService,
                                                   val dataCacheService: DataCacheService,
                                                   template: views.html.confirmDeleteDraft)
-                                                 (implicit val appConfig: ApplicationConfig)
+                                                 (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   def view(id: Option[String], periodKey: Int, returnType: String): Action[AnyContent] = Action.async { implicit request =>
     authAction.authorisedAction { implicit authContext =>

@@ -23,7 +23,7 @@ import models.{BankDetailsModel, DisposeLiabilityReturn}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -33,7 +33,7 @@ import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.{BackLinkCacheService, DataCacheService, DisposeLiabilityReturnService, ServiceInfoService}
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.auth.core.AffinityGroup
@@ -47,8 +47,8 @@ class DisposeLiabilityUkBankDetailsControllerSpec
   extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar
     with MockAuthUtil with BeforeAndAfterEach {
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given hc: HeaderCarrier = HeaderCarrier()
   private val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   private val mockDisposeLiabilityReturnService = mock[DisposeLiabilityReturnService]
   private val mockDataCacheService = mock[DataCacheService]
@@ -59,7 +59,7 @@ class DisposeLiabilityUkBankDetailsControllerSpec
   private val btaNavigationLinksView = app.injector.instanceOf[BtaNavigationLinks]
   private val injectedView = app.injector.instanceOf[views.html.editLiability.disposeLiabilityUkBankDetails]
   private val oldFormBundleNum = "123456789012"
-  implicit lazy val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+  given messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
 
   override def beforeEach(): Unit = {
     reset(mockDisposeLiabilityReturnService)
@@ -80,18 +80,18 @@ class DisposeLiabilityUkBankDetailsControllerSpec
     )
 
     private def commonMocks(disposeReturn: Option[DisposeLiabilityReturn]): Unit = {
-      when(mockServiceInfoService.getPartial(any(), any(), any()))
+      when(mockServiceInfoService.getPartial(using any(), any(), any()))
         .thenReturn(Future.successful(btaNavigationLinksView()(messages, mockAppConfig)))
-      when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(any(), any()))
+      when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(using any(), any()))
         .thenReturn(Future.successful(Some("XN1200000100001")))
-      when(mockDisposeLiabilityReturnService.retrieveLiabilityReturn(ArgumentMatchers.eq(oldFormBundleNum))(any(), any()))
+      when(mockDisposeLiabilityReturnService.retrieveLiabilityReturn(ArgumentMatchers.eq(oldFormBundleNum))(using any(), any()))
         .thenReturn(Future.successful(disposeReturn))
     }
 
     def viewWithAuthorisedUser(disposeReturn: Option[DisposeLiabilityReturn])(test: Future[Result] => Any): Unit = {
       setAuthMocks(authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet))
       commonMocks(disposeReturn)
-      when(mockBackLinkCacheService.fetchAndGetBackLink(any())(any()))
+      when(mockBackLinkCacheService.fetchAndGetBackLink(any())(using any()))
         .thenReturn(Future.successful(Some("http://backlink")))
       val result = controller.view(oldFormBundleNum)
         .apply(SessionBuilder.buildRequestWithSession(userId))
@@ -109,13 +109,13 @@ class DisposeLiabilityUkBankDetailsControllerSpec
     def saveWithAuthorisedUser(inputJson: JsValue, disposeReturn: Option[DisposeLiabilityReturn] = None)
                               (test: Future[Result] => Any): Unit = {
       setAuthMocks(authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet))
-      when(mockServiceInfoService.getPartial(any(), any(), any()))
+      when(mockServiceInfoService.getPartial(using any(), any(), any()))
         .thenReturn(Future.successful(btaNavigationLinksView()(messages, mockAppConfig)))
-      when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(any(), any()))
+      when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(using any(), any()))
         .thenReturn(Future.successful(Some("XN1200000100001")))
-      when(mockDisposeLiabilityReturnService.cacheDisposeLiabilityReturnBank(any(), any())(any(), any()))
+      when(mockDisposeLiabilityReturnService.cacheDisposeLiabilityReturnBank(any(), any())(using any(), any()))
         .thenReturn(Future.successful(disposeReturn))
-      when(mockDisposeLiabilityReturnService.calculateDraftDisposal(any())(any(), any()))
+      when(mockDisposeLiabilityReturnService.calculateDraftDisposal(any())(using any(), any()))
         .thenReturn(Future.successful(disposeReturn))
       val request = SessionBuilder.updateRequestWithSession(FakeRequest().withJsonBody(inputJson), userId)
       val result = controller.save(oldFormBundleNum)(request)
@@ -173,12 +173,12 @@ class DisposeLiabilityUkBankDetailsControllerSpec
 
       "return BAD_REQUEST for invalid data" in new Setup {
         val invalidJson: JsValue = Json.parse("""{"hasUkBankAccount": "0"}""")
-        when(mockBackLinkCacheService.fetchAndGetBackLink(any())(any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCacheService.fetchAndGetBackLink(any())(using any())).thenReturn(Future.successful(None))
 
         saveWithAuthorisedUser(invalidJson) { result =>
           status(result) mustBe BAD_REQUEST
           verify(mockDisposeLiabilityReturnService, never())
-            .calculateDraftDisposal(any())(any(), any())
+            .calculateDraftDisposal(any())(using any(), any())
         }
       }
 
@@ -192,7 +192,7 @@ class DisposeLiabilityUkBankDetailsControllerSpec
             |"sortCode": "112233"
             |}""".stripMargin)
         val returnData: Some[DisposeLiabilityReturn] = Some(DisposeLiabilityReturnBuilder.generateDisposeLiabilityReturn("123456789012"))
-        when(mockBackLinkCacheService.saveBackLink(any(), any())(any()))
+        when(mockBackLinkCacheService.saveBackLink(any(), any())(using any()))
           .thenReturn(Future.successful(None))
 
         saveWithAuthorisedUser(inputJson, returnData) { result =>

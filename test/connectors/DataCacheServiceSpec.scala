@@ -20,7 +20,7 @@ import config.ApplicationConfig
 import models.{ReturnType, StandardAuthRetrievals}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -34,11 +34,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class DataCacheServiceSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with Injecting {
 
-  implicit val hc: HeaderCarrier                   = HeaderCarrier(sessionId = Some(SessionId("test")))
-  implicit val ec: ExecutionContext                = inject[ExecutionContext]
+  given hc: HeaderCarrier                   = HeaderCarrier(sessionId = Some(SessionId("test")))
+  given ec: ExecutionContext                = inject[ExecutionContext]
   val mockAppConfig: ApplicationConfig             = app.injector.instanceOf[ApplicationConfig]
   val mockSessionCacheRepo: SessionCacheRepository = mock[SessionCacheRepository]
-  implicit val authContext: StandardAuthRetrievals = mock[StandardAuthRetrievals]
+  given authContext: StandardAuthRetrievals = mock[StandardAuthRetrievals]
 
   class Setup extends ConnectorTest {
 
@@ -81,7 +81,7 @@ class DataCacheServiceSpec extends PlaySpec with GuiceOneAppPerSuite with Mockit
       "clear data from Keystore" in new Setup {
         when(
           mockSessionCacheRepo
-            .deleteFromSession(ArgumentMatchers.any()))
+            .deleteFromSession(using ArgumentMatchers.any()))
           .thenReturn(Future.successful(()))
 
         val result: Future[Unit] = testDataCacheService.clearCache()

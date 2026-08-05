@@ -19,28 +19,28 @@ package services
 import connectors.AddressLookupConnector
 
 import javax.inject.Inject
-import models._
+import models.*
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class AddressLookupService @Inject()(addressLookupConnector: AddressLookupConnector,
                                      dataCacheService: DataCacheService)
-                                    (implicit val ec: ExecutionContext){
+                                    (using ec: ExecutionContext){
 
   val ADDRESS_LOOKUP_SEARCH_RESULTS = "ADDRESS-LOOKUP-SEARCH-RESULTS"
 
-  implicit object AddressOrdering extends Ordering[AddressLookupRecord] {
+  given AddressOrdering: Ordering[AddressLookupRecord] with {
     def compare(a: AddressLookupRecord, b: AddressLookupRecord): Int = a.uprn compare b.uprn
   }
 
-  def find(searchCriteria: AddressLookup)(implicit hc: HeaderCarrier): Future[AddressSearchResults] = {
+  def find(searchCriteria: AddressLookup)(using hc: HeaderCarrier): Future[AddressSearchResults] = {
     addressLookupConnector.findByPostcode(searchCriteria).flatMap{
       foundData => storeSearchResults(AddressSearchResults(searchCriteria, foundData.sorted))
     }
   }
 
-  def findById(id: String)(implicit hc: HeaderCarrier): Future[Option[PropertyDetailsAddress]] = {
+  def findById(id: String)(using hc: HeaderCarrier): Future[Option[PropertyDetailsAddress]] = {
     def convertLookupAddressToPropertyDetailsAddress(addressResult: List[AddressLookupRecord]): Option[PropertyDetailsAddress] = {
 
       //The address-lookup endpoint used by findById can only ever return an array of address results with either one or zero elements
@@ -77,11 +77,11 @@ class AddressLookupService @Inject()(addressLookupConnector: AddressLookupConnec
     addressLookupConnector.findById(id).map(res => convertLookupAddressToPropertyDetailsAddress(res))
   }
 
-  def retrieveCachedSearchResults()(implicit hc: HeaderCarrier): Future[Option[AddressSearchResults]] = {
+  def retrieveCachedSearchResults()(using hc: HeaderCarrier): Future[Option[AddressSearchResults]] = {
     dataCacheService.fetchAndGetData[AddressSearchResults](ADDRESS_LOOKUP_SEARCH_RESULTS)
   }
 
-  private def storeSearchResults(searchResults: AddressSearchResults)(implicit headerCarrier: HeaderCarrier): Future[AddressSearchResults] = {
+  private def storeSearchResults(searchResults: AddressSearchResults)(using headerCarrier: HeaderCarrier): Future[AddressSearchResults] = {
     dataCacheService.saveFormData[AddressSearchResults](ADDRESS_LOOKUP_SEARCH_RESULTS, searchResults)
   }
 }

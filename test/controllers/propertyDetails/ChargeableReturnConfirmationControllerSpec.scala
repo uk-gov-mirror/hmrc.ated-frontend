@@ -24,19 +24,19 @@ import models.{LiabilityReturnResponse, SubmitReturnsResponse}
 import java.time.ZonedDateTime
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Result}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.{DataCacheService, ServiceInfoService, SubscriptionDataService}
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.AtedConstants._
+import utils.AtedConstants.*
 import views.html.BtaNavigationLinks
 import views.html.propertyDetails.chargeableReturnsConfirmation
 
@@ -44,92 +44,95 @@ import scala.concurrent.Future
 
 class ChargeableReturnConfirmationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with BeforeAndAfterEach with MockitoSugar with MockAuthUtil {
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
+  given hc: HeaderCarrier = HeaderCarrier()
 
   val mockMcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   val mockSubscriptionDataService: SubscriptionDataService = mock[SubscriptionDataService]
   val mockDataCacheService: DataCacheService = mock[DataCacheService]
   val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+
+  given messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+
   val btaNavigationLinksView: BtaNavigationLinks = app.injector.instanceOf[BtaNavigationLinks]
   val mockServiceInfoService: ServiceInfoService = mock[ServiceInfoService]
   val organisationName: String = "ACME Limited"
   val injectedViewInstance: chargeableReturnsConfirmation = app.injector.instanceOf[views.html.propertyDetails.chargeableReturnsConfirmation]
 
-class Setup {
+  class Setup {
 
-  val mockAuthAction: AuthAction = new AuthAction(
-    mockAppConfig,
-    mockDelegationService,
-    mockAuthConnector
-  )
+    val mockAuthAction: AuthAction = new AuthAction(
+      mockAppConfig,
+      mockDelegationService,
+      mockAuthConnector
+    )
 
-  val testChargeableReturnConfirmationController: ChargeableReturnConfirmationController = new ChargeableReturnConfirmationController (
-    mockMcc,
-    mockSubscriptionDataService,
-    mockAuthAction,
-    mockServiceInfoService,
-    mockDataCacheService,
-    injectedViewInstance
-  )
+    val testChargeableReturnConfirmationController: ChargeableReturnConfirmationController = new ChargeableReturnConfirmationController(
+      mockMcc,
+      mockSubscriptionDataService,
+      mockAuthAction,
+      mockServiceInfoService,
+      mockDataCacheService,
+      injectedViewInstance
+    )
 
-  def confirmationWithAuthorisedUser(test: Future[Result] => Any): Unit = {
-    val userId = s"user-${UUID.randomUUID}"
-    val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
-    setAuthMocks(authMock)
-    val liabilityReturnResponse = LiabilityReturnResponse(mode = "Post", propertyKey = "1",
-      liabilityAmount = BigDecimal("123"), paymentReference = Some("Payment-123"), formBundleNumber = "form-bundle-123")
-    val submitReturnsResponse = SubmitReturnsResponse(processingDate = ZonedDateTime.now().toString, None, liabilityReturnResponse =
-      Some(Seq(liabilityReturnResponse)))
-    when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
-    when(mockDataCacheService.fetchAndGetData[SubmitReturnsResponse](ArgumentMatchers.eq(SubmitReturnsResponseFormId))
-      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(submitReturnsResponse)))
+    def confirmationWithAuthorisedUser(test: Future[Result] => Any): Unit = {
+      val userId = s"user-${UUID.randomUUID}"
+      val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
+      setAuthMocks(authMock)
+      val liabilityReturnResponse = LiabilityReturnResponse(mode = "Post", propertyKey = "1",
+        liabilityAmount = BigDecimal("123"), paymentReference = Some("Payment-123"), formBundleNumber = "form-bundle-123")
+      val submitReturnsResponse = SubmitReturnsResponse(processingDate = ZonedDateTime.now().toString, None, liabilityReturnResponse =
+        Some(Seq(liabilityReturnResponse)))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages, mockAppConfig)))
+      when(mockDataCacheService.fetchAndGetData[SubmitReturnsResponse](ArgumentMatchers.eq(SubmitReturnsResponseFormId))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(submitReturnsResponse)))
 
-    val result = testChargeableReturnConfirmationController.confirmation.apply(SessionBuilder.buildRequestWithSession(userId))
-    test(result)
+      val result = testChargeableReturnConfirmationController.confirmation.apply(SessionBuilder.buildRequestWithSession(userId))
+      test(result)
+    }
+
+    def confirmationWithAuthorisedUserNotFound(test: Future[Result] => Any): Unit = {
+      val userId = s"user-${UUID.randomUUID}"
+      val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
+      setAuthMocks(authMock)
+      when(mockDataCacheService.fetchAndGetData[SubmitReturnsResponse](ArgumentMatchers.eq(SubmitReturnsResponseFormId))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+
+      val result = testChargeableReturnConfirmationController.confirmation.apply(SessionBuilder.buildRequestWithSession(userId))
+      test(result)
+    }
+
+    def confirmationWithUnAuthorisedUser(test: Future[Result] => Any): Unit = {
+      val userId = s"user-${UUID.randomUUID}"
+      val authMock = authResultDefault(AffinityGroup.Organisation, invalidEnrolmentSet)
+      setInvalidAuthMocks(authMock)
+      val result = testChargeableReturnConfirmationController.confirmation.apply(SessionBuilder.buildRequestWithSession(userId))
+      test(result)
+    }
+
+    def confirmationWithUnAuthenticated(test: Future[Result] => Any): Unit = {
+      val result = testChargeableReturnConfirmationController.confirmation.apply(SessionBuilder.buildRequestWithSessionNoUser)
+      test(result)
+    }
+
+    def getPrintFriendlyWithAuthorisedUser(test: Future[Result] => Any): Unit = {
+      val userId = s"user-${UUID.randomUUID}"
+      val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
+      setAuthMocks(authMock)
+      val liabilityReturnResponse = LiabilityReturnResponse(mode = "Post", propertyKey = "1",
+        liabilityAmount = BigDecimal("123"), paymentReference = Some("Payment-123"), formBundleNumber = "form-bundle-123")
+      val submitReturnsResponse = SubmitReturnsResponse(processingDate = ZonedDateTime.now().toString, None, liabilityReturnResponse =
+        Some(Seq(liabilityReturnResponse)))
+      when(mockDataCacheService.fetchAndGetData[SubmitReturnsResponse](ArgumentMatchers.eq(SubmitReturnsResponseFormId))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(submitReturnsResponse)))
+      when(mockSubscriptionDataService.getOrganisationName(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(organisationName)))
+
+      val result = testChargeableReturnConfirmationController.viewPrintFriendlyChargeableConfirmation.apply(SessionBuilder.buildRequestWithSession(userId))
+      test(result)
+    }
   }
-
-  def confirmationWithAuthorisedUserNotFound(test: Future[Result] => Any): Unit = {
-    val userId = s"user-${UUID.randomUUID}"
-    val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
-    setAuthMocks(authMock)
-    when(mockDataCacheService.fetchAndGetData[SubmitReturnsResponse](ArgumentMatchers.eq(SubmitReturnsResponseFormId))
-      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
-
-    val result = testChargeableReturnConfirmationController.confirmation.apply(SessionBuilder.buildRequestWithSession(userId))
-    test(result)
-  }
-
-  def confirmationWithUnAuthorisedUser(test: Future[Result] => Any): Unit = {
-    val userId = s"user-${UUID.randomUUID}"
-    val authMock = authResultDefault(AffinityGroup.Organisation, invalidEnrolmentSet)
-    setInvalidAuthMocks(authMock)
-    val result = testChargeableReturnConfirmationController.confirmation.apply(SessionBuilder.buildRequestWithSession(userId))
-    test(result)
-  }
-
-  def confirmationWithUnAuthenticated(test: Future[Result] => Any): Unit = {
-    val result = testChargeableReturnConfirmationController.confirmation.apply(SessionBuilder.buildRequestWithSessionNoUser)
-    test(result)
-  }
-
-  def getPrintFriendlyWithAuthorisedUser(test: Future[Result] => Any): Unit = {
-    val userId = s"user-${UUID.randomUUID}"
-    val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
-    setAuthMocks(authMock)
-    val liabilityReturnResponse = LiabilityReturnResponse(mode = "Post", propertyKey = "1",
-      liabilityAmount = BigDecimal("123"), paymentReference = Some("Payment-123"), formBundleNumber = "form-bundle-123")
-    val submitReturnsResponse = SubmitReturnsResponse(processingDate = ZonedDateTime.now().toString, None, liabilityReturnResponse =
-      Some(Seq(liabilityReturnResponse)))
-    when(mockDataCacheService.fetchAndGetData[SubmitReturnsResponse](ArgumentMatchers.eq(SubmitReturnsResponseFormId))
-      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(submitReturnsResponse)))
-    when(mockSubscriptionDataService.getOrganisationName(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(organisationName)))
-
-    val result = testChargeableReturnConfirmationController.viewPrintFriendlyChargeableConfirmation.apply(SessionBuilder.buildRequestWithSession(userId))
-    test(result)
-  }
-}
 
   override def beforeEach(): Unit = {
 

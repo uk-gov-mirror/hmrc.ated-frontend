@@ -19,7 +19,7 @@ package controllers.propertyDetails
 import config.ApplicationConfig
 import controllers.auth.{AuthAction, ClientHelper}
 import forms.PropertyDetailsForms
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import play.api.i18n.{Messages, MessagesImpl}
 
 import javax.inject.Inject
@@ -37,14 +37,14 @@ class PeriodInReliefDatesController @Inject()(mcc: MessagesControllerComponents,
                                               val propertyDetailsService: PropertyDetailsService,
                                               val backLinkCacheService: BackLinkCacheService,
                                               template: views.html.propertyDetails.periodInReliefDates)
-                                             (implicit val appConfig: ApplicationConfig)
+                                             (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = "PeriodInReliefDatesController"
 
-  implicit lazy val messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
+  given messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
 
   val dateFields = Seq(("startDate", Messages("ated.property-details-period.datesInRelief.startDate.messageKey")),
     ("endDate", Messages("ated.property-details-period.datesInRelief.endDate.messageKey")))

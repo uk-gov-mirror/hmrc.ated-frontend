@@ -39,10 +39,10 @@ class EditLiabilityHasValueChangedController @Inject()(mcc: MessagesControllerCo
                                                        val dataCacheService: DataCacheService,
                                                        val backLinkCacheService: BackLinkCacheService,
                                                        template: views.html.editLiability.editLiabilityHasValueChanged)
-                                                      (implicit val appConfig: ApplicationConfig)
+                                                      (using val appConfig: ApplicationConfig)
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   val controllerId: String = "EditLiabilityHasValueChangedController"
 

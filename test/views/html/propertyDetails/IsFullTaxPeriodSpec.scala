@@ -26,10 +26,10 @@ import play.twirl.api.Html
 import testhelpers.{AtedViewSpec, MockAuthUtil}
 
 class IsFullTaxPeriodSpec extends AtedViewSpec with MockitoSugar with MockAuthUtil {
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
   val injectedViewInstance: isFullTaxPeriod = app.injector.instanceOf[views.html.propertyDetails.isFullTaxPeriod]
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   private val form = PropertyDetailsForms.isFullTaxPeriodForm.withError("isFullPeriod",
     messages("ated.property-details-period.isFullPeriod.error-field-name"))
   override def view: Html = injectedViewInstance("",0,  form, LocalDate.now(), LocalDate.now(), None, Html(""), Some("backLink"))

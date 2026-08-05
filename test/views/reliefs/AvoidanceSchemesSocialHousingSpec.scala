@@ -34,12 +34,12 @@ import views.html.reliefs
 
 class AvoidanceSchemesSocialHousingSpec extends AnyFeatureSpec with GuiceOneAppPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen with MockAuthUtil {
 
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   val injectedViewInstance: reliefs.avoidanceSchemes = app.injector.instanceOf[views.html.reliefs.avoidanceSchemes]
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
 
   Feature("The user can view the relief avoidance scheme page") {
 

@@ -20,10 +20,10 @@ import java.util.UUID
 import builders.{SessionBuilder, TitleBuilder}
 import config.ApplicationConfig
 import controllers.auth.AuthAction
-import models._
+import models.*
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -33,7 +33,7 @@ import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.{DataCacheService, DetailsService, ServiceInfoService, SubscriptionDataService}
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.auth.core.AffinityGroup
@@ -45,15 +45,15 @@ import scala.concurrent.Future
 
 class CorrespondenceAddressControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with MockAuthUtil {
 
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given hc: HeaderCarrier = HeaderCarrier()
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   val mockMcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   val mockDataCacheService: DataCacheService = mock[DataCacheService]
   val mockSubscriptionDataService: SubscriptionDataService = mock[SubscriptionDataService]
   val mockDetailsService: DetailsService = mock[DetailsService]
   val mockEnvironment: Environment = app.injector.instanceOf[Environment]
   val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+  given messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
   val btaNavigationLinksView: BtaNavigationLinks = app.injector.instanceOf[BtaNavigationLinks]
   val mockServiceInfoService: ServiceInfoService = mock[ServiceInfoService]
   val injectedViewInstance: correspondenceAddress = app.injector.instanceOf[views.html.subcriptionData.correspondenceAddress]
@@ -82,9 +82,9 @@ class CorrespondenceAddressControllerSpec extends PlaySpec with GuiceOneServerPe
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
-      when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
-      when(mockSubscriptionDataService.getCorrespondenceAddress(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(companyDetails))
-      val result = testCorrespondenceAddressController.editAddress().apply(SessionBuilder.buildRequestWithSession(userId))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
+      when(mockSubscriptionDataService.getCorrespondenceAddress(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(companyDetails))
+      val result = testCorrespondenceAddressController.editAddress.apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
     }
 
@@ -92,7 +92,7 @@ class CorrespondenceAddressControllerSpec extends PlaySpec with GuiceOneServerPe
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, invalidEnrolmentSet)
       setInvalidAuthMocks(authMock)
-      val result = testCorrespondenceAddressController.editAddress().apply(SessionBuilder.buildRequestWithSession(userId))
+      val result = testCorrespondenceAddressController.editAddress.apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
     }
 
@@ -101,9 +101,9 @@ class CorrespondenceAddressControllerSpec extends PlaySpec with GuiceOneServerPe
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
-      when(mockSubscriptionDataService.updateCorrespondenceAddressDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSubscriptionDataService.updateCorrespondenceAddressDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(testAddress))
-      val result = testCorrespondenceAddressController.submit().apply(SessionBuilder.updateRequestWithSession(fakeRequest, userId))
+      val result = testCorrespondenceAddressController.submit.apply(SessionBuilder.updateRequestWithSession(fakeRequest, userId))
 
       test(result)
     }
@@ -112,7 +112,7 @@ class CorrespondenceAddressControllerSpec extends PlaySpec with GuiceOneServerPe
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, invalidEnrolmentSet)
       setInvalidAuthMocks(authMock)
-      val result = testCorrespondenceAddressController.submit().apply(SessionBuilder.buildRequestWithSession(userId))
+      val result = testCorrespondenceAddressController.submit.apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
     }
   }
@@ -313,42 +313,42 @@ class CorrespondenceAddressControllerSpec extends PlaySpec with GuiceOneServerPe
                 }
               }
 
-            "If entered, Address line 1 must be maximum of 35 characters" in new Setup {
-              val inputJson: JsValue = Json.parse(
-                """{
-                  |"addressType": "",
-                  |"addressLine1": "AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDD",
-                  |"addressLine2": "",
-                  |"addressLine3": "",
-                  |"addressLine4": "",
-                  |"postalCode": "",
-                  |"countryCode": ""}""".stripMargin)
-              val addressDetails: AddressDetails = inputJson.as[AddressDetails]
-              submitWithAuthorisedUserSuccess(Some(addressDetails))(FakeRequest().withJsonBody(inputJson)) {
-                result =>
-                  status(result) must be(BAD_REQUEST)
-                  contentAsString(result) must include("Address line 1 cannot be more than 35 characters")
+              "If entered, Address line 1 must be maximum of 35 characters" in new Setup {
+                val inputJson: JsValue = Json.parse(
+                  """{
+                    |"addressType": "",
+                    |"addressLine1": "AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDD",
+                    |"addressLine2": "",
+                    |"addressLine3": "",
+                    |"addressLine4": "",
+                    |"postalCode": "",
+                    |"countryCode": ""}""".stripMargin)
+                val addressDetails: AddressDetails = inputJson.as[AddressDetails]
+                submitWithAuthorisedUserSuccess(Some(addressDetails))(FakeRequest().withJsonBody(inputJson)) {
+                  result =>
+                    status(result) must be(BAD_REQUEST)
+                    contentAsString(result) must include("Address line 1 cannot be more than 35 characters")
+                }
               }
-            }
 
 
-            "If entered, Address line 2 must be maximum of 35 characters" in new Setup {
-              val inputJson: JsValue = Json.parse(
-                """{
-                  |"addressType": "",
-                  |"addressLine1": "",
-                  |"addressLine2": "AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDD",
-                  |"addressLine3": "",
-                  |"addressLine4": "",
-                  |"postalCode": "",
-                  |"countryCode": ""}""".stripMargin)
-              val addressDetails: AddressDetails = inputJson.as[AddressDetails]
-              submitWithAuthorisedUserSuccess(Some(addressDetails))(FakeRequest().withJsonBody(inputJson)) {
-                result =>
-                  status(result) must be(BAD_REQUEST)
-                  contentAsString(result) must include("Address line 2 cannot be more than 35 characters")
+              "If entered, Address line 2 must be maximum of 35 characters" in new Setup {
+                val inputJson: JsValue = Json.parse(
+                  """{
+                    |"addressType": "",
+                    |"addressLine1": "",
+                    |"addressLine2": "AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDD",
+                    |"addressLine3": "",
+                    |"addressLine4": "",
+                    |"postalCode": "",
+                    |"countryCode": ""}""".stripMargin)
+                val addressDetails: AddressDetails = inputJson.as[AddressDetails]
+                submitWithAuthorisedUserSuccess(Some(addressDetails))(FakeRequest().withJsonBody(inputJson)) {
+                  result =>
+                    status(result) must be(BAD_REQUEST)
+                    contentAsString(result) must include("Address line 2 cannot be more than 35 characters")
+                }
               }
-            }
               "If entered, Address line 3 must be maximum of 35 characters" in new Setup {
                 val inputJson: JsValue = Json.parse(
                   """{

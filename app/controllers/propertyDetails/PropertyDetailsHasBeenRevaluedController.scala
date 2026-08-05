@@ -41,10 +41,10 @@ class PropertyDetailsHasBeenRevaluedController @Inject()(mcc: MessagesController
                                                          dateOfChangeController: PropertyDetailsDateOfChangeController,
                                                          exitController: PropertyDetailsExitController
                                                         )(
-                                                          implicit val appConfig: ApplicationConfig
+                                                          using val appConfig: ApplicationConfig
                                                         ) extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = "PropertyDetailsHasBeenRevaluedController"
 
   def view(id: String): Action[AnyContent] = Action.async { implicit request =>

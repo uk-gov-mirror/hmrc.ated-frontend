@@ -24,30 +24,30 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait BackLinkService {
 
-  implicit val ec: ExecutionContext
+  given ec: ExecutionContext
   val controllerId: String
   val backLinkCacheService: BackLinkCacheService
 
-  private def setBackLink(pageId: String, returnUrl: Option[String])(implicit hc: HeaderCarrier): Future[Option[String]] = {
+  private def setBackLink(pageId: String, returnUrl: Option[String])(using hc: HeaderCarrier): Future[Option[String]] = {
     backLinkCacheService.saveBackLink(pageId, returnUrl)
   }
 
-  def getBackLink(pageId: String)(implicit hc: HeaderCarrier): Future[Option[String]] = {
+  def getBackLink(pageId: String)(using hc: HeaderCarrier): Future[Option[String]] = {
     backLinkCacheService.fetchAndGetBackLink(pageId)
   }
 
-  def currentBackLink(implicit hc: HeaderCarrier): Future[Option[String]] = {
+  def currentBackLink(using hc: HeaderCarrier): Future[Option[String]] = {
     getBackLink(controllerId)
   }
 
-  def clearBackLinks(pageIds: List[String] = Nil)(implicit hc: HeaderCarrier): Future[List[Option[String]]] = {
+  def clearBackLinks(pageIds: List[String] = Nil)(using hc: HeaderCarrier): Future[List[Option[String]]] = {
     pageIds match {
       case Nil => Future.successful(Nil)
       case _   => backLinkCacheService.clearBackLinks(pageIds)
     }
   }
 
-  def forwardBackLinkToNextPage(nextPageId: String, redirectCall: Call)(implicit hc: HeaderCarrier): Future[Result] = {
+  def forwardBackLinkToNextPage(nextPageId: String, redirectCall: Call)(using hc: HeaderCarrier): Future[Result] = {
     for {
       currentBackLink <- currentBackLink
       _               <- setBackLink(nextPageId, currentBackLink)
@@ -57,7 +57,7 @@ trait BackLinkService {
   }
 
   def redirectWithBackLink(nextPageId: String, redirectCall: Call, backCall: Option[String], pageIds: List[String]=Nil)
-                          (implicit hc: HeaderCarrier): Future[Result] = {
+                          (using hc: HeaderCarrier): Future[Result] = {
     for {
       _ <- setBackLink(nextPageId, backCall)
       _ <- clearBackLinks(pageIds)
@@ -67,7 +67,7 @@ trait BackLinkService {
   }
 
   def redirectWithBackLinkDontOverwriteOldLink(nextPageId: String, redirectCall: Call, backCall: Option[String])
-                                              (implicit hc: HeaderCarrier): Future[Result] = {
+                                              (using hc: HeaderCarrier): Future[Result] = {
     for {
       oldBackLink <- getBackLink(nextPageId)
       _ <- oldBackLink match {

@@ -23,8 +23,8 @@ import play.api.test.FakeRequest
 
 class PropertyDetailsFormsSpec extends PlaySpec with GuiceOneServerPerSuite {
 
-  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  implicit lazy val messages: Messages = messagesApi.preferred(FakeRequest())
+  given messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  given messages: Messages = messagesApi.preferred(FakeRequest())
 
   "propertyDetailsAddressForm" must {
 

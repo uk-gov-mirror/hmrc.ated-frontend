@@ -18,7 +18,7 @@ package views
 
 import builders.PropertyDetailsBuilder
 import config.ApplicationConfig
-import models._
+import models.*
 import java.time.LocalDate
 import org.jsoup.Jsoup
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
@@ -36,10 +36,10 @@ import views.html.formBundleReturn
 class FormBundleReturnSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with MockitoSugar
   with BeforeAndAfterEach with GivenWhenThen with MockAuthUtil {
 
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
 
   val injectedViewInstance: formBundleReturn = app.injector.instanceOf[views.html.formBundleReturn]
 

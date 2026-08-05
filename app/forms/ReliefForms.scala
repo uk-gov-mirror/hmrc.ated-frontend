@@ -16,12 +16,12 @@
 
 package forms
 
-import models._
+import models.*
 import java.time.LocalDate
-import play.api.data.Forms._
+import play.api.data.Forms.*
 import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.data.{Form, FormError, Mapping}
-import utils.PeriodUtils._
+import utils.PeriodUtils.*
 import scala.annotation.tailrec
 import scala.util.Try
 
@@ -75,7 +75,7 @@ object ReliefForms {
     "equityReleaseDate" -> dateTuple(),
     "isAvoidanceScheme" -> optional(boolean)
   )
-  (Reliefs.apply)(Reliefs.unapply)
+  (Reliefs.apply)(x => Some(Tuple.fromProductTyped(x)))
     .verifying(reliefSelectedConstraint)
   )
 
@@ -130,7 +130,7 @@ object ReliefForms {
 
     "isAvoidanceScheme" -> optional(boolean)
   )
-  (IsTaxAvoidance.apply)(IsTaxAvoidance.unapply)
+  (IsTaxAvoidance.apply)(x => Some(x.isAvoidanceScheme))
     .verifying(avoidanceSchemeConstraint)
   )
 
@@ -154,7 +154,7 @@ object ReliefForms {
     "equityReleaseScheme" -> optional(text),
     "equityReleaseSchemePromoter" -> optional(text)
   )
-  (TaxAvoidance.apply)(TaxAvoidance.unapply)
+  (TaxAvoidance.apply)(x => Some(Tuple.fromProductTyped(x)))
   )
 
   //scalastyle:off cyclomatic.complexity
@@ -244,7 +244,7 @@ object ReliefForms {
         case (Some(y), Some(m), Some(d)) =>
           try Some(LocalDate.of(y.trim.toInt, m.trim.toInt, d.trim.toInt))
           catch {
-            case e: Exception => None
+            case _: Exception => None
           }
         case (a, b, c)                   => None
       },

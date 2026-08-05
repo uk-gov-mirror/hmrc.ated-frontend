@@ -23,7 +23,7 @@ import models.EditLiabilityReturnsResponseModel
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{DataCacheService, ServiceInfoService, SubscriptionDataService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.AtedConstants._
+import utils.AtedConstants.*
 
 import scala.concurrent.ExecutionContext
 
@@ -34,10 +34,10 @@ class DisposeLiabilitySentController @Inject()(mcc: MessagesControllerComponents
                                                serviceInfoService: ServiceInfoService,
                                                val dataCacheService: DataCacheService,
                                                template: views.html.editLiability.disposeLiabilitySent)
-                                              (implicit val appConfig: ApplicationConfig)
+                                              (using val appConfig: ApplicationConfig)
   extends FrontendController(mcc) with ClientHelper {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   def view(oldFormBundleNo: String): Action[AnyContent] = Action.async { implicit request =>
     authAction.authorisedAction { implicit authContext =>

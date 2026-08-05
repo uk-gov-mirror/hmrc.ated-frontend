@@ -25,7 +25,8 @@ import models.ReturnType
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{BackLinkCacheService, BackLinkService, DataCacheService, ServiceInfoService, SummaryReturnsService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.AtedConstants._
+import utils.AtedConstants.*
+
 import uk.gov.hmrc.play.bootstrap.controller.WithUnsafeDefaultFormBinding
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -37,12 +38,12 @@ class ReturnTypeController @Inject()(mcc: MessagesControllerComponents,
                                      val dataCacheService: DataCacheService,
                                      val backLinkCacheService: BackLinkCacheService,
                                      template: views.html.returnType)
-                                    (implicit val appConfig: ApplicationConfig)
+                                    (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with BackLinkService with ClientHelper with ControllerIds with WithUnsafeDefaultFormBinding {
 
   val controllerId: String = "ReturnTypeController"
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   def view(periodKey: Int): Action[AnyContent] = Action.async { implicit request =>
     authAction.authorisedAction { implicit authContext =>

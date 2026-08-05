@@ -24,7 +24,7 @@ import forms.AtedForms.emailLength
 import models._
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -33,7 +33,7 @@ import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.{DataCacheService, ServiceInfoService, SubscriptionDataService}
 import testhelpers.{MockAuthUtil, TestUtil}
 import uk.gov.hmrc.auth.core.AffinityGroup
@@ -45,13 +45,17 @@ import scala.concurrent.Future
 class EditContactEmailControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach
   with MockAuthUtil with TestUtil {
 
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given hc: HeaderCarrier = HeaderCarrier()
+
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
   val mockMcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   val mockDataCacheService: DataCacheService = mock[DataCacheService]
   val mockSubscriptionDataService: SubscriptionDataService = mock[SubscriptionDataService]
-    val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+  val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+
+  given messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+
   val btaNavigationLinksView: BtaNavigationLinks = app.injector.instanceOf[BtaNavigationLinks]
   val mockServiceInfoService: ServiceInfoService = mock[ServiceInfoService]
   val injectedViewInstance = app.injector.instanceOf[views.html.subcriptionData.editContactEmail]
@@ -76,7 +80,7 @@ lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesA
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, invalidEnrolmentSet)
       setInvalidAuthMocks(authMock)
-      val result = testEditContactEmailController.edit().apply(SessionBuilder.buildRequestWithSession(userId))
+      val result = testEditContactEmailController.edit.apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
     }
 
@@ -84,10 +88,10 @@ lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesA
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
-      when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
-      when(mockSubscriptionDataService.getEmailWithConsent(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(contactDetailsEmail))
-      val result = testEditContactEmailController.edit().apply(SessionBuilder.buildRequestWithSession(userId))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(btaNavigationLinksView()(messages, mockAppConfig)))
+      when(mockSubscriptionDataService.getEmailWithConsent(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(contactDetailsEmail))
+      val result = testEditContactEmailController.edit.apply(SessionBuilder.buildRequestWithSession(userId))
 
       test(result)
     }
@@ -97,7 +101,7 @@ lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesA
       val authMock = authResultDefault(AffinityGroup.Organisation, invalidEnrolmentSet)
       setInvalidAuthMocks(authMock)
 
-      val result = testEditContactEmailController.submit().apply(SessionBuilder.buildRequestWithSession(userId))
+      val result = testEditContactEmailController.submit.apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
     }
 
@@ -106,8 +110,8 @@ lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesA
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
-      when(mockSubscriptionDataService.editEmailWithConsent(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(testAddress))
-      val result = testEditContactEmailController.submit().apply(SessionBuilder.updateRequestWithSession(fakeRequest, userId))
+      when(mockSubscriptionDataService.editEmailWithConsent(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(testAddress))
+      val result = testEditContactEmailController.submit.apply(SessionBuilder.updateRequestWithSession(fakeRequest, userId))
 
       test(result)
 
@@ -134,7 +138,7 @@ lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesA
           result =>
             status(result) must be(OK)
             val document = Jsoup.parse(contentAsString(result))
-            document.title() must be (TitleBuilder.buildTitle("Edit your ATED email address"))
+            document.title() must be(TitleBuilder.buildTitle("Edit your ATED email address"))
             document.getElementById("emailConsent").attributes.hasKey("checked") mustBe false
             document.getElementById("emailConsent-2").attributes.hasKey("checked") mustBe false
             document.getElementById("emailAddress").attr("value") must be("")
@@ -179,9 +183,9 @@ lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesA
       "Authorised users" must {
         "validate form" must {
 
-          "Email addresses must not contain more than the allowed number of characters"  in new Setup {
+          "Email addresses must not contain more than the allowed number of characters" in new Setup {
             val emailTest: String = "a" * (emailLength - "@mail.com".length + 1) + "@mail.com"
-            val inputJson: JsValue = Json.parse( s"""{"emailAddress": "$emailTest", "emailConsent": true }""")
+            val inputJson: JsValue = Json.parse(s"""{"emailAddress": "$emailTest", "emailConsent": true }""")
 
             submitWithAuthorisedUserSuccess(None)(FakeRequest().withJsonBody(inputJson)) {
               result =>
@@ -191,7 +195,7 @@ lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesA
           }
 
           "Email address must be a valid email address format" in new Setup {
-            val inputJson: JsValue = Json.parse( s"""{ "emailAddress": "abcdef@com", "emailConsent": true }""")
+            val inputJson: JsValue = Json.parse(s"""{ "emailAddress": "abcdef@com", "emailConsent": true }""")
 
             submitWithAuthorisedUserSuccess(None)(FakeRequest().withJsonBody(inputJson)) {
               result =>
@@ -202,7 +206,7 @@ lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesA
           }
 
           "If edited contact address is valid, submit must redirect" in new Setup {
-            val inputJson: JsValue = Json.parse( s"""{ "emailAddress": "aa@mail.com", "emailConsent": true }""")
+            val inputJson: JsValue = Json.parse(s"""{ "emailAddress": "aa@mail.com", "emailConsent": true }""")
             val contactAddress: EditContactDetailsEmail = inputJson.as[EditContactDetailsEmail]
 
             submitWithAuthorisedUserSuccess(Some(contactAddress))(FakeRequest().withJsonBody(inputJson)) {

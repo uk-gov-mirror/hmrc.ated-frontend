@@ -18,7 +18,7 @@ package views.propertyDetails
 
 import builders.{PropertyDetailsBuilder, TitleBuilder}
 import config.ApplicationConfig
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import models.StandardAuthRetrievals
 import org.jsoup.Jsoup
 import org.scalatest.featurespec.AnyFeatureSpecLike
@@ -36,13 +36,17 @@ import views.html.propertyDetails.propertyDetailsAddress
 class PropertyDetailsAddressSpec extends AnyFeatureSpecLike with GuiceOneServerPerSuite with MockitoSugar
   with BeforeAndAfterEach with GivenWhenThen with MockAuthUtil {
 
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
+
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
   val injectedViewInstance: propertyDetailsAddress = app.injector.instanceOf[views.html.propertyDetails.propertyDetailsAddress]
 
-Feature("The user can view an empty property details page") {
+  Feature("The user can view an empty property details page") {
 
     info("as a user I want to view the correct page content")
 
@@ -50,7 +54,8 @@ Feature("The user can view an empty property details page") {
 
       Given("A user visits the page")
       When("The user views the page")
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       val html = injectedViewInstance(
         None, 2015, propertyDetailsAddressForm, None, Html(""), Some("backLink"), fromConfirmAddressPage = false)
@@ -69,11 +74,11 @@ Feature("The user can view an empty property details page") {
       assert(document.getElementById("lookup-address-link").text() === "Lookup address")
       assert(document.getElementById("lookup-address-link").attr("href") === "/ated/liability/create/address/lookup/2015")
 
-      assert(document.getElementsByAttributeValue("for","line_1").text() === "Address line 1")
-      assert(document.getElementsByAttributeValue("for","line_2").text() === "Address line 2")
-      assert(document.getElementsByAttributeValue("for","line_3").text() === "Address line 3 (optional)")
-      assert(document.getElementsByAttributeValue("for","line_4").text() === "Address line 4 (optional)")
-      assert(document.getElementsByAttributeValue("for","postcode").text() === "Postcode (optional)")
+      assert(document.getElementsByAttributeValue("for", "line_1").text() === "Address line 1")
+      assert(document.getElementsByAttributeValue("for", "line_2").text() === "Address line 2")
+      assert(document.getElementsByAttributeValue("for", "line_3").text() === "Address line 3 (optional)")
+      assert(document.getElementsByAttributeValue("for", "line_4").text() === "Address line 4 (optional)")
+      assert(document.getElementsByAttributeValue("for", "postcode").text() === "Postcode (optional)")
       assert(document.getElementsByClass("govuk-button").text() === "Save and continue")
 
       Then("The back link is correct")
@@ -84,7 +89,8 @@ Feature("The user can view an empty property details page") {
 
       Given("A user visits the page to edit data")
       When("The user views the page to edit data")
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       val propertyDetails = PropertyDetailsBuilder.getPropertyDetailsAddress(Some("postCode"))
       val html = injectedViewInstance(
@@ -95,7 +101,7 @@ Feature("The user can view an empty property details page") {
       assert(document.title() === TitleBuilder.buildTitle("Enter the address of the property manually"))
 
       And("The header text is - Manage your ATED service")
-      assert(document.getElementsByTag("h1").text() contains  "Enter the address of the property manually")
+      assert(document.getElementsByTag("h1").text() contains "Enter the address of the property manually")
 
       And("The pre-header text is - Manage your ATED service")
       assert(document.getElementsByClass("govuk-caption-xl").text() === "This section is: Change return")
@@ -104,11 +110,11 @@ Feature("The user can view an empty property details page") {
       assert(document.getElementById("lookup-address-link").text() === "Lookup address")
       assert(document.getElementById("lookup-address-link").attr("href") === "/ated/liability/create/address/lookup/2015?propertyKey=1&mode=editSubmitted")
 
-      assert(document.getElementsByAttributeValue("for","line_1").text() === "Address line 1")
-      assert(document.getElementsByAttributeValue("for","line_2").text() === "Address line 2")
-      assert(document.getElementsByAttributeValue("for","line_3").text() === "Address line 3 (optional)")
-      assert(document.getElementsByAttributeValue("for","line_4").text() === "Address line 4 (optional)")
-      assert(document.getElementsByAttributeValue("for","postcode").text() === "Postcode (optional)")
+      assert(document.getElementsByAttributeValue("for", "line_1").text() === "Address line 1")
+      assert(document.getElementsByAttributeValue("for", "line_2").text() === "Address line 2")
+      assert(document.getElementsByAttributeValue("for", "line_3").text() === "Address line 3 (optional)")
+      assert(document.getElementsByAttributeValue("for", "line_4").text() === "Address line 4 (optional)")
+      assert(document.getElementsByAttributeValue("for", "postcode").text() === "Postcode (optional)")
       assert(document.getElementsByClass("govuk-button").text() === "Save and continue")
 
       Then("The back link is correct")
@@ -127,7 +133,8 @@ Feature("The user can view an empty property details page") {
 
       When("The user views the page")
 
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
       val propertyDetails = PropertyDetailsBuilder.getPropertyDetailsAddress(Some("postCode"))
       val html = injectedViewInstance(
         Some("1"), 2015, propertyDetailsAddressForm.fill(propertyDetails), None, Html(""), Some("http://backLink"), fromConfirmAddressPage = true)
@@ -141,11 +148,11 @@ Feature("The user can view an empty property details page") {
       assert(document.select("h1 .govuk-caption-xl").text() contains "This section is: Create return")
 
       Then("The address fields and action button are displayed")
-      assert(document.getElementsByAttributeValue("for","line_1").text() === "Address line 1")
-      assert(document.getElementsByAttributeValue("for","line_2").text() === "Address line 2")
-      assert(document.getElementsByAttributeValue("for","line_3").text() === "Address line 3 (optional)")
-      assert(document.getElementsByAttributeValue("for","line_4").text() === "Address line 4 (optional)")
-      assert(document.getElementsByAttributeValue("for","postcode").text() === "Postcode (optional)")
+      assert(document.getElementsByAttributeValue("for", "line_1").text() === "Address line 1")
+      assert(document.getElementsByAttributeValue("for", "line_2").text() === "Address line 2")
+      assert(document.getElementsByAttributeValue("for", "line_3").text() === "Address line 3 (optional)")
+      assert(document.getElementsByAttributeValue("for", "line_4").text() === "Address line 4 (optional)")
+      assert(document.getElementsByAttributeValue("for", "postcode").text() === "Postcode (optional)")
 
       assert(document.getElementsByClass("govuk-button").text() === "Save and continue")
 

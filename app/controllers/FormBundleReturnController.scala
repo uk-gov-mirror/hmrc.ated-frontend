@@ -33,11 +33,11 @@ class FormBundleReturnController @Inject()(mcc: MessagesControllerComponents,
                                            serviceInfoService: ServiceInfoService,
                                            subscriptionDataService: SubscriptionDataService,
                                            template: views.html.formBundleReturn)
-                                          (implicit val appConfig: ApplicationConfig)
+                                          (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) {
 
-  implicit val ec : ExecutionContext = mcc.executionContext
+  given ec : ExecutionContext = mcc.executionContext
 
   def view(formBundleNumber: String, periodKey: Int): Action[AnyContent] = Action.async { implicit request =>
     authAction.authorisedAction { implicit authContext =>

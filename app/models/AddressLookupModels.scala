@@ -24,24 +24,24 @@ import play.api.libs.json.Writes._
 case class PreviousReturns(address: String, formBundleNumber: String, date: LocalDate, changeAllowed: Boolean)
 
 object PreviousReturns {
-  implicit val formats: OFormat[PreviousReturns] = Json.format[PreviousReturns]
+  given formats: OFormat[PreviousReturns] = Json.format[PreviousReturns]
 }
 
 case class AddressLookup(postcode: String, filter: Option[String])
 
 object AddressLookup {
-  implicit val formats: OFormat[AddressLookup] = Json.format[AddressLookup]
+  given formats: OFormat[AddressLookup] = Json.format[AddressLookup]
 }
 
 case class AddressSelected(selected: Option[String])
 
 object AddressSelected {
-  implicit val formats: OFormat[AddressSelected] = Json.format[AddressSelected]
+  given formats: OFormat[AddressSelected] = Json.format[AddressSelected]
 }
 
 case class AddressLookupCountry(code: String, name: String)
 object AddressLookupCountry {
-  implicit val formats: OFormat[AddressLookupCountry] = Json.format[AddressLookupCountry]
+  given formats: OFormat[AddressLookupCountry] = Json.format[AddressLookupCountry]
 }
 
 case class AddressSearchResult(lines: List[String],
@@ -57,18 +57,18 @@ case class AddressSearchResult(lines: List[String],
 }
 
 object AddressSearchResult {
-  implicit val formats: OFormat[AddressSearchResult] = Json.format[AddressSearchResult]
+  given formats: OFormat[AddressSearchResult] = Json.format[AddressSearchResult]
 }
 
 case class AddressLookupRecord(
                           uprn: Long,
                           address: AddressSearchResult)
 object AddressLookupRecord {
-  implicit val formats: OFormat[AddressLookupRecord] = Json.format[AddressLookupRecord]
+  given formats: OFormat[AddressLookupRecord] = Json.format[AddressLookupRecord]
 }
 
 case class AddressSearchResults(searchCriteria: AddressLookup, results: Seq[AddressLookupRecord])
 
 object AddressSearchResults {
-  implicit val formats: OFormat[AddressSearchResults] = Json.format[AddressSearchResults]
+  given formats: OFormat[AddressSearchResults] = Json.format[AddressSearchResults]
 }

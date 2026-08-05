@@ -16,6 +16,7 @@
 
 package test.controllers.reliefs
 
+import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import play.api.libs.ws.WSResponse
 import test.helpers.IntegrationBase
 import test.helpers.stubs.{AuthAudit, KeyStore}

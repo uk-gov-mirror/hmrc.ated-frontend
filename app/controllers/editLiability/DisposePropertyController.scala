@@ -38,14 +38,14 @@ class DisposePropertyController @Inject()(mcc: MessagesControllerComponents,
                                           val dataCacheService: DataCacheService,
                                           val backLinkCacheService: BackLinkCacheService,
                                           template: views.html.editLiability.dataOfDisposal)
-                                         (implicit val appConfig: ApplicationConfig)
+                                         (using val appConfig: ApplicationConfig)
   extends FrontendController(mcc) with BackLinkService with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   val controllerId: String = "DisposePropertyController"
 
-  implicit lazy val messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
+  given messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
 
   val dateFields = Seq(
     ("dateOfDisposal", Messages("ated.property-details-value.dateOfDisposal.messageKey"))

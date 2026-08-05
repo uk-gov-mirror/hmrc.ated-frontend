@@ -16,7 +16,7 @@
 
 package forms
 
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import forms.PropertyDetailsFormsValidation.formDate2Option
 import models.PropertyDetailsDatesLiable
 import java.time.LocalDate

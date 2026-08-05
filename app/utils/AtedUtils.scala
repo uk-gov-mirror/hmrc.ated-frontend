@@ -21,7 +21,7 @@ import models.{IsOwnedBefore2012, IsOwnedBefore2017, IsOwnedBefore2022, NotOwned
 
 import java.time.LocalDate
 import play.api.mvc.{AnyContent, Request}
-import utils.AtedConstants._
+import utils.AtedConstants.*
 
 import scala.language.postfixOps
 
@@ -147,7 +147,7 @@ object AtedUtils {
 
   def printNotProvidedIfEmpty(str: String): String = if (str == "") "ated.property-details-summary.field-blank" else str
 
-  def addParamsToRequest(params: Map[String, Seq[String]])(implicit request: Request[AnyContent]): Option[Map[String, Seq[String]]] = {
+  def addParamsToRequest(params: Map[String, Seq[String]])(using request: Request[AnyContent]): Option[Map[String, Seq[String]]] = {
     request.body.asFormUrlEncoded.map(c => c ++ params)
   }
 
@@ -178,7 +178,7 @@ object AtedUtils {
     }
 
   def getInitialValueForSubmission(propertyDetailsValue: Option[PropertyDetailsValue], periodKey: Int)
-                                  (implicit appConf: ApplicationConfig): Option[BigDecimal] = {
+                                  (using appConf: ApplicationConfig): Option[BigDecimal] = {
     propertyDetailsValue match {
       case None => None
       case Some(value) =>

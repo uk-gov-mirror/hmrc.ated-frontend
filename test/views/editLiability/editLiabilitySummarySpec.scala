@@ -32,16 +32,16 @@ import play.api.test.FakeRequest
 import play.twirl.api.Html
 import testhelpers.MockAuthUtil
 import utils.PeriodUtils
-import utils.PeriodUtils._
+import utils.PeriodUtils.*
 import views.html.editLiability.editLiabilitySummary
 
 class editLiabilitySummarySpec extends AnyFeatureSpec with GuiceOneServerPerSuite with MockitoSugar
   with BeforeAndAfterEach with GivenWhenThen with MockAuthUtil {
 
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
 
   val injectedViewInstance: editLiabilitySummary = app.injector.instanceOf[views.html.editLiability.editLiabilitySummary]
 

@@ -19,14 +19,14 @@ package connectors
 import java.util.UUID
 import builders._
 import config.ApplicationConfig
-import models._
-import org.mockito.Mockito._
+import models.*
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.Injecting
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.http.SessionId
@@ -38,8 +38,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with BeforeAndAfterEach with MockAuthUtil with Injecting {
 
-  implicit val ec: ExecutionContext = inject[ExecutionContext]
-  implicit val authContext: StandardAuthRetrievals = mock[StandardAuthRetrievals]
+  given ec: ExecutionContext = inject[ExecutionContext]
+  given authContext: StandardAuthRetrievals = mock[StandardAuthRetrievals]
   val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
 
   class Setup extends ConnectorTest {
@@ -59,7 +59,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
 
         val successResponse: JsValue = Json.toJson(reliefData)
 
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
         val result: Future[HttpResponse] = testAtedConnector.saveDraftReliefs("ATED-123", reliefData)
@@ -70,7 +70,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
 
         val successResponse: JsValue = Json.toJson(reliefData)
 
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
         val result: Future[HttpResponse] = testAtedConnector.saveDraftReliefs("ATED-123", reliefData)
@@ -81,7 +81,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
     "retrieve the Reliefs for a user" in new Setup {
       val reliefData: ReliefsTaxAvoidance = ReliefBuilder.reliefTaxAvoidance(periodKey)
 
-      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       when(requestBuilderExecute[Option[ReliefsTaxAvoidance]]).thenReturn(Future.successful(Some(reliefData)))
 
       val result: Future[HttpResponse] = testAtedConnector.retrievePeriodDraftReliefs("ATED-123", periodKey)
@@ -91,7 +91,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
     "retrieve the Reliefs for an agent" in new Setup {
       val reliefData: ReliefsTaxAvoidance = ReliefBuilder.reliefTaxAvoidance(periodKey)
 
-      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       when(requestBuilderExecute[Option[ReliefsTaxAvoidance]]).thenReturn(Future.successful(Some(reliefData)))
 
       val result: Future[HttpResponse] = testAtedConnector.retrievePeriodDraftReliefs("ATED-123", periodKey)
@@ -99,7 +99,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
     }
 
     "submit the Reliefs for a user" in new Setup {
-      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, "")))
 
       val result: Future[HttpResponse] = testAtedConnector.submitDraftReliefs("ATED-123", periodKey)
@@ -107,7 +107,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
     }
 
     "submit the Reliefs for an agent" in new Setup {
-      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, "")))
 
       val result: Future[HttpResponse] = testAtedConnector.submitDraftReliefs("ATED-123", periodKey)
@@ -116,7 +116,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
 
     "getDetails" must {
       "GET agent details from ETMP for a user" in new Setup {
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, "")))
 
         val result: Future[HttpResponse] = testAtedConnector.getDetails("AARN1234567", AtedConstants.IdentifierArn)
@@ -125,7 +125,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
       }
 
       "GET user details from ETMP for an agent" in new Setup {
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, "")))
 
         val result: Future[HttpResponse] = testAtedConnector.getDetails("XN1200000100001", AtedConstants.IdentifierSafeId)
@@ -135,7 +135,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
 
     "Return subscription data" must {
       "get the subscription data" in new Setup {
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         val successResponse: JsValue = Json.parse( """{}""")
         when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
@@ -144,7 +144,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
       }
 
       "throw 401 unauthorized in case bad retrieval of subscription data" in new Setup {
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         when(requestBuilderExecute[HttpResponse]).thenReturn(Future.failed(new UnauthorizedException("User does not have the correct authorisation")))
 
         val result: UnauthorizedException = intercept[UnauthorizedException]{await(testAtedConnector.retrieveSubscriptionData())}
@@ -159,7 +159,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
         ChangeIndicators(), List(Address(Some("name1"), Some("name2"), addressDetails = addressDetails)))
 
       "update the subscription data" in new Setup {
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         val successResponse: JsValue = Json.parse( """{}""")
         when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
@@ -172,7 +172,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
       val updateDetails: UpdateRegistrationDetailsRequest = RegistrationBuilder.getEtmpRegistrationUpdateRequest("oldName")
 
       "update the registration details" in new Setup {
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         val successResponse: JsValue = Json.parse( """{}""")
         when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
@@ -183,7 +183,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
 
     "Return form bundle" must {
       "view return" in new Setup {
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         val successResponse: JsValue = Json.parse( """{}""")
         when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
@@ -195,7 +195,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
 
     "retrieveAndCacheLiabilityReturn" must {
       "return HttpResponse" in new Setup {
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, "")))
         val result: Future[HttpResponse] = testAtedConnector.retrieveAndCacheLiabilityReturn("1")
         val response: HttpResponse = await(result)
@@ -205,7 +205,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
 
     "retrieveAndCachePreviousLiabilityReturn" must {
       "return HttpResponse" in new Setup {
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, "")))
         val result: Future[HttpResponse] = {
           testAtedConnector.retrieveAndCachePreviousLiabilityReturn("1", periodKey)
@@ -217,7 +217,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
 
     "cacheDraftChangeLiabilityReturnHasBankDetails" must {
       "return HttpResponse" in new Setup {
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, "")))
         val result: Future[HttpResponse] = {
           testAtedConnector.cacheDraftChangeLiabilityReturnHasBank("1", hasBankDetails = true)
@@ -230,7 +230,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
 
     "cacheDraftChangeLiabilityReturnBank" must {
       "return HttpResponse" in new Setup {
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, "")))
         val bankDetails: BankDetails = BankDetails()
         val result: Future[HttpResponse] = testAtedConnector.cacheDraftChangeLiabilityReturnBank("1", bankDetails)
@@ -241,7 +241,7 @@ class AtedConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
 
     "cacheDraftChangeLiabilityHasUkBankAccount" must {
       "return HttpResponse" in new Setup {
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, "")))
         val result: Future[HttpResponse] = testAtedConnector.cacheDraftChangeLiabilityHasUkBankAccount("1", updatedValue = true)
         val response: HttpResponse = await(result)

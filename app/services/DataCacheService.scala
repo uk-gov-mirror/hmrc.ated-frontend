@@ -24,17 +24,17 @@ import uk.gov.hmrc.mongo.cache.DataKey
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DataCacheService @Inject()(sessionCache: CacheRepository)(implicit ec: ExecutionContext) {
+class DataCacheService @Inject()(sessionCache: CacheRepository)(using ec: ExecutionContext) {
 
   def dataKey[T](formId: String): DataKey[T] = DataKey[T](formId)
 
-  def saveFormData[T](formId: String, data: T)(implicit hc: HeaderCarrier, formats: Format[T]): Future[T] =
+  def saveFormData[T](formId: String, data: T)(using hc: HeaderCarrier, formats: Format[T]): Future[T] =
     sessionCache.putSession(dataKey(formId), data)
 
-  def fetchAndGetData[T](formId: String)(implicit hc: HeaderCarrier, formats: Format[T]): Future[Option[T]] =
+  def fetchAndGetData[T](formId: String)(using hc: HeaderCarrier, formats: Format[T]): Future[Option[T]] =
     sessionCache.getFromSession[T](dataKey(formId))
 
-  def clearCache()(implicit hc: HeaderCarrier): Future[Unit] =
+  def clearCache()(using hc: HeaderCarrier): Future[Unit] =
     sessionCache.deleteFromSession
 
 }

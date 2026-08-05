@@ -32,10 +32,10 @@ class DisposeLiabilityDeclarationController @Inject()(mcc: MessagesControllerCom
                                                       val dataCacheService: DataCacheService,
                                                       val backLinkCacheService: BackLinkCacheService,
                                                       template: views.html.editLiability.disposeLiabilityDeclaration)
-                                                      (implicit val appConfig: ApplicationConfig)
+                                                      (using val appConfig: ApplicationConfig)
   extends FrontendController(mcc) with BackLinkService with ClientHelper {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   val controllerId: String = "DisposeLiabilityDeclarationController"
 

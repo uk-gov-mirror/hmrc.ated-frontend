@@ -18,24 +18,24 @@ package services
 
 import connectors.AtedConnector
 import javax.inject.Inject
-import models._
+import models.*
 import java.time.ZonedDateTime
 import play.api.Logging
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.AtedConstants._
+import utils.AtedConstants.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class ChangeLiabilityReturnService @Inject()(mcc: MessagesControllerComponents,
                                              atedConnector: AtedConnector,
                                              dataCacheService: DataCacheService) extends FrontendController(mcc) with Logging {
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
 
   def retrieveSubmittedLiabilityReturnAndCache(oldFormBundleNo: String, fromSelectedPastReturn: Option[Boolean] = None, periodKey: Option[SelectPeriod] = None)
-                             (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[PropertyDetails]] = {
+                             (using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[PropertyDetails]] = {
     (fromSelectedPastReturn, periodKey) match {
       case (Some(true), Some(x)) =>
         atedConnector.retrieveAndCachePreviousLiabilityReturn(oldFormBundleNo, x.period.get.toInt) map {
@@ -59,7 +59,7 @@ class ChangeLiabilityReturnService @Inject()(mcc: MessagesControllerComponents,
   }
 
   def cacheChangeLiabilityReturnHasBankDetails(oldFormBundleNo: String, updatedValue: Boolean)
-                                    (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[PropertyDetails]] = {
+                                    (using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[PropertyDetails]] = {
     atedConnector.cacheDraftChangeLiabilityReturnHasBank(oldFormBundleNo, updatedValue) map {
       response => response.status match {
         case OK => response.json.asOpt[PropertyDetails]
@@ -70,7 +70,7 @@ class ChangeLiabilityReturnService @Inject()(mcc: MessagesControllerComponents,
 
 
   def cacheChangeLiabilityReturnBank(oldFormBundleNo: String, updatedValue: BankDetails)
-                                    (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[PropertyDetails]]  = {
+                                    (using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[PropertyDetails]]  = {
     atedConnector.cacheDraftChangeLiabilityReturnBank(oldFormBundleNo, updatedValue) map {
       response => response.status match {
         case OK => response.json.asOpt[PropertyDetails]
@@ -80,7 +80,7 @@ class ChangeLiabilityReturnService @Inject()(mcc: MessagesControllerComponents,
   }
 
   def cacheChangeLiabilityHasUkBankAccount(oldFormBundleNo: String, hasUkBankAccount: Boolean)
-                                    (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[PropertyDetails]]  = {
+                                    (using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[PropertyDetails]]  = {
     atedConnector.cacheDraftChangeLiabilityHasUkBankAccount(oldFormBundleNo, hasUkBankAccount) map {
       response => response.status match {
         case OK => response.json.asOpt[PropertyDetails]
@@ -90,7 +90,7 @@ class ChangeLiabilityReturnService @Inject()(mcc: MessagesControllerComponents,
   }
 
   def submitDraftChangeLiability(oldFormBundleNo: String)
-                                (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[EditLiabilityReturnsResponseModel] = {
+                                (using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[EditLiabilityReturnsResponseModel] = {
     atedConnector.submitDraftChangeLiabilityReturn(oldFormBundleNo) flatMap { changeLiabilityResponse =>
       changeLiabilityResponse.status match {
         case OK =>

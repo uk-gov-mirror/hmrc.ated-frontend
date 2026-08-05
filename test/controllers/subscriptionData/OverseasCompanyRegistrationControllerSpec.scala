@@ -24,7 +24,7 @@ import controllers.auth.AuthAction
 import models.Identification
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -34,7 +34,7 @@ import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.{ServiceInfoService, SubscriptionDataService}
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.auth.core.AffinityGroup
@@ -45,13 +45,15 @@ import scala.concurrent.Future
 
 class OverseasCompanyRegistrationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with MockAuthUtil {
 
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given hc: HeaderCarrier = HeaderCarrier()
+
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
   val mockMcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   val mockEnvironment: Environment = app.injector.instanceOf[Environment]
   val mockSubscriptionDataService: SubscriptionDataService = mock[SubscriptionDataService]
-    val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+  val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  given messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
   val btaNavigationLinksView: BtaNavigationLinks = app.injector.instanceOf[BtaNavigationLinks]
   val mockServiceInfoService: ServiceInfoService = mock[ServiceInfoService]
   val injectedViewInstance = app.injector.instanceOf[views.html.subcriptionData.overseasCompanyRegistration]
@@ -64,7 +66,7 @@ lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesA
       mockAuthConnector
     )
 
-    val testOverseasCompanyRegistrationController: OverseasCompanyRegistrationController = new OverseasCompanyRegistrationController (
+    val testOverseasCompanyRegistrationController: OverseasCompanyRegistrationController = new OverseasCompanyRegistrationController(
       mockMcc,
       mockAuthAction,
       mockSubscriptionDataService,
@@ -77,7 +79,7 @@ lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesA
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, invalidEnrolmentSet)
       setInvalidAuthMocks(authMock)
-      val result = testOverseasCompanyRegistrationController.edit().apply(SessionBuilder.buildRequestWithSession(userId))
+      val result = testOverseasCompanyRegistrationController.edit.apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
     }
 
@@ -85,9 +87,9 @@ lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesA
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
-      when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
-      when(mockSubscriptionDataService.getOverseasCompanyRegistration(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(overseasInfo))
-      val result = testOverseasCompanyRegistrationController.edit().apply(SessionBuilder.buildRequestWithSession(userId))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages, mockAppConfig)))
+      when(mockSubscriptionDataService.getOverseasCompanyRegistration(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(overseasInfo))
+      val result = testOverseasCompanyRegistrationController.edit.apply(SessionBuilder.buildRequestWithSession(userId))
 
       test(result)
     }
@@ -96,7 +98,7 @@ lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesA
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, invalidEnrolmentSet)
       setInvalidAuthMocks(authMock)
-      val result = testOverseasCompanyRegistrationController.submit().apply(SessionBuilder.buildRequestWithSession(userId))
+      val result = testOverseasCompanyRegistrationController.submit.apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
     }
 
@@ -105,8 +107,8 @@ lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesA
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
-      when(mockSubscriptionDataService.updateOverseasCompanyRegistration(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(input))
-      val result = testOverseasCompanyRegistrationController.submit().apply(SessionBuilder.updateRequestWithSession(fakeRequest, userId))
+      when(mockSubscriptionDataService.updateOverseasCompanyRegistration(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(input))
+      val result = testOverseasCompanyRegistrationController.submit.apply(SessionBuilder.updateRequestWithSession(fakeRequest, userId))
 
       test(result)
 
@@ -129,7 +131,7 @@ lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesA
           result =>
             status(result) must be(OK)
             val document = Jsoup.parse(contentAsString(result))
-            document.title() must be (TitleBuilder.buildTitle("Edit your overseas company registration number"))
+            document.title() must be(TitleBuilder.buildTitle("Edit your overseas company registration number"))
             assert(document.getElementById("service-info-list").text() === "Home Manage account Messages Help and contact")
             document.getElementById("businessUniqueId").attr("value") must be("")
             document.getElementById("issuingInstitution").attr("value") must be("")
@@ -170,7 +172,7 @@ lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesA
           "overseas company registration number must not be more than 60 chars and issuing institution must not be more than 40 chars" in new Setup {
             val regNumber: String = "a" * 61
             val issuingInst: String = "a" * 41
-            val inputJson: JsValue = Json.parse( s"""{"businessUniqueId": "$regNumber", "issuingInstitution": "$issuingInst", "countryCode": "FR" }""")
+            val inputJson: JsValue = Json.parse(s"""{"businessUniqueId": "$regNumber", "issuingInstitution": "$issuingInst", "countryCode": "FR" }""")
 
             submitWithAuthorisedUserSuccess()(FakeRequest().withJsonBody(inputJson)) {
               result =>
@@ -182,7 +184,7 @@ lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesA
 
           "If input is valid, submit must redirect" in new Setup {
 
-            val inputJson: JsValue = Json.parse( s"""{"businessUniqueId": "AAAAAAAA", "issuingInstitution": "Some Place", "countryCode": "FR" }""")
+            val inputJson: JsValue = Json.parse(s"""{"businessUniqueId": "AAAAAAAA", "issuingInstitution": "Some Place", "countryCode": "FR" }""")
 
             submitWithAuthorisedUserSuccess()(FakeRequest().withJsonBody(inputJson)) {
               result =>

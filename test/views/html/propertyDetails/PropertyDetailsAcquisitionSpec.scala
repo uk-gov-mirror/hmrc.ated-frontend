@@ -32,11 +32,9 @@ class PropertyDetailsAcquisitionSpec extends AtedViewSpec with MockitoSugar with
 
   //factor out AtedViewSpec
 
-  override implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
 
-  implicit val authContext: StandardAuthRetrievals = organisationStandardRetrievals
-
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   private val formWithErrors = PropertyDetailsForms.propertyDetailsAcquisitionForm.withError("anAcquisition", messages("ated.property-details-value.anAcquisition.error-field-name"))
 
   private val form = PropertyDetailsForms.propertyDetailsAcquisitionForm

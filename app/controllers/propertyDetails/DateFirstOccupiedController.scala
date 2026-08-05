@@ -19,11 +19,11 @@ package controllers.propertyDetails
 import config.ApplicationConfig
 import controllers.auth.{AuthAction, ClientHelper}
 import forms.PropertyDetailsForms
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import javax.inject.{Inject, Singleton}
 import models.DateFirstOccupied
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services._
+import services.*
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.AtedConstants.SelectedPreviousReturn
 import utils.AtedUtils
@@ -41,14 +41,14 @@ class DateFirstOccupiedController @Inject()(mcc: MessagesControllerComponents,
                                             val dataCacheService: DataCacheService,
                                             val backLinkCacheService: BackLinkCacheService,
                                             template: views.html.propertyDetails.dateFirstOccupied)
-                                                      (implicit val appConfig: ApplicationConfig)
+                                                      (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = DateFirstOccupiedControllerId
 
-  implicit lazy val messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
+  given messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
 
   val dateFields = Seq(("dateFirstOccupied", Messages("ated.property-details.first-occupied-date.messageKey")))
 

@@ -27,7 +27,7 @@ import testhelpers.{AtedViewSpec, MockAuthUtil}
 
 class PropertyDetailsTaxAvoidanceReferenceSpec extends AtedViewSpec with MockitoSugar with MockAuthUtil {
 
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
 
   val injectedViewInstance: propertyDetailsTaxAvoidanceReferences = app.injector.instanceOf[views.html.propertyDetails.propertyDetailsTaxAvoidanceReferences]
 
@@ -36,7 +36,8 @@ class PropertyDetailsTaxAvoidanceReferenceSpec extends AtedViewSpec with Mockito
 
   override def view: Html = injectedViewInstance("", 0, form, None, Html(""), Some("backLink"))
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
   "The Property Details tax avoidance references page" must {
 
     "have a the correct page title" in {
@@ -53,7 +54,7 @@ class PropertyDetailsTaxAvoidanceReferenceSpec extends AtedViewSpec with Mockito
     }
     "have the correct text" in {
       doc.getElementsByClass("govuk-back-link").text mustBe "Back"
-      
+
       doc.select("form > div:nth-child(1) > label").text() must include(messages("ated.property-details-period.taxAvoidanceScheme"))
       doc.getElementById("taxAvoidanceScheme-hint").text() must include(messages("ated.property-details-period.propertyDetailsReference.ref_hint"))
 
@@ -65,7 +66,7 @@ class PropertyDetailsTaxAvoidanceReferenceSpec extends AtedViewSpec with Mockito
     "have a continue button" in {
       doc.getElementsByClass("govuk-button").text mustBe "Save and continue"
     }
-    
+
     "check page errors for empty values" in {
       val eform = Form(form.mapping, Map("taxAvoidanceScheme" -> "", "taxAvoidancePromoterReference" -> ""),
         Seq(FormError("taxAvoidanceScheme", messages("ated.property-details-period.taxAvoidanceScheme.error.empty")),
@@ -82,21 +83,21 @@ class PropertyDetailsTaxAvoidanceReferenceSpec extends AtedViewSpec with Mockito
       errorDoc.select("#main-content > div > div > div > div > div > ul > li:nth-child(2) > a").text() mustBe messages("ated.property-details-period.taxAvoidancePromoterReference.error.empty")
     }
 
-  "check page errors for invalid values" in {
-    val eform = Form(form.mapping, Map("taxAvoidanceScheme" -> "test", "taxAvoidancePromoterReference" -> "test"),
-      Seq(FormError("taxAvoidanceScheme", messages("ated.property-details-period.taxAvoidanceScheme.error.wrong-length")),
-        FormError("taxAvoidancePromoterReference", messages("ated.property-details-period.taxAvoidancePromoterReference.error.wrong-length")))
-      , form.value)
+    "check page errors for invalid values" in {
+      val eform = Form(form.mapping, Map("taxAvoidanceScheme" -> "test", "taxAvoidancePromoterReference" -> "test"),
+        Seq(FormError("taxAvoidanceScheme", messages("ated.property-details-period.taxAvoidanceScheme.error.wrong-length")),
+          FormError("taxAvoidancePromoterReference", messages("ated.property-details-period.taxAvoidancePromoterReference.error.wrong-length")))
+        , form.value)
 
-    def view: Html = injectedViewInstance("", 0, eform, None, Html(""), Some("backLink"))
+      def view: Html = injectedViewInstance("", 0, eform, None, Html(""), Some("backLink"))
 
-    val errorDoc = doc(view)
+      val errorDoc = doc(view)
 
-    errorDoc.getElementById("taxAvoidanceScheme-error").text() mustBe ("Error: " + messages("ated.property-details-period.taxAvoidanceScheme.error.wrong-length"))
-    errorDoc.select("#main-content > div > div > div > div > div > ul > li:nth-child(1) > a").text() mustBe messages("ated.property-details-period.taxAvoidanceScheme.error.wrong-length")
-    errorDoc.getElementById("taxAvoidancePromoterReference-error").text() mustBe ("Error: " + messages("ated.property-details-period.taxAvoidancePromoterReference.error.wrong-length"))
-    errorDoc.select("#main-content > div > div > div > div > div > ul > li:nth-child(2) > a").text() mustBe messages("ated.property-details-period.taxAvoidancePromoterReference.error.wrong-length")
-  }
+      errorDoc.getElementById("taxAvoidanceScheme-error").text() mustBe ("Error: " + messages("ated.property-details-period.taxAvoidanceScheme.error.wrong-length"))
+      errorDoc.select("#main-content > div > div > div > div > div > ul > li:nth-child(1) > a").text() mustBe messages("ated.property-details-period.taxAvoidanceScheme.error.wrong-length")
+      errorDoc.getElementById("taxAvoidancePromoterReference-error").text() mustBe ("Error: " + messages("ated.property-details-period.taxAvoidancePromoterReference.error.wrong-length"))
+      errorDoc.select("#main-content > div > div > div > div > div > ul > li:nth-child(2) > a").text() mustBe messages("ated.property-details-period.taxAvoidancePromoterReference.error.wrong-length")
+    }
 
   }
 }

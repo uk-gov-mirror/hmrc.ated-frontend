@@ -23,7 +23,7 @@ import javax.inject.Inject
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{BackLinkCacheService, DataCacheService, FormBundleReturnsService, PropertyDetailsService, ServiceInfoService, SummaryReturnsService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.AtedConstants._
+import utils.AtedConstants.*
 import uk.gov.hmrc.play.bootstrap.controller.WithUnsafeDefaultFormBinding
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -38,11 +38,11 @@ class SelectExistingReturnAddressController @Inject()(mcc: MessagesControllerCom
                                                       val dataCacheService: DataCacheService,
                                                       val backLinkCacheService: BackLinkCacheService,
                                                       template: views.html.propertyDetails.selectPreviousReturn)
-                                                     (implicit val appConfig: ApplicationConfig)
+                                                     (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId = "SelectExistingReturnAddressController"
 
 

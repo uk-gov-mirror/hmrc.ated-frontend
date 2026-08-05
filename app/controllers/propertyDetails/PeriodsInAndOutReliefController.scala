@@ -18,7 +18,7 @@ package controllers.propertyDetails
 
 import config.ApplicationConfig
 import controllers.auth.{AuthAction, ClientHelper}
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import javax.inject.Inject
 import java.time.LocalDate
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -37,11 +37,11 @@ class PeriodsInAndOutReliefController @Inject()(mcc: MessagesControllerComponent
                                                 val dataCacheService: DataCacheService,
                                                 val backLinkCacheService: BackLinkCacheService,
                                                 template: views.html.propertyDetails.periodsInAndOutRelief)
-                                               (implicit val appConfig: ApplicationConfig)
+                                               (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = "PeriodsInAndOutReliefController"
 
   def view(id: String) : Action[AnyContent] = Action.async { implicit request =>

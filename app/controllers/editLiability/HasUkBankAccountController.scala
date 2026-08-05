@@ -37,10 +37,10 @@ class HasUkBankAccountController @Inject()(mcc: MessagesControllerComponents,
                                            val dataCacheService: DataCacheService,
                                            val backLinkCacheService: BackLinkCacheService,
                                            template: views.html.editLiability.hasUkBankAccount)
-                                          (implicit val appConfig: ApplicationConfig)
+                                          (using val appConfig: ApplicationConfig)
   extends FrontendController(mcc) with BackLinkService with ClientHelper with ControllerIds with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   val controllerId: String = hasUkBankAccountControllerId
 

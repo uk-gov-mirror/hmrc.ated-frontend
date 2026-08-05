@@ -33,10 +33,10 @@ import views.html.editLiability.editLiabilityDeclaration
 class editLiabilityDeclarationSpec extends AnyFeatureSpec with GuiceOneAppPerSuite with MockitoSugar with BeforeAndAfterEach
   with GivenWhenThen with MockAuthUtil {
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
 
   val injectedViewInstance: editLiabilityDeclaration = app.injector.instanceOf[views.html.editLiability.editLiabilityDeclaration]
 

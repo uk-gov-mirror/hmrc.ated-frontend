@@ -31,7 +31,7 @@ trait ReliefHelpers {
   val templateInvalidPeriodKey: views.html.reliefs.invalidPeriodKey
 
   def
-  validatePeriodKey(periodKey: Int)(block: Future[Result])(implicit authContext: StandardAuthRetrievals,
+  validatePeriodKey(periodKey: Int)(block: Future[Result])(using authContext: StandardAuthRetrievals,
                                                                     request: Request[AnyContent],
                                                                     messages: Messages,
                                                                     appConfig: ApplicationConfig): Future[Result] =

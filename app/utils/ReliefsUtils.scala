@@ -16,9 +16,9 @@
 
 package utils
 
-import models._
+import models.*
 
-object ReliefsUtils extends {
+object ReliefsUtils {
 
   val RentalBusinessDesc = "Property rental businesses"
   val OpenToPublicDesc = "Dwellings opened to the public"

@@ -26,14 +26,14 @@ import testhelpers.{AtedViewSpec, MockAuthUtil}
 
 class PropertyDetailsProfessionallyValuedSpec extends AtedViewSpec with MockitoSugar with MockAuthUtil {
 
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
   val injectedViewInstance: propertyDetailsProfessionallyValued = app.injector.instanceOf[views.html.propertyDetails.propertyDetailsProfessionallyValued]
 
   private val form = PropertyDetailsForms.propertyDetailsProfessionallyValuedForm.withError("isValuedByAgent",
     messages("ated.property-details-value.isValuedByAgent.error.non-selected"))
   override def view: Html = injectedViewInstance("",0,  form, None, Html(""), Some("backLink"))
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
 
   "The Property Details Professionally Valued View page" must {
     "have a the correct page title" in {

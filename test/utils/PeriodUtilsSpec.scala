@@ -17,7 +17,7 @@
 package utils
 
 import config.ApplicationConfig
-import models._
+import models.*
 import java.time.LocalDate
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -26,7 +26,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
 class PeriodUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerSuite {
 
-  implicit val mockAppConfig: ApplicationConfig = mock[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = mock[ApplicationConfig]
   when(mockAppConfig.atedPeakStartDay).thenReturn("16")
 
   val `2014` = 2014

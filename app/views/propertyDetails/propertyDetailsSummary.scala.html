@@ -52,9 +52,7 @@ backLink: Option[String])(implicit authContext: StandardAuthRetrievals, messages
 @additionalInfoContent = {
     @propertyDetails.period.map(
         v => v.supportingInfo.fold(messages("ated.property-details-summary.field-blank"))
-            (x =>
-                if(x == "") messages("ated.property-details-summary.field-blank")
-            else x)).getOrElse(messages("ated.property-details-summary.field-blank"))
+            (x => if(x == "") messages("ated.property-details-summary.field-blank") else x)).getOrElse(messages("ated.property-details-summary.field-blank"))
 }
 
 @incompleteTag = {

@@ -24,8 +24,8 @@ import play.api.test.FakeRequest
 
 class PropertyDetailsTaxAvoidanceSpec  extends PlaySpec with GuiceOneServerPerSuite {
 
-  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  implicit lazy val messages: Messages = messagesApi.preferred(FakeRequest())
+  given messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  given messages: Messages = messagesApi.preferred(FakeRequest())
 
   "PropertyDetailsTaxAvoidanceForms" must {
     "throw error" when {

@@ -25,7 +25,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.ExecutionContext
 import utils.AtedConstants.SelectedPreviousReturn
 import utils.AtedUtils
-import services._
+import services.*
 
 @Singleton
 class NewBuildNoStartDateController @Inject()(mcc: MessagesControllerComponents,
@@ -35,11 +35,11 @@ class NewBuildNoStartDateController @Inject()(mcc: MessagesControllerComponents,
                                               val dataCacheService: DataCacheService,
                                               val backLinkCacheService: BackLinkCacheService,
                                               view: views.html.propertyDetails.newBuildNoStartDate)
-                                             (implicit val appConfig: ApplicationConfig)
+                                             (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = NoStartDateControllerId
 
   def view(id: String): Action[AnyContent] = Action.async { implicit request =>

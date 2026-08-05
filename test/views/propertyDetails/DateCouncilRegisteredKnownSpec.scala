@@ -34,10 +34,10 @@ import forms.PropertyDetailsForms.dateCouncilRegisteredKnownForm
 class DateCouncilRegisteredKnownSpec extends AnyFeatureSpec with GuiceOneAppPerSuite with MockitoSugar
   with BeforeAndAfterEach with GivenWhenThen with MockAuthUtil {
 
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
   val title: String = "Do you know when the local council registered the property for council tax?"
   val injectedViewInstance: dateCouncilRegisteredKnown = app.injector.instanceOf[views.html.propertyDetails.dateCouncilRegisteredKnown]
 

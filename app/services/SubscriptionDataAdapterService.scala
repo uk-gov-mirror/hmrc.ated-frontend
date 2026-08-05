@@ -19,18 +19,18 @@ package services
 import connectors.AtedConnector
 
 import javax.inject.Inject
-import models._
+import models.*
 import play.api.Logging
-import play.api.http.Status._
+import play.api.http.Status.*
 import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, InternalServerException}
 import utils.AtedConstants
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SubscriptionDataAdapterService @Inject()(atedConnector: AtedConnector)(implicit ec: ExecutionContext) extends Logging {
+class SubscriptionDataAdapterService @Inject()(atedConnector: AtedConnector)(using ec: ExecutionContext) extends Logging {
 
 
-  def retrieveSubscriptionData(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[SubscriptionData]] = {
+  def retrieveSubscriptionData(using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[SubscriptionData]] = {
     atedConnector.retrieveSubscriptionData() map { response =>
       response.status match {
         case OK => Some(response.json.as[SubscriptionData])
@@ -48,7 +48,7 @@ class SubscriptionDataAdapterService @Inject()(atedConnector: AtedConnector)(imp
   }
 
   def updateSubscriptionData(request: UpdateSubscriptionDataRequest)
-                            (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[UpdateSubscriptionDataRequest]] = {
+                            (using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[UpdateSubscriptionDataRequest]] = {
     atedConnector.updateSubscriptionData(request).map { response =>
       response.status match {
         case OK => Some(request)

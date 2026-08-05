@@ -17,14 +17,14 @@
 package connectors
 
 import config.ApplicationConfig
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.twirl.api.Html
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
@@ -45,7 +45,7 @@ class AgentClientMandateFrontendConnectorSpec extends PlaySpec with GuiceOneAppP
 
   "AgentClientMandateFrontendConnector" must {
     "return the partial successfully" in new Setup {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val html = "<h1>helloworld</h1>"
       when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, html)))
       testAgentClientMandateFrontendConnector.getClientBannerPartial("clientId", "ated").map {
@@ -54,7 +54,7 @@ class AgentClientMandateFrontendConnectorSpec extends PlaySpec with GuiceOneAppP
     }
 
     "return no partial silently" in new Setup {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(NOT_FOUND, "")))
       testAgentClientMandateFrontendConnector.getClientBannerPartial("clientId", "ated").map {
         response => response.successfulContentOrEmpty must equal(Html(""))
@@ -62,7 +62,7 @@ class AgentClientMandateFrontendConnectorSpec extends PlaySpec with GuiceOneAppP
     }
 
     "return the client mandate details successfully" in new Setup {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, "")))
       val result: Future[HttpResponse] = testAgentClientMandateFrontendConnector.getClientDetails("clientId", "ated")
       await(result).status must be(OK)

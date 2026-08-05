@@ -18,10 +18,10 @@ package connectors
 
 import builders.PropertyDetailsBuilder
 import config.ApplicationConfig
-import models._
+import models.*
 
 import java.time.LocalDate
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Injecting
@@ -33,10 +33,10 @@ import scala.concurrent.ExecutionContext
 class PropertyDetailsConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with Injecting {
 
   class Setup extends ConnectorTest with PropertyDetailsConnectorTestConstants {
-    implicit val ec: ExecutionContext = inject[ExecutionContext]
-    implicit val authContext: StandardAuthRetrievals = mock[StandardAuthRetrievals]
-    implicit val hc: HeaderCarrier = HeaderCarrier()
-    implicit val mockAppConfig: ApplicationConfig = inject[ApplicationConfig]
+    given ec: ExecutionContext = inject[ExecutionContext]
+    given authContext: StandardAuthRetrievals = mock[StandardAuthRetrievals]
+    given hc: HeaderCarrier = HeaderCarrier()
+    given mockAppConfig: ApplicationConfig = inject[ApplicationConfig]
 
     lazy val periodKey = 2015
     lazy val id = "1"

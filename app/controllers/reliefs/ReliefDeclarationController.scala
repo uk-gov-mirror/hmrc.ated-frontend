@@ -37,11 +37,11 @@ class ReliefDeclarationController @Inject()(mcc: MessagesControllerComponents,
                                             val backLinkCacheService: BackLinkCacheService,
                                             template: views.html.reliefs.reliefDeclaration,
                                             templateError: views.html.global_error)
-                                           (implicit val appConfig: ApplicationConfig)
+                                           (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with BackLinkService with ClientHelper with WithUnsafeDefaultFormBinding with Logging {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = "ReliefDeclarationController"
 
   def view(periodKey: Int): Action[AnyContent] = Action.async { implicit request =>

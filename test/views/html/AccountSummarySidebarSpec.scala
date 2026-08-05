@@ -34,11 +34,11 @@ import utils.TestModels
 class AccountSummarySidebarSpec extends PlaySpec with MockAuthUtil
   with GuiceOneAppPerTest with TestModels with MockitoSugar {
 
-  implicit lazy val mockAppConfig: ApplicationConfig = mock[ApplicationConfig]
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
-  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  implicit lazy val messages: Messages = MessagesImpl(Lang("en-GB"), messagesApi)
+  given mockAppConfig: ApplicationConfig = mock[ApplicationConfig]
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  given messages: Messages = MessagesImpl(Lang("en-GB"), messagesApi)
 
   val defaultBalance: Int = -1000
 

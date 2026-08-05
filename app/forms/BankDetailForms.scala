@@ -16,7 +16,7 @@
 
 package forms
 
-import models._
+import models.*
 import play.api.data.Forms.{text, _}
 import play.api.data.format.Formatter
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
@@ -69,7 +69,7 @@ object BankDetailForms {
     def isValid(value: String): Boolean = value.length == SIX && Try(value.toInt).isSuccess
   }
 
-  implicit val bicSwiftFormat: Formatter[BicSwiftCode] = new Formatter[BicSwiftCode] {
+  given bicSwiftFormat: Formatter[BicSwiftCode] = new Formatter[BicSwiftCode] {
     def bind(key: String, data: Map[String, String]):Either[Seq[FormError], BicSwiftCode] = {
       val bicSwiftValue = data.getOrElse(key, "")
       Right(BicSwiftCode(bicSwiftValue))
@@ -78,7 +78,7 @@ object BankDetailForms {
     def unbind(key: String, value: BicSwiftCode): Map[String, String] = Map(key -> value.toString)
   }
 
-  implicit val ibanFormat: Formatter[Iban] = new Formatter[Iban] {
+  given ibanFormat: Formatter[Iban] = new Formatter[Iban] {
     def bind(key: String, data: Map[String, String]):Either[Seq[FormError], Iban] = {
       val ibanValue = data.getOrElse(key, "")
       Right(Iban(ibanValue))
@@ -89,11 +89,11 @@ object BankDetailForms {
 
   val hasBankDetailsForm: Form[HasBankDetails] = Form(mapping(
     "hasBankDetails" -> optional(boolean).verifying("ated.bank-details.error-key.hasBankDetails.empty", a => a.isDefined)
-  )(HasBankDetails.apply)(HasBankDetails.unapply))
+  )(HasBankDetails.apply)(x => Some(x.hasBankDetails)))
 
   val hasUkBankAccountForm: Form[HasUkBankAccount] = Form(mapping(
     "hasUkBankAccount" -> optional(boolean).verifying("ated.bank-details.error-key.hasUkBankAccount.empty", a => a.isDefined)
-  )(HasUkBankAccount.apply)(HasUkBankAccount.unapply))
+  )(HasUkBankAccount.apply)(x => Some(x.hasUkBankAccount)))
 
    private lazy val accountNameConstraint: Constraint[Option[String]] = Constraint("accountName.validation") ({ data =>
     val accountName = data.map(_.trim)
@@ -115,7 +115,7 @@ object BankDetailForms {
     "buildingNumber" -> optional(text),
     "bicSwiftCode" -> optional(of[BicSwiftCode]),
     "iban" -> optional(of[Iban])
-  )(BankDetails.apply)(BankDetails.unapply))
+  )(BankDetails.apply)(x => Some(Tuple.fromProductTyped(x))))
 
   def validateBankDetails(controllerId: String, bankDetails: Form[BankDetails]): Form[BankDetails] = {
     val hasUKBankAccount = bankDetails.data.get("hasUKBankAccount").map(_.toBoolean)

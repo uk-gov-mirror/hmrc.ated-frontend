@@ -27,10 +27,10 @@ import testhelpers.{AtedViewSpec, MockAuthUtil}
 import utils.PeriodUtils
 
 class PropertyDetailsOwnedBeforeSpec extends AtedViewSpec with MockitoSugar with MockAuthUtil {
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
   val injectedViewInstance: propertyDetailsOwnedBefore = app.injector.instanceOf[views.html.propertyDetails.propertyDetailsOwnedBefore]
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   def calculatedPeriodKey(periodKey: Int): String = {PeriodUtils.calculateLowerTaxYearBoundary(periodKey).getYear.toString}
 
   private val form = PropertyDetailsForms.propertyDetailsOwnedBeforeForm(2014)

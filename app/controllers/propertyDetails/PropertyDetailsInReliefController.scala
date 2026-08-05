@@ -19,9 +19,9 @@ package controllers.propertyDetails
 import config.ApplicationConfig
 import controllers.auth.{AuthAction, ClientHelper}
 import controllers.editLiability.EditLiabilityDatesLiableController
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import javax.inject.Inject
-import models._
+import models.*
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{BackLinkCacheService, DataCacheService, PropertyDetailsCacheSuccessResponse, PropertyDetailsService, ServiceInfoService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -40,11 +40,11 @@ class PropertyDetailsInReliefController @Inject()(mcc: MessagesControllerCompone
                                                   val dataCacheService: DataCacheService,
                                                   val backLinkCacheService: BackLinkCacheService,
                                                   template: views.html.propertyDetails.propertyDetailsInRelief)
-                                                 (implicit val appConfig: ApplicationConfig)
+                                                 (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   override val controllerId: String = "PropertyDetailsInReliefController"
 
 

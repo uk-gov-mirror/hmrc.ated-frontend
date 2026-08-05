@@ -24,8 +24,8 @@ import play.api.test.FakeRequest
 class PeriodDatesLiableFormSpec extends PlaySpec with GuiceOneServerPerSuite {
 
   val periodKey: Int = 2016
-  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  implicit lazy val messages: Messages = messagesApi.preferred(FakeRequest())
+  given messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  given messages: Messages = messagesApi.preferred(FakeRequest())
   val dateFields = Seq(("startDate", Messages("ated.property-details-period.datesLiable.startDate.messageKey")),
     ("endDate", Messages("ated.property-details-period.datesLiable.endDate.messageKey")))
 
@@ -86,18 +86,18 @@ class PeriodDatesLiableFormSpec extends PlaySpec with GuiceOneServerPerSuite {
           "endDate.year" -> "2014")
 
         PropertyDetailsForms.validatePropertyDetailsDatesLiable(periodKey, PropertyDetailsForms.periodDatesLiableForm.bind(inputDate), periodsCheck = false,
-          dateFields = dateFields)
+            dateFields = dateFields)
           .fold(
-          hasErrors => {
-            hasErrors.errors.length mustBe 2
-            hasErrors.errors.head.message mustBe "ated.property-details-period.datesLiable.startDate.error.too-early"
-            hasErrors.errors.last.message mustBe "ated.property-details-period.datesLiable.endDate.error.too-early"
+            hasErrors => {
+              hasErrors.errors.length mustBe 2
+              hasErrors.errors.head.message mustBe "ated.property-details-period.datesLiable.startDate.error.too-early"
+              hasErrors.errors.last.message mustBe "ated.property-details-period.datesLiable.endDate.error.too-early"
 
-          },
-          _ => {
-            fail("There is a problem")
-          }
-        )
+            },
+            _ => {
+              fail("There is a problem")
+            }
+          )
       }
 
 
@@ -111,18 +111,18 @@ class PeriodDatesLiableFormSpec extends PlaySpec with GuiceOneServerPerSuite {
           "endDate.year" -> "2018")
 
         PropertyDetailsForms.validatePropertyDetailsDatesLiable(periodKey, PropertyDetailsForms.periodDatesLiableForm.bind(inputDate), periodsCheck = false,
-          dateFields = dateFields)
+            dateFields = dateFields)
           .fold(
-          hasErrors => {
-            hasErrors.errors.length mustBe 2
-            hasErrors.errors.head.message mustBe "ated.property-details-period.datesLiable.startDate.error.too-late"
-            hasErrors.errors.last.message mustBe "ated.property-details-period.datesLiable.endDate.error.too-late"
+            hasErrors => {
+              hasErrors.errors.length mustBe 2
+              hasErrors.errors.head.message mustBe "ated.property-details-period.datesLiable.startDate.error.too-late"
+              hasErrors.errors.last.message mustBe "ated.property-details-period.datesLiable.endDate.error.too-late"
 
-          },
-          _ => {
-            fail("There is a problem")
-          }
-        )
+            },
+            _ => {
+              fail("There is a problem")
+            }
+          )
       }
 
       "end date is before the start date" in {
@@ -135,17 +135,17 @@ class PeriodDatesLiableFormSpec extends PlaySpec with GuiceOneServerPerSuite {
           "endDate.year" -> "2016")
 
         PropertyDetailsForms.validatePropertyDetailsDatesLiable(periodKey, PropertyDetailsForms.periodDatesLiableForm.bind(inputDate), periodsCheck = false,
-          dateFields = dateFields)
+            dateFields = dateFields)
           .fold(
-          hasErrors => {
-            hasErrors.errors.length mustBe 1
-            hasErrors.errors.head.message mustBe "ated.property-details-period.datesLiable.endDate.error.before-start-date"
+            hasErrors => {
+              hasErrors.errors.length mustBe 1
+              hasErrors.errors.head.message mustBe "ated.property-details-period.datesLiable.endDate.error.before-start-date"
 
-          },
-          _ => {
-            fail("There is a problem")
-          }
-        )
+            },
+            _ => {
+              fail("There is a problem")
+            }
+          )
       }
     }
   }

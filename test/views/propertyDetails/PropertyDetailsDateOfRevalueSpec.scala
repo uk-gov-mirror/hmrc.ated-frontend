@@ -25,8 +25,8 @@ import views.html.propertyDetails.propertyDetailsDateOfRevalue
 
 class PropertyDetailsDateOfRevalueSpec extends AtedViewSpec with MockAuthUtil {
 
-  implicit val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
 
   val injectedViewInstance: propertyDetailsDateOfRevalue = app.injector.instanceOf[views.html.propertyDetails.propertyDetailsDateOfRevalue]
 

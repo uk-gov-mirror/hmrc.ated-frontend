@@ -28,8 +28,8 @@ import testhelpers.{AtedViewSpec, MockAuthUtil}
 
 class HasUkBankAccountSpec extends AtedViewSpec with MockitoSugar with MockAuthUtil {
 
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   val injectedViewInstance: hasUkBankAccount = app.injector.instanceOf[views.html.editLiability.hasUkBankAccount]
   private val form = BankDetailForms.hasUkBankAccountForm
   override def view: Html = injectedViewInstance(form, "oldFormBundleNo", Html(""), Some("backLink"))

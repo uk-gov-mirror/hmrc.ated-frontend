@@ -17,7 +17,7 @@
 package views.editLiability
 
 import config.ApplicationConfig
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import models.{HasValueChanged, StandardAuthRetrievals}
 import org.jsoup.Jsoup
 import org.scalatest.featurespec.AnyFeatureSpec
@@ -34,10 +34,10 @@ import views.html.editLiability.editLiabilityHasValueChanged
 class editLiabilityValueSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with MockitoSugar
   with BeforeAndAfterEach with GivenWhenThen with MockAuthUtil {
 
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   val injectedViewInstance: editLiabilityHasValueChanged = app.injector.instanceOf[views.html.editLiability.editLiabilityHasValueChanged]
   Feature("The user can view an edit liability value page") {
     info("as a user I want to view the correct page content")
@@ -47,7 +47,7 @@ class editLiabilityValueSpec extends AnyFeatureSpec with GuiceOneServerPerSuite 
       Given("A user visits the page and clicks yes")
       When("The user views the page and clicks yes")
 
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       val html = injectedViewInstance(Some(BigDecimal(123.45)), "1", hasValueChangedForm, None, Html(""), Some("http://backLink"))
 
@@ -84,7 +84,7 @@ class editLiabilityValueSpec extends AnyFeatureSpec with GuiceOneServerPerSuite 
       Given("A user visits the page to edit data")
       When("The user views the page to edit data")
 
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       val html = injectedViewInstance(Some(BigDecimal(45678.12)), "1",
         hasValueChangedForm.fill(HasValueChanged(Some(true))), None,  Html(""), Some("http://backLink"))

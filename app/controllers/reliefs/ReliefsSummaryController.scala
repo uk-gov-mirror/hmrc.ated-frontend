@@ -38,10 +38,10 @@ class ReliefsSummaryController @Inject()(mcc: MessagesControllerComponents,
                                          val backLinkCacheService: BackLinkCacheService,
                                          template: views.html.reliefs.reliefsSummary,
                                          val templateInvalidPeriodKey: views.html.reliefs.invalidPeriodKey)
-                                        (implicit val appConfig: ApplicationConfig)
+                                        (using val appConfig: ApplicationConfig)
   extends FrontendController(mcc) with BackLinkService with ReliefHelpers with ClientHelper {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   override val controllerId: String = "ReliefsSummaryController"
 
   def view(periodKey: Int): Action[AnyContent] = Action.async { implicit request =>

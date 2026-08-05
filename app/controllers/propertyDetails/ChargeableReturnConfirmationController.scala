@@ -24,7 +24,7 @@ import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{DataCacheService, ServiceInfoService, SubscriptionDataService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.AtedConstants._
+import utils.AtedConstants.*
 
 import scala.concurrent.ExecutionContext
 
@@ -34,11 +34,11 @@ class ChargeableReturnConfirmationController @Inject()(mcc: MessagesControllerCo
                                                        serviceInfoService: ServiceInfoService,
                                                        val dataCacheService: DataCacheService,
                                                        template: views.html.propertyDetails.chargeableReturnsConfirmation)
-                                                      (implicit val appConfig: ApplicationConfig)
+                                                      (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with Logging {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   def confirmation : Action[AnyContent] = Action.async { implicit request =>
     authAction.authorisedAction { implicit authContext =>

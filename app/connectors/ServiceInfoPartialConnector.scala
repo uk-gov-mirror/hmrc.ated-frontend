@@ -31,7 +31,7 @@ class ServiceInfoPartialConnector @Inject()(http: HttpClientV2, config: Applicat
 
   lazy val btaNavLinksUrl: String = config.btaBaseUrl + "/business-account/partial/nav-links"
 
-  def getNavLinks(implicit ec: ExecutionContext, hc : HeaderCarrier): Future[Option[NavContent]] =
+  def getNavLinks(using ec: ExecutionContext, hc : HeaderCarrier): Future[Option[NavContent]] =
     http.get(url"$btaNavLinksUrl").execute[Option[NavContent]]
       .recover{
         case e =>

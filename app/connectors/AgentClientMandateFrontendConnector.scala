@@ -42,7 +42,7 @@ class AgentClientMandateFrontendConnector @Inject()(appConfig: ApplicationConfig
   def crypto: String => String = identity
 
   def getClientBannerPartial(clientId: String, service: String)
-                            (implicit request: Request[_], ec: ExecutionContext): Future[HtmlPartial] = {
+                            (using request: Request[_], ec: ExecutionContext): Future[HtmlPartial] = {
     val getUrl = s"$serviceUrl/$clientBannerPartialUri/$clientId/$service?returnUrl=$returnUrlHost${controllers.routes.AccountSummaryController.view()}"
 
      httpClient.get(url"$getUrl").execute[HttpResponse] map { response =>
@@ -61,7 +61,7 @@ class AgentClientMandateFrontendConnector @Inject()(appConfig: ApplicationConfig
   }
 
   def getClientDetails(clientId: String, service: String)
-                      (implicit request: Request[_], ec: ExecutionContext): Future[HttpResponse] = {
+                      (using request: Request[_], ec: ExecutionContext): Future[HttpResponse] = {
     val getUrl =
       s"$serviceUrl/$clientDetailsUri/$clientId/$service?returnUrl=$returnUrlHost${controllers.subscriptionData.routes.CompanyDetailsController.view}"
 

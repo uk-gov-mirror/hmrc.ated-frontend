@@ -27,7 +27,7 @@ import scala.concurrent.ExecutionContext
 
 class TestAudit @Inject()(auditConnector: AuditConnector) extends Audit("test", auditConnector) {
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
+  given hc: HeaderCarrier = HeaderCarrier()
 
   var capturedTxName: String = ""
   var capturedInputs: Map[String, String] = Map.empty

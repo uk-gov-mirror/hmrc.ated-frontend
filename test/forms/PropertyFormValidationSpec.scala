@@ -17,7 +17,7 @@
 package forms
 
 
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import models.{LineItem, PropertyDetailsDatesLiable}
 import java.time.LocalDate
 import org.scalatestplus.play.PlaySpec
@@ -29,8 +29,8 @@ import play.api.test.FakeRequest
 class PropertyFormValidationSpec extends PlaySpec with GuiceOneServerPerSuite {
 
   val periodKey: Int = 2016
-  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  implicit lazy val messages: Messages = messagesApi.preferred(FakeRequest())
+  given messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  given messages: Messages = messagesApi.preferred(FakeRequest())
   val dateFields = Seq(("startDate", Messages("ated.property-details-period.datesLiable.startDate.messageKey")),
     ("endDate", Messages("ated.property-details-period.datesLiable.endDate.messageKey")))
 

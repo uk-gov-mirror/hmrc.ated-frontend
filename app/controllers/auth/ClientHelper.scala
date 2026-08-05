@@ -25,16 +25,16 @@ import play.api.mvc.{AnyContent, Request, Result}
 import play.twirl.api.Html
 import services.DataCacheService
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.AtedConstants._
+import utils.AtedConstants.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait ClientHelper extends Logging {
 
   val dataCacheService: DataCacheService
-  val appConfig: ApplicationConfig
+  given appConfig: ApplicationConfig
 
-  def ensureClientContext(result: Future[Result])(implicit
+  def ensureClientContext(result: Future[Result])(using
       authorisedRequest: StandardAuthRetrievals,
       req: Request[AnyContent],
       hc: HeaderCarrier,

@@ -18,7 +18,7 @@ package views.html.reliefs
 
 import config.ApplicationConfig
 import forms.ReliefForms
-import forms.ReliefForms._
+import forms.ReliefForms.*
 import models.{Reliefs, StandardAuthRetrievals}
 import java.time.LocalDate
 import org.jsoup.Jsoup
@@ -30,9 +30,9 @@ import play.twirl.api.Html
 import testhelpers.{AtedViewSpec, MockAuthUtil}
 
 class ChooseReliefsSpec extends AtedViewSpec with MockitoSugar with MockAuthUtil {
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   val periodKey = 2017
   val periodKey2020 = 2020
   val periodStartDate = LocalDate.now()

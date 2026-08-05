@@ -38,7 +38,7 @@ import connectors.AgentClientMandateFrontendConnector
 import controllers.auth.AuthAction
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -47,8 +47,8 @@ import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import services._
+import play.api.test.Helpers.*
+import services.*
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
@@ -61,11 +61,11 @@ import scala.concurrent.Future
 class ExistingReturnQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with MockAuthUtil {
 
   val messagesApi: MessagesApi                                          = app.injector.instanceOf[MessagesApi]
-  lazy implicit val messages: MessagesImpl                              = MessagesImpl(Lang("en-GB"), messagesApi)
+  given messages: MessagesImpl                              = MessagesImpl(Lang("en-GB"), messagesApi)
   val btaNavigationLinksView: BtaNavigationLinks                        = app.injector.instanceOf[BtaNavigationLinks]
   val mockServiceInfoService: ServiceInfoService                        = mock[ServiceInfoService]
-  implicit lazy val hc: HeaderCarrier                                   = HeaderCarrier()
-  implicit val mockAppConfig: ApplicationConfig                         = app.injector.instanceOf[ApplicationConfig]
+  given hc: HeaderCarrier                                   = HeaderCarrier()
+  given mockAppConfig: ApplicationConfig                         = app.injector.instanceOf[ApplicationConfig]
   val mockMcc: MessagesControllerComponents                             = app.injector.instanceOf[MessagesControllerComponents]
   val template: confirmPastReturn                                       = app.injector.instanceOf[views.html.confirmPastReturn]
   val mockDataCacheService: DataCacheService                            = mock[DataCacheService]
@@ -102,13 +102,13 @@ class ExistingReturnQuestionControllerSpec extends PlaySpec with GuiceOneServerP
       val userId   = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
-      when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(btaNavigationLinksView()(messages, mockAppConfig)))
 
-      when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("XN1200000100001")))
 
-      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
       val result = testExistingReturnQuestionController.view(periodKey, returnTypeCharge).apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
     }
@@ -118,12 +118,12 @@ class ExistingReturnQuestionControllerSpec extends PlaySpec with GuiceOneServerP
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
 
-      when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(btaNavigationLinksView()(messages, mockAppConfig)))
 
       when(
         mockDataCacheService
-          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("XN1200000100001")))
 
       val fakeRequest = if (fromConfirmAddress) {
@@ -157,10 +157,10 @@ class ExistingReturnQuestionControllerSpec extends PlaySpec with GuiceOneServerP
       setAuthMocks(authMock)
       when(
         mockDataCacheService
-          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("XN1200000100001")))
-      when(mockBackLinkCacheService.clearBackLinks(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Nil))
-      when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockBackLinkCacheService.clearBackLinks(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Nil))
+      when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
       val result = testExistingReturnQuestionController
         .submit(periodKey, returnTypeCharge)
@@ -233,7 +233,7 @@ class ExistingReturnQuestionControllerSpec extends PlaySpec with GuiceOneServerP
         "with valid form data" must {
           "with invalid form, return BadRequest" in new Setup {
             val inputJson: JsValue = Json.parse("""{"yesNo": ""}""")
-            when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+            when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
             submitWithAuthorisedUser(FakeRequest().withJsonBody(inputJson)) { result =>
               status(result) must be(BAD_REQUEST)
               val doc = Jsoup.parse(contentAsString(result))

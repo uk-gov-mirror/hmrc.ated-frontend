@@ -21,11 +21,11 @@ import java.util.UUID
 import builders._
 import config.ApplicationConfig
 import controllers.auth.AuthAction
-import models._
+import models.*
 import java.time.ZonedDateTime
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -33,7 +33,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.{BackLinkCacheService, ChangeLiabilityReturnService, DataCacheService, ServiceInfoService}
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.auth.core.AffinityGroup
@@ -45,14 +45,14 @@ import scala.concurrent.Future
 
 class EditLiabilityDeclarationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with MockAuthUtil {
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given hc: HeaderCarrier = HeaderCarrier()
   val mockMcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   val mockChangeLiabilityReturnService: ChangeLiabilityReturnService = mock[ChangeLiabilityReturnService]
   val mockDataCacheService: DataCacheService = mock[DataCacheService]
   val mockBackLinkCacheService: BackLinkCacheService = mock[BackLinkCacheService]
   val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+  given messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
   val btaNavigationLinksView: BtaNavigationLinks = app.injector.instanceOf[BtaNavigationLinks]
   val injectedViewInstance = app.injector.instanceOf[views.html.editLiability.editLiabilityDeclaration]
 
@@ -91,13 +91,13 @@ class EditLiabilityDeclarationControllerSpec extends PlaySpec with GuiceOneServe
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       noDelegationModelAuthMocks(authMock)
-      when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(btaNavigationLinksView()(messages, mockAppConfig)))
       when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
       when(mockChangeLiabilityReturnService.retrieveSubmittedLiabilityReturnAndCache
-      (ArgumentMatchers.eq(formBundleNo1), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(x))
-      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      (ArgumentMatchers.eq(formBundleNo1), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(x))
+      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
       val result = testEditLiabilityDeclarationController.view(formBundleNo1).apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
     }
@@ -107,10 +107,10 @@ class EditLiabilityDeclarationControllerSpec extends PlaySpec with GuiceOneServe
       val authMock = authResultDefault(AffinityGroup.Agent, defaultEnrolmentSet)
       setAuthMocks(authMock)
       when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
       when(mockChangeLiabilityReturnService.retrieveSubmittedLiabilityReturnAndCache
-      (ArgumentMatchers.eq(formBundleNo1), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(x))
-      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      (ArgumentMatchers.eq(formBundleNo1), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(x))
+      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
       val result = testEditLiabilityDeclarationController.view(formBundleNo1).apply(SessionBuilder.buildRequestWithSessionDelegation(userId))
       test(result)
     }
@@ -120,14 +120,14 @@ class EditLiabilityDeclarationControllerSpec extends PlaySpec with GuiceOneServe
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
       when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
       when(mockChangeLiabilityReturnService.retrieveSubmittedLiabilityReturnAndCache
-      (ArgumentMatchers.eq(formBundleNo1), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(a))
+      (ArgumentMatchers.eq(formBundleNo1), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(a))
       val r1 = EditLiabilityReturnsResponse(mode = "Post", oldFormBundleNumber = oldForBundle, formBundleNumber =
         Some(formBundleNo2), liabilityAmount = BigDecimal(3500.00), amountDueOrRefund = BigDecimal(0.00), paymentReference = Some("payment-ref-1"))
       val response = EditLiabilityReturnsResponseModel(processingDate = ZonedDateTime.now(), liabilityReturnResponse = Seq(r1), BigDecimal(0.00))
       when(mockChangeLiabilityReturnService.submitDraftChangeLiability
-      (ArgumentMatchers.eq(formBundleNo1))(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(response))
+      (ArgumentMatchers.eq(formBundleNo1))(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(response))
       val result = testEditLiabilityDeclarationController.submit(formBundleNo1)
         .apply(SessionBuilder.updateRequestFormWithSession(FakeRequest().withFormUrlEncodedBody(), userId))
       test(result)
@@ -272,7 +272,7 @@ class EditLiabilityDeclarationControllerSpec extends PlaySpec with GuiceOneServe
         val cL1: PropertyDetails = PropertyDetailsBuilder.getFullPropertyDetails(formBundleNo1)
         val calc1: PropertyDetailsCalculated = ChangeLiabilityReturnBuilder.generateCalculated
         val cL2: PropertyDetails = cL1.copy(calculated = Some(calc1))
-        when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
         submitWithAuthorisedUser(Some(cL2)) {
           result =>
             status(result) must be(SEE_OTHER)
@@ -284,7 +284,7 @@ class EditLiabilityDeclarationControllerSpec extends PlaySpec with GuiceOneServe
         val cL1: PropertyDetails = PropertyDetailsBuilder.getFullPropertyDetails(formBundleNo1)
         val calc1: PropertyDetailsCalculated = ChangeLiabilityReturnBuilder.generateCalculated
         val cL2: PropertyDetails = cL1.copy(calculated = Some(calc1))
-        when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
         submitWithAuthorisedUser(Some(cL2), formBundleNo2) {
           result =>
             status(result) must be(SEE_OTHER)

@@ -23,7 +23,7 @@ case class ListLinks(message: String, url: String, alerts: Option[String] = None
 case class NavLinks(en: String, url: String, alerts: Option[Int] = None)
 
 object NavLinks {
-  implicit val format: OFormat[NavLinks] = Json.format[NavLinks]
+  given format: OFormat[NavLinks] = Json.format[NavLinks]
 }
 
 case class NavContent(home: NavLinks,
@@ -33,5 +33,5 @@ case class NavContent(home: NavLinks,
                      )
 
 object NavContent {
-  implicit val format: OFormat[NavContent] = Json.format[NavContent]
+  given format: OFormat[NavContent] = Json.format[NavContent]
 }

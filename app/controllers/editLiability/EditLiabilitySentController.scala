@@ -24,7 +24,7 @@ import models.EditLiabilityReturnsResponseModel
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{DataCacheService, DelegationService, ServiceInfoService, SubscriptionDataService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.AtedConstants._
+import utils.AtedConstants.*
 
 import scala.concurrent.ExecutionContext
 
@@ -35,11 +35,11 @@ class EditLiabilitySentController @Inject()(mcc: MessagesControllerComponents,
                                             val delegationService: DelegationService,
                                             val dataCacheService: DataCacheService,
                                             template: views.html.editLiability.editLiabilitySent)
-                                           (implicit val appConfig: ApplicationConfig)
+                                           (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with ClientHelper {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   def view(oldFormBundleNo: String)
           : Action[AnyContent] = Action.async { implicit request =>

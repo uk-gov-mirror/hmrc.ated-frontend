@@ -35,13 +35,17 @@ import views.html.propertyDetails.addressLookup
 class AddressLookupSpec extends AnyFeatureSpecLike with GuiceOneAppPerSuite with MockitoSugar
   with BeforeAndAfterEach with GivenWhenThen with MockAuthUtil {
 
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
+
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
   val injectedViewInstance: addressLookup = app.injector.instanceOf[views.html.propertyDetails.addressLookup]
 
-Feature("The user can search for an address via the post code") {
+  Feature("The user can search for an address via the post code") {
 
     info("as a user I want to be able to search for an address via the post code")
 
@@ -49,7 +53,8 @@ Feature("The user can search for an address via the post code") {
 
       Given("A user visits the page")
       When("The user views the page")
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       val html = injectedViewInstance(None, 2015, addressLookupForm, None, Html(""), Some("backLink"))
 
@@ -60,9 +65,9 @@ Feature("The user can search for an address via the post code") {
       assert(document.getElementsByClass("govuk-caption-xl").text() === "This section is: Create return")
 
       Then("The fields should have the correct names")
-      assert(document.getElementsByAttributeValue("for","houseName").text() === "House name or number (optional)")
+      assert(document.getElementsByAttributeValue("for", "houseName").text() === "House name or number (optional)")
       assert(document.getElementById("houseName").attr("value") === "")
-      document.getElementsByAttributeValue("for","postcode").text() === "Postcode"
+      document.getElementsByAttributeValue("for", "postcode").text() === "Postcode"
       assert(document.getElementById("postcode").attr("value") === "")
 
       Then("The no post code link should be - I don't have a postcode")
@@ -80,7 +85,8 @@ Feature("The user can search for an address via the post code") {
 
       Given("A user visits the page")
       When("The user views the page")
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       val html = injectedViewInstance(Some("123456"), 2015, addressLookupForm, Some(AtedUtils.EDIT_SUBMITTED), Html(""), Some("http://backLink"))
 
@@ -91,9 +97,9 @@ Feature("The user can search for an address via the post code") {
       assert(document.getElementsByClass("govuk-caption-xl").text() === "This section is: Change return")
 
       Then("The fields should have the correct names")
-      assert(document.getElementsByAttributeValue("for","houseName").text() === "House name or number (optional)")
+      assert(document.getElementsByAttributeValue("for", "houseName").text() === "House name or number (optional)")
       assert(document.getElementById("houseName").attr("value") === "")
-      document.getElementsByAttributeValue("for","postcode").text() === "Postcode"
+      document.getElementsByAttributeValue("for", "postcode").text() === "Postcode"
       assert(document.getElementById("postcode").attr("value") === "")
 
       Then("The no post code link should be - I don't have a postcode")

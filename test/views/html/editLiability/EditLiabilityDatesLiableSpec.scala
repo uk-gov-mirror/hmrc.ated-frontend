@@ -29,28 +29,36 @@ import testhelpers.{AtedViewSpec, MockAuthUtil}
 
 class EditLiabilityDatesLiableSpec extends AtedViewSpec with MockitoSugar with MockAuthUtil {
 
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
+
   val injectedViewInstance = app.injector.instanceOf[views.html.editLiability.editLiabilityDatesLiable]
   private val form = PropertyDetailsForms.periodDatesLiableForm
-  override def view: Html = injectedViewInstance("",0,  form, Html(""), Some("backLink"))
+
+  override def view: Html = injectedViewInstance("", 0, form, Html(""), Some("backLink"))
+
   override def doc: Document = Jsoup.parse(view.toString())
+
   override def doc(view: Html): Document = Jsoup.parse(view.toString())
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-"Edit Liability Dates Liable view" must {
+
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
+  "Edit Liability Dates Liable view" must {
     behave like pageWithTitle(messages("ated.property-details-period.change-dates-liable.title"))
-  doc.getElementsByTag("h1").text.contains(messages("ated.property-details-period.change-dates-liable.header"))
-  doc.getElementsByTag("h1").text.contains(messages("ated.property-details.pre-header-change"))
-  doc.getElementsByClass("govuk-back-link").text === "Back"
-  doc.getElementsByClass("govuk-back-link").attr("href") === "http://backLink"
+    doc.getElementsByTag("h1").text.contains(messages("ated.property-details-period.change-dates-liable.header"))
+    doc.getElementsByTag("h1").text.contains(messages("ated.property-details.pre-header-change"))
+    doc.getElementsByClass("govuk-back-link").text === "Back"
+    doc.getElementsByClass("govuk-back-link").attr("href") === "http://backLink"
     behave like pageWithContinueButtonForm("/ated/liability//change/dates-liable/period/0")
 
     "check page contents and errors" in {
 
       val eform = Form(form.mapping, Map("isNewBuild" -> "true"),
         Seq(FormError("startDate", messages("ated.property-details-value.startDate.error.empty")),
-        FormError("endDate", messages("ated.property-details-value.endDate.error.empty")))
+          FormError("endDate", messages("ated.property-details-value.endDate.error.empty")))
         , form.value)
-       def view: Html = injectedViewInstance("",0,  eform, Html(""), Some("backLink"))
+
+      def view: Html = injectedViewInstance("", 0, eform, Html(""), Some("backLink"))
+
       val errorDoc = doc(view)
       TODO
       errorDoc.getElementsByClass("govuk-error-message").text.contains(messages("ated.property-details-value.startDate.error.empty"))
@@ -65,7 +73,6 @@ class EditLiabilityDatesLiableSpec extends AtedViewSpec with MockitoSugar with M
 
     }
   }
-
 
 
 }
