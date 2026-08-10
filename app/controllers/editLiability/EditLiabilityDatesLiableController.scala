@@ -20,10 +20,10 @@ import config.ApplicationConfig
 import controllers.auth.{AuthAction, ClientHelper}
 import controllers.propertyDetails.{PropertyDetailsHelpers, PropertyDetailsTaxAvoidanceSchemeController}
 import forms.PropertyDetailsForms
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 
 import javax.inject.Inject
-import models._
+import models.*
 import play.api.i18n.{Messages, MessagesImpl}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{BackLinkCacheService, DataCacheService, PropertyDetailsCacheSuccessResponse, PropertyDetailsService, ServiceInfoService}
@@ -40,15 +40,15 @@ class EditLiabilityDatesLiableController @Inject()(mcc: MessagesControllerCompon
                                                    val dataCacheService: DataCacheService,
                                                    val backLinkCacheService: BackLinkCacheService,
                                                    template: views.html.editLiability.editLiabilityDatesLiable)
-                                                  (implicit val appConfig: ApplicationConfig)
+                                                  (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   val controllerId = "EditLiabilityDatesLiableController"
 
-  implicit lazy val messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
+  given messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
 
   val dateFields = Seq(("startDate", Messages("ated.property-details-period.datesLiable.startDate.messageKey")),
     ("endDate", Messages("ated.property-details-period.datesLiable.endDate.messageKey")))

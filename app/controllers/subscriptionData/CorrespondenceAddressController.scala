@@ -36,10 +36,10 @@ class CorrespondenceAddressController @Inject()(mcc: MessagesControllerComponent
                                                 val environment: Environment,
                                                 template: views.html.subcriptionData.correspondenceAddress,
                                                 templateError: views.html.global_error)
-                                               (implicit val appConfig: ApplicationConfig)
+                                               (using val appConfig: ApplicationConfig)
   extends FrontendController(mcc) with CountryCodeUtils with WithUnsafeDefaultFormBinding with Logging {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   def editAddress: Action[AnyContent] = Action.async { implicit request =>
     authAction.authorisedAction { implicit authContext =>

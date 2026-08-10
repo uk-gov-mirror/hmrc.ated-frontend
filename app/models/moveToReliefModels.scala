@@ -21,13 +21,13 @@ import play.api.libs.json.{Json, OFormat}
 case class MoveToRelief(reliefType: Option[String] = None)
 
 object MoveToRelief {
-  implicit val formats: OFormat[MoveToRelief] = Json.format[MoveToRelief]
+  given formats: OFormat[MoveToRelief] = Json.format[MoveToRelief]
 }
 
 case class MoveToReliefCalculated(liabilityAmount: BigDecimal, amountDueOrRefund: BigDecimal)
 
 object MoveToReliefCalculated {
-  implicit val formats: OFormat[MoveToReliefCalculated] = Json.format[MoveToReliefCalculated]
+  given formats: OFormat[MoveToReliefCalculated] = Json.format[MoveToReliefCalculated]
 }
 
 case class MoveToReliefData(id: String,
@@ -38,5 +38,5 @@ case class MoveToReliefData(id: String,
                             bankDetails: Option[BankDetailsModel] = None)
 
 object MoveToReliefData {
-  implicit val formats: OFormat[MoveToReliefData] = Json.format[MoveToReliefData]
+  given formats: OFormat[MoveToReliefData] = Json.format[MoveToReliefData]
 }

@@ -24,14 +24,14 @@ import models.{Reliefs, ReliefsTaxAvoidance, TaxAvoidance}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.{BackLinkCacheService, DataCacheService, ReliefsService, ServiceInfoService}
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.auth.core.AffinityGroup
@@ -44,8 +44,8 @@ import scala.concurrent.Future
 
 class AvoidanceSchemesControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with MockAuthUtil {
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given hc: HeaderCarrier = HeaderCarrier()
 
   val mockMcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   val mockReliefsSummaryController: ReliefsSummaryController = mock[ReliefsSummaryController]
@@ -53,7 +53,7 @@ class AvoidanceSchemesControllerSpec extends PlaySpec with GuiceOneServerPerSuit
   val mockDataCacheService: DataCacheService = mock[DataCacheService]
   val mockBackLinkCacheService: BackLinkCacheService = mock[BackLinkCacheService]
   val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+  given messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
   val btaNavigationLinksView: BtaNavigationLinks = app.injector.instanceOf[BtaNavigationLinks]
   val mockServiceInfoService: ServiceInfoService = mock[ServiceInfoService]
   val injectedViewInstance: avoidanceSchemes = app.injector.instanceOf[views.html.reliefs.avoidanceSchemes]
@@ -88,19 +88,19 @@ class AvoidanceSchemesControllerSpec extends PlaySpec with GuiceOneServerPerSuit
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
 
-      when(mockDataCacheService.fetchAndGetData[String](eqTo(AtedConstants.DelegatedClientAtedRefNumber))(any(), any()))
+      when(mockDataCacheService.fetchAndGetData[String](eqTo(AtedConstants.DelegatedClientAtedRefNumber))(using any(), any()))
         .thenReturn(Future.successful(Some("XN1200000100001")))
 
-      when(mockReliefsService.retrieveDraftReliefs(any(), any())(any(), any()))
+      when(mockReliefsService.retrieveDraftReliefs(any(), any())(using any(), any()))
         .thenReturn(Future.successful(testReliefs))
 
-      when(mockBackLinkCacheService.fetchAndGetBackLink(any())(any()))
+      when(mockBackLinkCacheService.fetchAndGetBackLink(any())(using any()))
         .thenReturn(Future.successful(None))
 
-      when(mockBackLinkCacheService.saveBackLink(any(), any())(any()))
+      when(mockBackLinkCacheService.saveBackLink(any(), any())(using any()))
         .thenReturn(Future.successful(None))
 
-      when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
 
       val result = testAvoidanceSchemesController.view(periodKey).apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
@@ -110,19 +110,19 @@ class AvoidanceSchemesControllerSpec extends PlaySpec with GuiceOneServerPerSuit
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, invalidEnrolmentSet)
       setForbiddenAuthMocks(authMock)
-      when(mockDataCacheService.fetchAndGetData[String](eqTo(AtedConstants.DelegatedClientAtedRefNumber))(any(), any()))
+      when(mockDataCacheService.fetchAndGetData[String](eqTo(AtedConstants.DelegatedClientAtedRefNumber))(using any(), any()))
         .thenReturn(Future.successful(Some("XN1200000100001")))
 
-      when(mockReliefsService.retrieveDraftReliefs(any(), any())(any(), any()))
+      when(mockReliefsService.retrieveDraftReliefs(any(), any())(using any(), any()))
         .thenReturn(Future.successful(testReliefs))
 
-      when(mockBackLinkCacheService.fetchAndGetBackLink(any())(any()))
+      when(mockBackLinkCacheService.fetchAndGetBackLink(any())(using any()))
         .thenReturn(Future.successful(None))
 
-      when(mockBackLinkCacheService.saveBackLink(any(), any())(any()))
+      when(mockBackLinkCacheService.saveBackLink(any(), any())(using any()))
         .thenReturn(Future.successful(None))
 
-      when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
 
       val result = testAvoidanceSchemesController.view(periodKey).apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
@@ -132,7 +132,7 @@ class AvoidanceSchemesControllerSpec extends PlaySpec with GuiceOneServerPerSuit
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, invalidEnrolmentSet)
       setInvalidAuthMocks(authMock)
-      when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
       val result = testAvoidanceSchemesController.view(periodKey).apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
     }
@@ -141,7 +141,7 @@ class AvoidanceSchemesControllerSpec extends PlaySpec with GuiceOneServerPerSuit
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, invalidEnrolmentSet)
       setInvalidAuthMocks(authMock)
-      when(mockBackLinkCacheService.saveBackLink(any(), any())(any())).thenReturn(Future.successful(None))
+      when(mockBackLinkCacheService.saveBackLink(any(), any())(using any())).thenReturn(Future.successful(None))
       val result = testAvoidanceSchemesController.submit(periodKey).apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
     }
@@ -151,15 +151,15 @@ class AvoidanceSchemesControllerSpec extends PlaySpec with GuiceOneServerPerSuit
       val userId = s"user-${UUID.randomUUID}"
 
       when(mockDataCacheService.fetchAndGetData[String](eqTo(AtedConstants.DelegatedClientAtedRefNumber))
-        (any(), any())).thenReturn(Future.successful(Some("XN1200000100001")))
+        (using any(), any())).thenReturn(Future.successful(Some("XN1200000100001")))
 
-      when(mockReliefsService.retrieveDraftReliefs(any(), any())(any(), any()))
+      when(mockReliefsService.retrieveDraftReliefs(any(), any())(using any(), any()))
         .thenReturn(Future.successful(Some(avoidanceSchemes)))
 
-      when(mockReliefsService.saveDraftTaxAvoidance(any(), any(), any())(any(), any()))
+      when(mockReliefsService.saveDraftTaxAvoidance(any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(Some(avoidanceSchemes)))
 
-      when(mockBackLinkCacheService.saveBackLink(any(), any())(any()))
+      when(mockBackLinkCacheService.saveBackLink(any(), any())(using any()))
         .thenReturn(Future.successful(None))
 
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
@@ -174,16 +174,16 @@ class AvoidanceSchemesControllerSpec extends PlaySpec with GuiceOneServerPerSuit
     def submitForbiddenUser(formData: Seq[(String, String)], avoidanceSchemes: ReliefsTaxAvoidance = testAvoidanceScheme)(test: Future[Result] => Any): Unit = {
       val userId = s"user-${UUID.randomUUID}"
 
-      when(mockDataCacheService.fetchAndGetData[String](eqTo(AtedConstants.DelegatedClientAtedRefNumber))(any(), any()))
+      when(mockDataCacheService.fetchAndGetData[String](eqTo(AtedConstants.DelegatedClientAtedRefNumber))(using any(), any()))
         .thenReturn(Future.successful(Some("XN1200000100001")))
 
-      when(mockReliefsService.retrieveDraftReliefs(any(), any())(any(), any()))
+      when(mockReliefsService.retrieveDraftReliefs(any(), any())(using any(), any()))
         .thenReturn(Future.successful(Some(avoidanceSchemes)))
 
-      when(mockReliefsService.saveDraftTaxAvoidance(any(), any(), any())(any(), any()))
+      when(mockReliefsService.saveDraftTaxAvoidance(any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(Some(avoidanceSchemes)))
 
-      when(mockBackLinkCacheService.saveBackLink(any(), any())(any()))
+      when(mockBackLinkCacheService.saveBackLink(any(), any())(using any()))
         .thenReturn(Future.successful(None))
 
       val authMock = authResultDefault(AffinityGroup.Organisation, invalidEnrolmentSet)
@@ -294,7 +294,7 @@ class AvoidanceSchemesControllerSpec extends PlaySpec with GuiceOneServerPerSuit
           "for invalid data, return BAD_REQUEST" in new Setup {
             val formInput: Seq[Nothing] = Seq()
 
-            when(mockBackLinkCacheService.fetchAndGetBackLink(any())(any()))
+            when(mockBackLinkCacheService.fetchAndGetBackLink(any())(using any()))
               .thenReturn(Future.successful(None))
 
             submitWithAuthorisedUser(formInput) { result =>
@@ -309,7 +309,7 @@ class AvoidanceSchemesControllerSpec extends PlaySpec with GuiceOneServerPerSuit
           "if avoidance scheme is not valid and promoter is empty, bad request must be returned" in new Setup {
             val formInput: Seq[(String, String)] = Seq(("rentalBusinessScheme", "ABC123"))
 
-            when(mockBackLinkCacheService.fetchAndGetBackLink(any())(any()))
+            when(mockBackLinkCacheService.fetchAndGetBackLink(any())(using any()))
               .thenReturn(Future.successful(None))
 
             submitWithAuthorisedUser(formInput) { result =>
@@ -327,7 +327,7 @@ class AvoidanceSchemesControllerSpec extends PlaySpec with GuiceOneServerPerSuit
           "if avoidance scheme length is greater than 8 char + letter and promoter is grater than 8 char, bad request must be returned" in new Setup {
             val formInput: Seq[(String, String)] = Seq(("rentalBusinessScheme", "12345678a"), ("rentalBusinessSchemePromoter", "123456789"))
 
-            when(mockBackLinkCacheService.fetchAndGetBackLink(any())(any()))
+            when(mockBackLinkCacheService.fetchAndGetBackLink(any())(using any()))
               .thenReturn(Future.successful(None))
 
             submitWithAuthorisedUser(formInput) { result =>
@@ -345,7 +345,7 @@ class AvoidanceSchemesControllerSpec extends PlaySpec with GuiceOneServerPerSuit
           "if avoidance scheme length is greater than 8 char and promoter is invalid, bad request must be returned" in new Setup {
             val formInput: Seq[(String, String)] = Seq(("rentalBusinessScheme", "123456789"), ("rentalBusinessSchemePromoter", "aaaaaaaa"))
 
-            when(mockBackLinkCacheService.fetchAndGetBackLink(any())(any()))
+            when(mockBackLinkCacheService.fetchAndGetBackLink(any())(using any()))
               .thenReturn(Future.successful(None))
 
             submitWithAuthorisedUser(formInput) { result =>
@@ -374,7 +374,7 @@ class AvoidanceSchemesControllerSpec extends PlaySpec with GuiceOneServerPerSuit
               taxAvoidance = TaxAvoidance()
             )
 
-            when(mockBackLinkCacheService.fetchAndGetBackLink(any())(any()))
+            when(mockBackLinkCacheService.fetchAndGetBackLink(any())(using any()))
               .thenReturn(Future.successful(None))
 
             submitWithAuthorisedUser(formInput, reliefs) { result =>

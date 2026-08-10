@@ -19,7 +19,7 @@ package controllers.propertyDetails
 import models.StandardAuthRetrievals
 import play.api.mvc.Result
 import play.api.mvc.Results._
-import services._
+import services.*
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -29,7 +29,7 @@ trait PropertyDetailsHelpers extends BackLinkService {
   def propertyDetailsService: PropertyDetailsService
 
   def propertyDetailsCacheResponse(id: String)(f: PartialFunction[PropertyDetailsCacheResponse, Future[Result]])
-                                   (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Result] = {
+                                   (using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Result] = {
 
     val handleError: PartialFunction[PropertyDetailsCacheResponse, Future[Result]] = {
       case PropertyDetailsCacheNotFoundResponse | PropertyDetailsCacheErrorResponse =>

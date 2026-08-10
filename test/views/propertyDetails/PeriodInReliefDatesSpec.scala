@@ -17,7 +17,7 @@
 package views.propertyDetails
 
 import config.ApplicationConfig
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import models.StandardAuthRetrievals
 import org.jsoup.Jsoup
 import org.scalatest.featurespec.AnyFeatureSpecLike
@@ -34,14 +34,17 @@ import views.html.propertyDetails.periodInReliefDates
 class PeriodInReliefDatesSpec extends AnyFeatureSpecLike with GuiceOneAppPerSuite with MockitoSugar
   with BeforeAndAfterEach with GivenWhenThen with MockAuthUtil {
 
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
+
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
   val injectedViewInstance: periodInReliefDates = app.injector.instanceOf[views.html.propertyDetails.periodInReliefDates]
 
-Feature("The user can add a period that the property is in relief") {
+  Feature("The user can add a period that the property is in relief") {
 
     info("as a client i want to indicate when my property is in relief")
 
@@ -74,7 +77,7 @@ Feature("The user can add a period that the property is in relief") {
       assert(document.getElementById("startDate.year").attr("value") === "")
       assert(document.getElementById("endDate.day").attr("value") === "")
       assert(document.getElementById("endDate.month").attr("value") === "")
-      assert( document.getElementById("endDate.year").attr("value") === "")
+      assert(document.getElementById("endDate.year").attr("value") === "")
 
       Then("The submit button should have the correct name")
       assert(document.getElementById("submit").text() === "Save and continue")

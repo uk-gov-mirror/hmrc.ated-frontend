@@ -21,11 +21,11 @@ import play.api.libs.json.{Json, OFormat}
 case class RemoveClient(atedReferenceNo: String, clientName: String)
 
 object RemoveClient {
-  implicit val formats: OFormat[RemoveClient] = Json.format[RemoveClient]
+  given formats: OFormat[RemoveClient] = Json.format[RemoveClient]
 }
 
 case class RejectClient(atedReferenceNo: String, clientName: String)
 
 object RejectClient {
-  implicit val formats: OFormat[RejectClient] = Json.format[RejectClient]
+  given formats: OFormat[RejectClient] = Json.format[RejectClient]
 }

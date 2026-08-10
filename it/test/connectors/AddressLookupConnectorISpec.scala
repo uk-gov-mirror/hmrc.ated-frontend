@@ -19,14 +19,14 @@ package test.connectors
 import connectors.AddressLookupConnector
 import models.{AddressLookup, AddressLookupCountry, AddressLookupRecord, AddressSearchResult}
 import play.api.test.Injecting
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import test.helpers.IntegrationBase
 import test.helpers.stubs.{AddressLookupStub, AuthAudit}
 import uk.gov.hmrc.http.HeaderCarrier
 
 class AddressLookupConnectorISpec extends IntegrationBase with AuthAudit with Injecting {
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
+  given hc: HeaderCarrier = HeaderCarrier()
 
   val connector = inject[AddressLookupConnector]
 

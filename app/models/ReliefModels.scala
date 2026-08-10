@@ -43,7 +43,7 @@ case class TaxAvoidance(
                          )
 
 object TaxAvoidance {
-  implicit val formats: OFormat[TaxAvoidance] = Json.format[TaxAvoidance]
+  given formats: OFormat[TaxAvoidance] = Json.format[TaxAvoidance]
 }
 
 case class Reliefs(periodKey: Int,
@@ -68,7 +68,7 @@ case class Reliefs(periodKey: Int,
                    isAvoidanceScheme: Option[Boolean] = None)
 
 object Reliefs {
-  implicit val formats: OFormat[Reliefs] = Json.format[Reliefs]
+  given formats: OFormat[Reliefs] = Json.format[Reliefs]
 }
 
 
@@ -76,7 +76,7 @@ case class IsTaxAvoidance(isAvoidanceScheme: Option[Boolean] = None)
 
 
 object IsTaxAvoidance {
-  implicit val formats: OFormat[IsTaxAvoidance] = Json.format[IsTaxAvoidance]
+  given formats: OFormat[IsTaxAvoidance] = Json.format[IsTaxAvoidance]
 }
 
 
@@ -88,5 +88,5 @@ case class ReliefsTaxAvoidance(atedRefNo: String,
                                periodEndDate: LocalDate)
 
 object ReliefsTaxAvoidance {
-  implicit val formats: OFormat[ReliefsTaxAvoidance] = Json.format[ReliefsTaxAvoidance]
+  given formats: OFormat[ReliefsTaxAvoidance] = Json.format[ReliefsTaxAvoidance]
 }

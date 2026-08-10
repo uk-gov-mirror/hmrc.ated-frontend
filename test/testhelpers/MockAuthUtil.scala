@@ -60,7 +60,7 @@ trait MockAuthUtil extends MockitoSugar with TestUtil {
                     authResult: Enrolments ~ Some[AffinityGroup] ~ Some[String]
                   ): OngoingStubbing[Future[Enrolments ~ Some[AffinityGroup] ~ Some[String]]] = {
 
-    when(mockDelegationService.delegationCall(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some(delegationModel)))
+    when(mockDelegationService.delegationCall(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some(delegationModel)))
     when(mockAuthConnector.authorise[Enrolments ~ Some[AffinityGroup] ~ Some[String]]
       (ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(authResult))
@@ -69,7 +69,7 @@ trait MockAuthUtil extends MockitoSugar with TestUtil {
   def noDelegationModelAuthMocks(
                                   authResult: Enrolments ~ Some[AffinityGroup] ~ Some[String]
                                 ): OngoingStubbing[Future[Enrolments ~ Some[AffinityGroup] ~ Some[String]]] = {
-    when(mockDelegationService.delegationCall(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockDelegationService.delegationCall(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
     when(mockAuthConnector.authorise[Enrolments ~ Some[AffinityGroup] ~ Some[String]]
       (ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(authResult))
@@ -79,7 +79,7 @@ trait MockAuthUtil extends MockitoSugar with TestUtil {
                            authResult: Enrolments ~ Some[AffinityGroup] ~ Some[String]
                          ): OngoingStubbing[Future[Enrolments ~ Some[AffinityGroup] ~ Some[String]]] = {
 
-    when(mockDelegationService.delegationCall(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some(delegationModel)))
+    when(mockDelegationService.delegationCall(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some(delegationModel)))
     when(mockAuthConnector.authorise[Enrolments ~ Some[AffinityGroup] ~ Some[String]]
       (ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.failed(InsufficientEnrolments("Auth Error")))
@@ -89,7 +89,7 @@ trait MockAuthUtil extends MockitoSugar with TestUtil {
                              authResult: Enrolments ~ Some[AffinityGroup] ~ Some[String]
                            ): OngoingStubbing[Future[Enrolments ~ Some[AffinityGroup] ~ Some[String]]] = {
 
-    when(mockDelegationService.delegationCall(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockDelegationService.delegationCall(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
     when(mockAuthConnector.authorise[Enrolments ~ Some[AffinityGroup] ~ Some[String]]
       (ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(authResult))

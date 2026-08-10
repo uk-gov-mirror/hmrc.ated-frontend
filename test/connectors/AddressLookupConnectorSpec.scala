@@ -18,8 +18,8 @@ package connectors
 
 import java.util.UUID
 import config.ApplicationConfig
-import models._
-import org.mockito.Mockito._
+import models.*
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -32,7 +32,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AddressLookupConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with BeforeAndAfterEach with MockAuthUtil with Injecting {
 
-  implicit val ec: ExecutionContext = inject[ExecutionContext]
+  given ec: ExecutionContext = inject[ExecutionContext]
   val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
 
   class Setup extends ConnectorTest {
@@ -51,7 +51,7 @@ class AddressLookupConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with 
       "retrieve the Addresses Based on Post Code" in new Setup {
 
         val response = List(addressLookupRecord)
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         when(requestBuilderExecute[List[AddressLookupRecord]]).thenReturn(Future.successful(response))
 
         val result: Future[List[AddressLookupRecord]] = testAddressLookupConnector.findByPostcode(AddressLookup("postCode", None))
@@ -60,7 +60,7 @@ class AddressLookupConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with 
 
       "return nil if something goes wrong" in new Setup {
 
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         when(requestBuilderExecute[List[AddressLookupRecord]]).thenReturn(Future.failed(new Exception("")))
 
         val result: Future[List[AddressLookupRecord]] = testAddressLookupConnector.findByPostcode(AddressLookup("postCode", Some("houseName")))
@@ -73,7 +73,7 @@ class AddressLookupConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with 
       "retrieve the from the id" in new Setup {
 
         val response = List(addressLookupRecord)
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         when(requestBuilderExecute[List[AddressLookupRecord]]).thenReturn(Future.successful(response))
 
         val result: Future[List[AddressLookupRecord]] = testAddressLookupConnector.findById("1")
@@ -82,7 +82,7 @@ class AddressLookupConnectorSpec extends PlaySpec with GuiceOneAppPerSuite with 
 
       "return None if something goes wrong" in new Setup {
 
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         when(requestBuilderExecute[List[AddressLookupRecord]]).thenReturn(Future.failed(new NotFoundException("")))
 
         val result: Future[List[AddressLookupRecord]] = testAddressLookupConnector.findById("1")

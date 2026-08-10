@@ -21,25 +21,25 @@ import builders.{SessionBuilder, TitleBuilder}
 import config.ApplicationConfig
 import connectors.AgentClientMandateFrontendConnector
 import controllers.auth.AuthAction
-import models._
+import models.*
 import java.time.LocalDate
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Result}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.Injecting
 import play.twirl.api.Html
-import services._
+import services.*
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.partials.HtmlPartial
 import utils.TestModels
 import views.html.{BtaNavigationLinks, prevPeriodsSummary}
@@ -49,9 +49,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class PrevPeriodsSummaryControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar
   with BeforeAndAfterEach with MockAuthUtil with TestModels with Injecting {
 
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
-  implicit val ec: ExecutionContext = inject[ExecutionContext]
-  implicit val mockAppConfig: ApplicationConfig = mock[ApplicationConfig]
+  given hc: HeaderCarrier = HeaderCarrier()
+
+  given ec: ExecutionContext = inject[ExecutionContext]
+
+  given mockAppConfig: ApplicationConfig = mock[ApplicationConfig]
+
   val mockMcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   val mockDataCacheService: DataCacheService = mock[DataCacheService]
   val mockSummaryReturnsService: SummaryReturnsService = mock[SummaryReturnsService]
@@ -60,7 +63,9 @@ class PrevPeriodsSummaryControllerSpec extends PlaySpec with GuiceOneServerPerSu
   val mockDetailsService: DetailsService = mock[DetailsService]
   val mockDateService: DateService = mock[DateService]
   val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+
+  given messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+
   val btaNavigationLinksView: BtaNavigationLinks = app.injector.instanceOf[BtaNavigationLinks]
   val mockServiceInfoService: ServiceInfoService = mock[ServiceInfoService]
   when(mockDateService.now()).thenReturn(LocalDate.now())
@@ -97,16 +102,16 @@ class PrevPeriodsSummaryControllerSpec extends PlaySpec with GuiceOneServerPerSu
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
 
-      when(mockDataCacheService.clearCache()(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(httpValue, "")))
-      when(mockSummaryReturnsService.getSummaryReturns(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(returnsSummaryWithDraft))
-      when(mockSubscriptionDataService.getCorrespondenceAddress(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(correspondence))
-      when(mockSubscriptionDataService.getOrganisationName(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(organisationName)))
-      when(mockSubscriptionDataService.getSafeId(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("safeId")))
-      when(mockMandateFrontendConnector.getClientBannerPartial(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockDataCacheService.clearCache()(using ArgumentMatchers.any())).thenReturn(Future.successful(()))
+      when(mockSummaryReturnsService.getSummaryReturns(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(returnsSummaryWithDraft))
+      when(mockSubscriptionDataService.getCorrespondenceAddress(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(correspondence))
+      when(mockSubscriptionDataService.getOrganisationName(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(organisationName)))
+      when(mockSubscriptionDataService.getSafeId(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("safeId")))
+      when(mockMandateFrontendConnector.getClientBannerPartial(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(HtmlPartial.Success(Some("thepartial"), Html(""))))
-      when(mockDetailsService.cacheClientReference(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockDetailsService.cacheClientReference(ArgumentMatchers.any())(using ArgumentMatchers.any()))
         .thenReturn(Future.successful("XN1200000100001"))
-      when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Html("")))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Html("")))
 
       val result = testPrevPreviousSummaryController.view().apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
@@ -119,16 +124,16 @@ class PrevPeriodsSummaryControllerSpec extends PlaySpec with GuiceOneServerPerSu
       val authMock = authResultDefault(AffinityGroup.Organisation, invalidEnrolmentSet)
       setForbiddenAuthMocks(authMock)
 
-      when(mockDataCacheService.clearCache()(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(httpValue, "")))
-      when(mockSummaryReturnsService.getSummaryReturns(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(returnsSummaryWithDraft))
+      when(mockDataCacheService.clearCache()(using ArgumentMatchers.any())).thenReturn(Future.successful(()))
+      when(mockSummaryReturnsService.getSummaryReturns(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(returnsSummaryWithDraft))
       when(mockSummaryReturnsService.generateCurrentTaxYearReturns(ArgumentMatchers.any())).thenReturn(Future.successful(Tuple3(Seq(), 0, false)))
-      when(mockSubscriptionDataService.getCorrespondenceAddress(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(correspondence))
-      when(mockSubscriptionDataService.getOrganisationName(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSubscriptionDataService.getCorrespondenceAddress(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(correspondence))
+      when(mockSubscriptionDataService.getOrganisationName(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(organisationName)))
-      when(mockSubscriptionDataService.getSafeId(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("safeId")))
-      when(mockMandateFrontendConnector.getClientBannerPartial(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSubscriptionDataService.getSafeId(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("safeId")))
+      when(mockMandateFrontendConnector.getClientBannerPartial(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(HtmlPartial.Success(Some("thepartial"), Html(""))))
-      when(mockDetailsService.cacheClientReference(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockDetailsService.cacheClientReference(ArgumentMatchers.any())(using ArgumentMatchers.any()))
         .thenReturn(Future.successful("XN1200000100001"))
 
       val result = testPrevPreviousSummaryController.view().apply(SessionBuilder.buildRequestWithSession(userId))
@@ -141,14 +146,14 @@ class PrevPeriodsSummaryControllerSpec extends PlaySpec with GuiceOneServerPerSu
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Agent, agentEnrolmentSet)
       setAuthMocks(authMock)
-      when(mockDataCacheService.clearCache()(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(httpValue, "")))
-      when(mockSummaryReturnsService.getSummaryReturns(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(returnsSummaryWithDraft))
-      when(mockSubscriptionDataService.getCorrespondenceAddress(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(correspondence))
-      when(mockSubscriptionDataService.getOrganisationName(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(organisationName)))
-      when(mockSubscriptionDataService.getSafeId(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("safeId")))
-      when(mockMandateFrontendConnector.getClientBannerPartial(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockDataCacheService.clearCache()(using ArgumentMatchers.any())).thenReturn(Future.successful(()))
+      when(mockSummaryReturnsService.getSummaryReturns(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(returnsSummaryWithDraft))
+      when(mockSubscriptionDataService.getCorrespondenceAddress(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(correspondence))
+      when(mockSubscriptionDataService.getOrganisationName(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(organisationName)))
+      when(mockSubscriptionDataService.getSafeId(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("safeId")))
+      when(mockMandateFrontendConnector.getClientBannerPartial(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(HtmlPartial.Success(Some("thepartial"), Html(""))))
-      when(mockDetailsService.cacheClientReference(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockDetailsService.cacheClientReference(ArgumentMatchers.any())(using ArgumentMatchers.any()))
         .thenReturn(Future.successful("XN1200000100001"))
       val result = testPrevPreviousSummaryController.view().apply(SessionBuilder.buildRequestWithSessionDelegation(userId))
       test(result)
@@ -202,7 +207,7 @@ class PrevPeriodsSummaryControllerSpec extends PlaySpec with GuiceOneServerPerSu
             val document = Jsoup.parse(contentAsString(result))
 
             document.title() must be(TitleBuilder.buildTitle("Your previous returns"))
-            document.getElementsByTag("h1").text() must include ("Your previous returns")
+            document.getElementsByTag("h1").text() must include("Your previous returns")
             document.getElementsByClass("govuk-caption-xl").text() must be(s"You are logged in as: $organisationName")
         }
       }
@@ -237,14 +242,14 @@ class PrevPeriodsSummaryControllerSpec extends PlaySpec with GuiceOneServerPerSu
         val userId = s"user-${UUID.randomUUID}"
         val authMock: Enrolments ~ Some[AffinityGroup] ~ Some[String] = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
         setAuthMocks(authMock)
-        when(mockDataCacheService.clearCache()(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(httpValue, "")))
-        when(mockSummaryReturnsService.getSummaryReturns(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(data))
-        when(mockSubscriptionDataService.getCorrespondenceAddress(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
-        when(mockDetailsService.cacheClientReference(ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockDataCacheService.clearCache()(using ArgumentMatchers.any())).thenReturn(Future.successful(()))
+        when(mockSummaryReturnsService.getSummaryReturns(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(data))
+        when(mockSubscriptionDataService.getCorrespondenceAddress(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockDetailsService.cacheClientReference(ArgumentMatchers.any())(using ArgumentMatchers.any()))
           .thenReturn(Future.successful("XN1200000100001"))
-        when(mockSubscriptionDataService.getOrganisationName(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(organisationName)))
-        when(mockSubscriptionDataService.getSafeId(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
-        when(mockMandateFrontendConnector.getClientBannerPartial(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockSubscriptionDataService.getOrganisationName(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(organisationName)))
+        when(mockSubscriptionDataService.getSafeId(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockMandateFrontendConnector.getClientBannerPartial(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(HtmlPartial.Success(Some("thepartial"), Html(""))))
 
         val result: Future[Result] = testPrevPreviousSummaryController.view().apply(SessionBuilder.buildRequestWithSession(userId))

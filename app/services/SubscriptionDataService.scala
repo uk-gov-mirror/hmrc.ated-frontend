@@ -17,22 +17,22 @@
 package services
 
 import javax.inject.Inject
-import models._
+import models.*
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.AtedConstants._
+import utils.AtedConstants.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class SubscriptionDataService @Inject()(dataCacheService: DataCacheService,
                                         subscriptionDataAdapterService: SubscriptionDataAdapterService,
                                         detailsService: DetailsService)
-                                       (implicit ec: ExecutionContext){
+                                       (using ec: ExecutionContext){
 
-  private def retrieveCachedData(implicit hc: HeaderCarrier): Future[Option[CachedData]] = {
+  private def retrieveCachedData(using hc: HeaderCarrier): Future[Option[CachedData]] = {
     dataCacheService.fetchAndGetData[CachedData](RetrieveSubscriptionDataId)
   }
 
-  private def retrieveAndCacheData(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[CachedData]] = {
+  private def retrieveAndCacheData(using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[CachedData]] = {
     for {
       cachedReturns <- retrieveCachedData
       etmpOrCachedData <- cachedReturns match {
@@ -44,7 +44,7 @@ class SubscriptionDataService @Inject()(dataCacheService: DataCacheService,
     }
   }
 
-  private def retrieveDataToCache(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[CachedData]] = {
+  private def retrieveDataToCache(using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[CachedData]] = {
     for {
       subscriptionData <- subscriptionDataAdapterService.retrieveSubscriptionData
       registrationDetails <- subscriptionData match {
@@ -60,26 +60,26 @@ class SubscriptionDataService @Inject()(dataCacheService: DataCacheService,
     }
   }
 
-  def getCorrespondenceAddress(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[Address]] = {
+  def getCorrespondenceAddress(using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[Address]] = {
     retrieveAndCacheData.map { cachedData =>
       subscriptionDataAdapterService.getCorrespondenceAddress(cachedData.map(_.subscriptionData))
     }
   }
 
-  def getOrganisationName(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[String]] = {
+  def getOrganisationName(using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[String]] = {
     retrieveAndCacheData.map { cachedData =>
       subscriptionDataAdapterService.getOrganisationName(cachedData.flatMap(_.registrationDetails))
     }
   }
 
-  def getSafeId(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[String]] = {
+  def getSafeId(using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[String]] = {
     retrieveAndCacheData.map { cachedData =>
       subscriptionDataAdapterService.getSafeId(cachedData.map(_.subscriptionData))
     }
   }
 
   def updateCorrespondenceAddressDetails(updatedAddressDetails: AddressDetails)
-                                        (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[AddressDetails]] = {
+                                        (using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[AddressDetails]] = {
     def performCorrespondenceAddressUpdate(cachedData: CachedData, updatedData: AddressDetails): Future[Option[Any]] = {
       subscriptionDataAdapterService.createUpdateCorrespondenceAddressRequest(cachedData.subscriptionData, updatedData) match {
         case Some(x) => subscriptionDataAdapterService.updateSubscriptionData(x)
@@ -90,16 +90,16 @@ class SubscriptionDataService @Inject()(dataCacheService: DataCacheService,
     updateDetails[AddressDetails](performCorrespondenceAddressUpdate)(updatedAddressDetails)
   }
 
-  def getRegisteredDetails(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[RegisteredDetails]] = {
+  def getRegisteredDetails(using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[RegisteredDetails]] = {
     retrieveAndCacheData.map(_.flatMap(_.registrationDetails.map(_.registeredDetails)))
   }
 
-  def getOverseasCompanyRegistration(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[Identification]] = {
+  def getOverseasCompanyRegistration(using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[Identification]] = {
     retrieveAndCacheData.map(_.flatMap(_.registrationDetails.flatMap(_.nonUKIdentification)))
   }
 
   def updateRegisteredDetails(updatedRegisteredDetails: RegisteredDetails)
-                             (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[RegisteredDetails]] = {
+                             (using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[RegisteredDetails]] = {
     def performRegisteredDetailsUpdate(cachedData: CachedData, updatedData: RegisteredDetails): Future[Option[Any]] = {
       cachedData.registrationDetails match {
         case Some(x) => detailsService.updateOrganisationRegisteredDetails(x, updatedData)
@@ -110,7 +110,7 @@ class SubscriptionDataService @Inject()(dataCacheService: DataCacheService,
     updateDetails[RegisteredDetails](performRegisteredDetailsUpdate)(updatedRegisteredDetails)
   }
 
-  def updateOverseasCompanyRegistration(updatedDetails: Identification)(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[Identification]] = {
+  def updateOverseasCompanyRegistration(updatedDetails: Identification)(using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[Identification]] = {
     def performUpdate(cachedData: CachedData, updatedDetails: Identification): Future[Option[Any]] = {
       cachedData.registrationDetails match {
         case Some(x) => detailsService.updateOverseasCompanyRegistration(x, Some(updatedDetails))
@@ -122,7 +122,7 @@ class SubscriptionDataService @Inject()(dataCacheService: DataCacheService,
   }
 
   private def updateDetails[T](performUpdate: (CachedData, T) => Future[Option[Any]])(updatedData: T)
-                              (implicit hc: HeaderCarrier): Future[Option[T]] = {
+                              (using hc: HeaderCarrier): Future[Option[T]] = {
     for {
       cachedData <- retrieveCachedData
       updatedDataResponse <- {
@@ -140,13 +140,13 @@ class SubscriptionDataService @Inject()(dataCacheService: DataCacheService,
     }
   }
 
-  def getEmailConsent(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Boolean] = {
+  def getEmailConsent(using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Boolean] = {
     retrieveAndCacheData.map { cachedData =>
       cachedData.fold(false)(a => a.subscriptionData.emailConsent.getOrElse(false))
     }
   }
 
-  def getEmailWithConsent(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[EditContactDetailsEmail]] = {
+  def getEmailWithConsent(using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[EditContactDetailsEmail]] = {
     for {
       address <- getCorrespondenceAddress
       emailConsent <- getEmailConsent
@@ -160,7 +160,7 @@ class SubscriptionDataService @Inject()(dataCacheService: DataCacheService,
   }
 
   def editEmailWithConsent(editEmailWithConsent: EditContactDetailsEmail)
-                          (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[EditContactDetailsEmail]] = {
+                          (using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[EditContactDetailsEmail]] = {
     def performEmailWithConsentUpdate(cachedData: CachedData, editedData: EditContactDetailsEmail): Future[Option[Any]] = {
       subscriptionDataAdapterService.createEditEmailWithConsentRequest(cachedData.subscriptionData, editedData) match {
         case Some(x) => subscriptionDataAdapterService.updateSubscriptionData(x)
@@ -172,7 +172,7 @@ class SubscriptionDataService @Inject()(dataCacheService: DataCacheService,
   }
 
   def editContactDetails(editContactDetails: EditContactDetails)
-                        (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[EditContactDetails]] = {
+                        (using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[EditContactDetails]] = {
     def performContactDetailsUpdate(cachedData: CachedData, editedData: EditContactDetails): Future[Option[Any]] = {
       subscriptionDataAdapterService.createEditContactDetailsRequest(cachedData.subscriptionData, editedData) match {
         case Some(x) => subscriptionDataAdapterService.updateSubscriptionData(x)

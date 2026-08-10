@@ -21,18 +21,18 @@ import java.util.UUID
 import builders.SessionBuilder
 import config.ApplicationConfig
 import controllers.auth.AuthAction
-import models._
+import models.*
 import java.time.LocalDate
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Result}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.{DataCacheService, FormBundleReturnsService, ServiceInfoService, SubscriptionDataService, SummaryReturnsService}
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.auth.core.AffinityGroup
@@ -43,15 +43,15 @@ import scala.concurrent.Future
 
 class FormBundleReturnControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with MockAuthUtil {
 
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given hc: HeaderCarrier = HeaderCarrier()
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   val mockMcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   val mockDataCacheService: DataCacheService = mock[DataCacheService]
   val mockFormBundleReturnsService: FormBundleReturnsService = mock[FormBundleReturnsService]
   val mockSummaryReturnsService: SummaryReturnsService = mock[SummaryReturnsService]
   val mockSubscriptionDataService: SubscriptionDataService = mock[SubscriptionDataService]
   val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+  given messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
   val btaNavigationLinksView: BtaNavigationLinks = app.injector.instanceOf[BtaNavigationLinks]
   val mockServiceInfoService: ServiceInfoService = mock[ServiceInfoService]
   val injectedViewInstance: formBundleReturn = app.injector.instanceOf[views.html.formBundleReturn]
@@ -83,16 +83,16 @@ class FormBundleReturnControllerSpec extends PlaySpec with GuiceOneServerPerSuit
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
 
-      when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
 
-      when(mockFormBundleReturnsService.getFormBundleReturns(ArgumentMatchers.eq(formBundleNo1))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockFormBundleReturnsService.getFormBundleReturns(ArgumentMatchers.eq(formBundleNo1))(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(formBundleReturn))
 
-      when(mockSummaryReturnsService.getPeriodSummaryReturns(ArgumentMatchers.eq(periodKey))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSummaryReturnsService.getPeriodSummaryReturns(ArgumentMatchers.eq(periodKey))(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(periodSummaries))
 
-      when(mockSubscriptionDataService.getOrganisationName(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSubscriptionDataService.getOrganisationName(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(organisationName)))
 
       val result = testFormBundleReturnController.view(formBundleNo1, periodKey).apply(SessionBuilder.buildRequestWithSession(userId))

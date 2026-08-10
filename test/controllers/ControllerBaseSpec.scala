@@ -36,17 +36,17 @@ class ControllerBaseSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerS
 
   lazy val injector: Injector = app.injector
   lazy val messagesApi: MessagesApi = injector.instanceOf[MessagesApi]
-  implicit lazy val messages: Messages = messagesApi.preferred(Seq(Lang("en")))
+  given messages: Messages = messagesApi.preferred(Seq(Lang("en")))
   val mcc: MessagesControllerComponents = injector.instanceOf[MessagesControllerComponents]
   val migrationToETMP = "customerMigratedToETMPDate"
   val agentStandardRetrievals: StandardAuthRetrievals = StandardAuthRetrievals(agentEnrolmentSet, Some(agentAffinity), Some(delegationModel))
   val organisationStandardRetrievals: StandardAuthRetrievals = StandardAuthRetrievals(defaultEnrolmentSet, Some(organisationAffinity), Some(delegationModel))
 
-  implicit val ec: ExecutionContext = injector.instanceOf[ExecutionContext]
-  implicit val mockAppConfig: ApplicationConfig = mock[ApplicationConfig]
-  implicit val system: ActorSystem = ActorSystem()
-  implicit lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val hc: HeaderCarrier = HeaderCarrier()
+  given ec: ExecutionContext = injector.instanceOf[ExecutionContext]
+  given mockAppConfig: ApplicationConfig = mock[ApplicationConfig]
+  given system: ActorSystem = ActorSystem()
+  given fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given hc: HeaderCarrier = HeaderCarrier()
 
 
   lazy val fakeRequestWithSession: FakeRequest[AnyContentAsEmpty.type] = fakeRequest.withSession(

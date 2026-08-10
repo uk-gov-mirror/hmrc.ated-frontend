@@ -20,7 +20,7 @@ import builders.SessionBuilder
 import models.PropertyDetailsNewValuation
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import views.html.propertyDetails.propertyDetailsNewValuation
 
 class PropertyDetailsNewValuationControllerSpec extends PropertyDetailsTestFixture {

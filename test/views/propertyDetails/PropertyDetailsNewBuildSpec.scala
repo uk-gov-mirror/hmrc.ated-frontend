@@ -32,10 +32,10 @@ import views.html.propertyDetails.propertyDetailsNewBuild
 
 class PropertyDetailsNewBuildSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockAuthUtil {
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
   val injectedView = app.injector.instanceOf[propertyDetailsNewBuild]
 
   "propertyDetailsHasBeenRevalued" when {

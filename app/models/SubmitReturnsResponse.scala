@@ -23,7 +23,7 @@ import play.api.libs.json.{Json, JsString, OFormat, Reads, Writes}
 case class ReliefReturnResponse(reliefDescription: String, formBundleNumber: String)
 
 object ReliefReturnResponse {
-  implicit val formats: OFormat[ReliefReturnResponse] = Json.format[ReliefReturnResponse]
+  given formats: OFormat[ReliefReturnResponse] = Json.format[ReliefReturnResponse]
 }
 
 case class LiabilityReturnResponse(
@@ -35,7 +35,7 @@ case class LiabilityReturnResponse(
                                     )
 
 object LiabilityReturnResponse {
-  implicit val formats: OFormat[LiabilityReturnResponse] = Json.format[LiabilityReturnResponse]
+  given formats: OFormat[LiabilityReturnResponse] = Json.format[LiabilityReturnResponse]
 }
 
 
@@ -47,10 +47,10 @@ case class SubmitReturnsResponse(
 
 object SubmitReturnsResponse {
   val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ") //DateTime
-  implicit val zonedDateTimeReads: Reads[ZonedDateTime] = Reads.zonedDateTimeReads(formatter)
-  implicit val zonedDateTimeWrites: Writes[ZonedDateTime] = zdt => JsString(zdt.format(formatter))
+  given zonedDateTimeReads: Reads[ZonedDateTime] = Reads.zonedDateTimeReads(formatter)
+  given zonedDateTimeWrites: Writes[ZonedDateTime] = zdt => JsString(zdt.format(formatter))
 
-  implicit val formats: OFormat[SubmitReturnsResponse] = Json.format[SubmitReturnsResponse]
+  given formats: OFormat[SubmitReturnsResponse] = Json.format[SubmitReturnsResponse]
 }
 
 case class AlreadySubmittedReturnsResponse(
@@ -59,5 +59,5 @@ case class AlreadySubmittedReturnsResponse(
                                 )
 
 object AlreadySubmittedReturnsResponse {
-  implicit val formats: OFormat[AlreadySubmittedReturnsResponse] = Json.format[AlreadySubmittedReturnsResponse]
+  given formats: OFormat[AlreadySubmittedReturnsResponse] = Json.format[AlreadySubmittedReturnsResponse]
 }

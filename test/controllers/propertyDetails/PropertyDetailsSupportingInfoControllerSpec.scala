@@ -25,7 +25,7 @@ import models._
 import java.time.LocalDate
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -34,7 +34,7 @@ import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.{BackLinkCacheService, DataCacheService, PropertyDetailsCacheSuccessResponse, PropertyDetailsService, ServiceInfoService}
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.auth.core.AffinityGroup
@@ -52,8 +52,8 @@ class PropertyDetailsSupportingInfoControllerSpec
     with BeforeAndAfterEach
     with MockAuthUtil {
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit lazy val hc: HeaderCarrier           = HeaderCarrier()
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given hc: HeaderCarrier           = HeaderCarrier()
 
   val mockMcc: MessagesControllerComponents                                  = app.injector.instanceOf[MessagesControllerComponents]
   val mockPropertyDetailsService: PropertyDetailsService                     = mock[PropertyDetailsService]
@@ -62,7 +62,7 @@ class PropertyDetailsSupportingInfoControllerSpec
   val mockEditLiabilitySummaryController: EditLiabilitySummaryController     = mock[EditLiabilitySummaryController]
   val mockPropertyDetailsSummaryController: PropertyDetailsSummaryController = mock[PropertyDetailsSummaryController]
   val messagesApi: MessagesApi                                               = app.injector.instanceOf[MessagesApi]
-  lazy implicit val messages: MessagesImpl                                   = MessagesImpl(Lang("en-GB"), messagesApi)
+  given messages: MessagesImpl                                   = MessagesImpl(Lang("en-GB"), messagesApi)
   val btaNavigationLinksView: BtaNavigationLinks                             = app.injector.instanceOf[BtaNavigationLinks]
   val mockServiceInfoService: ServiceInfoService                             = mock[ServiceInfoService]
   val injectedViewInstance: propertyDetailsSupportingInfo = app.injector.instanceOf[views.html.propertyDetails.propertyDetailsSupportingInfo]
@@ -104,20 +104,20 @@ class PropertyDetailsSupportingInfoControllerSpec
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
 
-      when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(btaNavigationLinksView()(messages, mockAppConfig)))
 
-      when(mockDataCacheService.fetchAndGetData[Boolean](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockDataCacheService.fetchAndGetData[Boolean](ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
-      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
       when(
         mockDataCacheService
-          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("XN1200000100001")))
 
-      when(mockPropertyDetailsService.retrieveDraftPropertyDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockPropertyDetailsService.retrieveDraftPropertyDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(PropertyDetailsCacheSuccessResponse(propertyDetails)))
 
       val result = testPropertyDetailsSupportingInfoController.view(propertyDetails.id).apply(SessionBuilder.buildRequestWithSession(userId))
@@ -130,9 +130,9 @@ class PropertyDetailsSupportingInfoControllerSpec
       setAuthMocks(authMock)
       when(
         mockDataCacheService
-          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("XN1200000100001")))
-      when(mockPropertyDetailsService.retrieveDraftPropertyDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockPropertyDetailsService.retrieveDraftPropertyDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(PropertyDetailsCacheSuccessResponse(propertyDetails)))
       val result =
         testPropertyDetailsSupportingInfoController.editFromSummary(propertyDetails.id).apply(SessionBuilder.buildRequestWithSession(userId))
@@ -154,17 +154,17 @@ class PropertyDetailsSupportingInfoControllerSpec
       val userId         = s"user-${UUID.randomUUID}"
       when(
         mockDataCacheService
-          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("XN1200000100001")))
       when(
         mockPropertyDetailsService
-          .validateCalculateDraftPropertyDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .validateCalculateDraftPropertyDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(true))
       when(
         mockPropertyDetailsService
-          .saveDraftPropertyDetailsSupportingInfo(ArgumentMatchers.eq("1"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .saveDraftPropertyDetailsSupportingInfo(ArgumentMatchers.eq("1"), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(OK))
-      when(mockPropertyDetailsService.calculateDraftPropertyDetails(ArgumentMatchers.eq("1"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockPropertyDetailsService.calculateDraftPropertyDetails(ArgumentMatchers.eq("1"))(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, """{"Reason":"Agent not Valid"}""")))
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
@@ -180,17 +180,17 @@ class PropertyDetailsSupportingInfoControllerSpec
       val userId         = s"user-${UUID.randomUUID}"
       when(
         mockDataCacheService
-          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("XN1200000100001")))
       when(
         mockPropertyDetailsService
-          .validateCalculateDraftPropertyDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .validateCalculateDraftPropertyDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(true))
       when(
         mockPropertyDetailsService
-          .saveDraftPropertyDetailsSupportingInfo(ArgumentMatchers.eq("1"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .saveDraftPropertyDetailsSupportingInfo(ArgumentMatchers.eq("1"), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(OK))
-      when(mockPropertyDetailsService.calculateDraftPropertyDetails(ArgumentMatchers.eq("1"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockPropertyDetailsService.calculateDraftPropertyDetails(ArgumentMatchers.eq("1"))(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(FORBIDDEN, """""")))
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
@@ -206,21 +206,21 @@ class PropertyDetailsSupportingInfoControllerSpec
       val userId         = s"user-${UUID.randomUUID}"
       when(
         mockDataCacheService
-          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("XN1200000100001")))
       when(
         mockDataCacheService
-          .fetchAndGetData[Boolean](ArgumentMatchers.eq(AtedConstants.SelectedPreviousReturn))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .fetchAndGetData[Boolean](ArgumentMatchers.eq(AtedConstants.SelectedPreviousReturn))(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(true)))
       when(
         mockPropertyDetailsService
-          .validateCalculateDraftPropertyDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .validateCalculateDraftPropertyDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(true))
       when(
         mockPropertyDetailsService
-          .saveDraftPropertyDetailsSupportingInfo(ArgumentMatchers.eq("1"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .saveDraftPropertyDetailsSupportingInfo(ArgumentMatchers.eq("1"), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(OK))
-      when(mockPropertyDetailsService.calculateDraftPropertyDetails(ArgumentMatchers.eq("1"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockPropertyDetailsService.calculateDraftPropertyDetails(ArgumentMatchers.eq("1"))(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, propertyDetails.toString)))
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
@@ -236,21 +236,21 @@ class PropertyDetailsSupportingInfoControllerSpec
       val userId         = s"user-${UUID.randomUUID}"
       when(
         mockDataCacheService
-          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("XN1200000100001")))
       when(
         mockDataCacheService
-          .fetchAndGetData[Boolean](ArgumentMatchers.eq(AtedConstants.SelectedPreviousReturn))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .fetchAndGetData[Boolean](ArgumentMatchers.eq(AtedConstants.SelectedPreviousReturn))(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
       when(
         mockPropertyDetailsService
-          .validateCalculateDraftPropertyDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .validateCalculateDraftPropertyDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(true))
       when(
         mockPropertyDetailsService
-          .saveDraftPropertyDetailsSupportingInfo(ArgumentMatchers.eq("1"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .saveDraftPropertyDetailsSupportingInfo(ArgumentMatchers.eq("1"), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(OK))
-      when(mockPropertyDetailsService.calculateDraftPropertyDetails(ArgumentMatchers.eq("1"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockPropertyDetailsService.calculateDraftPropertyDetails(ArgumentMatchers.eq("1"))(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, propertyDetails.toString)))
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
@@ -359,7 +359,7 @@ class PropertyDetailsSupportingInfoControllerSpec
 
           val invalidData: String = "a" * 201
           val inputJson: JsValue  = Json.toJson(PropertyDetailsSupportingInfo(invalidData))
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
           submitWithAuthorisedUser(inputJson, None) { result =>
             status(result) must be(BAD_REQUEST)
           }
@@ -367,7 +367,7 @@ class PropertyDetailsSupportingInfoControllerSpec
         "for valid data, return Forward to the summary page" in new Setup {
           val propertyDetails: PropertyDetails = PropertyDetailsBuilder.getPropertyDetails(id = "1", Some("postCode"))
           val inputJson: JsValue               = Json.toJson(PropertyDetailsSupportingInfo(""))
-          when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+          when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
             .thenReturn(Future.successful(None))
           submitWithAuthorisedUser(inputJson, Some(propertyDetails)) { result =>
             status(result) must be(SEE_OTHER)
@@ -378,7 +378,7 @@ class PropertyDetailsSupportingInfoControllerSpec
         "for valid edit liability data forward to the Edit Liability Summary Page" in new Setup {
           val propertyDetails: PropertyDetails = ChangeLiabilityReturnBuilder.generateChangeLiabilityReturn("1")
           val inputJson: JsValue               = Json.toJson(PropertyDetailsSupportingInfo(""))
-          when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+          when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
             .thenReturn(Future.successful(None))
           submitWithAuthorisedUserEdit(inputJson, Some(propertyDetails), Some(AtedUtils.EDIT_SUBMITTED)) { result =>
             status(result) must be(SEE_OTHER)
@@ -389,7 +389,7 @@ class PropertyDetailsSupportingInfoControllerSpec
         "for invalid agent, throw BAD_REQUEST" in new Setup {
           val propertyDetails: PropertyDetails = ChangeLiabilityReturnBuilder.generateChangeLiabilityReturn("1")
           val inputJson: JsValue               = Json.toJson(PropertyDetailsSupportingInfo(""))
-          when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+          when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
             .thenReturn(Future.successful(None))
           submitWithInvalidAgent(inputJson, Some(propertyDetails)) { result =>
             status(result) must be(BAD_REQUEST)
@@ -399,7 +399,7 @@ class PropertyDetailsSupportingInfoControllerSpec
         "for unknown status, throw INTERNAL_SERVER_ERROR" in new Setup {
           val propertyDetails: PropertyDetails = ChangeLiabilityReturnBuilder.generateChangeLiabilityReturn("1")
           val inputJson: JsValue               = Json.toJson(PropertyDetailsSupportingInfo(""))
-          when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+          when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
             .thenReturn(Future.successful(None))
           submitWithUnknownResponse(inputJson, Some(propertyDetails)) { result =>
             status(result) must be(INTERNAL_SERVER_ERROR)
@@ -409,7 +409,7 @@ class PropertyDetailsSupportingInfoControllerSpec
         "for valid data with no line items, return forward to the summary page" in new Setup {
           val propertyDetails: PropertyDetails = PropertyDetailsBuilder.getPropertyDetails(id = "1", Some("postCode")).copy(period = None)
           val inputJson: JsValue               = Json.toJson(PropertyDetailsSupportingInfo(""))
-          when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+          when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
             .thenReturn(Future.successful(None))
           submitWithAuthorisedUser(inputJson, Some(propertyDetails)) { result =>
             status(result) must be(SEE_OTHER)

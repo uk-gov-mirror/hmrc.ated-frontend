@@ -17,14 +17,15 @@
 package forms
 
 import forms.mappings.DateTupleCustomError
-import models._
+import models.*
+
 import java.time.LocalDate
-import play.api.data.Forms._
+import play.api.data.Forms.*
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationResult}
 import play.api.data.{Form, FormError}
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{JsValue, Json, OFormat}
 import utils.AtedUtils
-import utils.PeriodUtils._
+import utils.PeriodUtils.*
 
 import scala.annotation.tailrec
 import scala.util.matching.Regex
@@ -74,8 +75,8 @@ object AtedForms {
           .verifying("ated.error.address.country", x => x.isEmpty || (x.nonEmpty && x.length <= countryLength))
           .verifying("ated.error.address.country.non-uk", x => !x.matches(countryUK))
 
-      )(RegisteredAddressDetails.apply)(RegisteredAddressDetails.unapply)
-    )(RegisteredDetails.apply)(RegisteredDetails.unapply)
+      )(RegisteredAddressDetails.apply)(x => Some(Tuple.fromProductTyped(x)))
+    )(RegisteredDetails.apply)(x => Some(Tuple.fromProductTyped(x)))
   )
 
   val correspondenceAddressForm: Form[AddressDetails] = Form(
@@ -97,7 +98,7 @@ object AtedForms {
       "countryCode" -> text
         .verifying("ated.address.country", x => x.length > lengthZero)
         .verifying("ated.error.address.country", x => x.isEmpty || (x.nonEmpty && x.length <= countryLength))
-    )(AddressDetails.apply)(AddressDetails.unapply)
+    )(AddressDetails.apply)(x => Some(Tuple.fromProductTyped(x)))
   )
 
 
@@ -118,7 +119,7 @@ object AtedForms {
           val z = x.length > phoneLength
           p || z || y
         })
-    )(EditContactDetails.apply)(EditContactDetails.unapply)
+    )(EditContactDetails.apply)(x => Some(Tuple.fromProductTyped(x)))
   )
 
 
@@ -126,7 +127,7 @@ object AtedForms {
     mapping(
       "emailAddress" -> text,
       "emailConsent" -> boolean
-    )(EditContactDetailsEmail.apply)(EditContactDetailsEmail.unapply)
+    )(EditContactDetailsEmail.apply)(x => Some(Tuple.fromProductTyped(x)))
   )
 
   def validateEmail(f: Form[EditContactDetailsEmail]): Form[EditContactDetailsEmail] = {
@@ -157,7 +158,7 @@ object AtedForms {
   val editReliefForm: Form[EditRelief] = Form(
     mapping(
       "changeRelief" -> optional(text).verifying("ated.change-relief-return.error.empty", returnType => returnType.isDefined)
-    )(EditRelief.apply)(EditRelief.unapply)
+    )(EditRelief.apply)(x => Some(x.changeRelief))
   )
 
   def checkFieldLengthIfPopulated(optionValue: Option[String], fieldLength: Int): Boolean = {
@@ -211,15 +212,15 @@ object AtedForms {
 
   val selectPeriodForm: Form[SelectPeriod] = Form(mapping(
     "period" -> optional(text).verifying("ated.summary-return.return-type.error", selectPeriod => selectPeriod.isDefined)
-  )(SelectPeriod.apply)(SelectPeriod.unapply))
+  )(SelectPeriod.apply)(x => Some(x.period)))
 
   val returnTypeForm: Form[ReturnType] = Form(mapping(
     "returnType" -> optional(text).verifying("ated.summary-return.return-type.error", returnType => returnType.isDefined)
-  )(ReturnType.apply)(ReturnType.unapply))
+  )(ReturnType.apply)(x => Some(x.returnType)))
 
   val editLiabilityReturnTypeForm: Form[EditLiabilityReturnType] = Form(mapping(
     "editLiabilityType" -> optional(text).verifying("ated.edit-liability.edit-return-type.error", editReturnType => editReturnType.isDefined)
-  )(EditLiabilityReturnType.apply)(EditLiabilityReturnType.unapply))
+  )(EditLiabilityReturnType.apply)(x => Some(x.editLiabilityType)))
 
   val disposalDateConstraint: Constraint[DisposeLiability] = Constraint("dateOfDisposal"){
     model => validateDisposedProperty(model.periodKey, model.dateOfDisposal)
@@ -230,7 +231,7 @@ object AtedForms {
       mapping(
         "dateOfDisposal" -> DateTupleCustomError("error.invalid.date.format").dateTupleOptional(),
         "periodKey" -> number
-      )(DisposeLiability.apply)(DisposeLiability.unapply)
+      )(DisposeLiability.apply)(x => Some(Tuple.fromProductTyped(x)))
     )
   }
 
@@ -298,7 +299,7 @@ object AtedForms {
   case class YesNoQuestion(yesNo: Option[Boolean] = None)
 
   object YesNoQuestion {
-    implicit val formats: OFormat[YesNoQuestion] = Json.format[YesNoQuestion]
+    given formats: OFormat[YesNoQuestion] = Json.format[YesNoQuestion]
   }
 
   class YesNoQuestionExistingReturnsForm() {
@@ -307,7 +308,7 @@ object AtedForms {
       Form(
         mapping(
           "yesNo" -> optional(boolean).verifying("yes-no.error.mandatory.existing.returns", x => x.isDefined)
-        )(YesNoQuestion.apply)(YesNoQuestion.unapply)
+        )(YesNoQuestion.apply)(x => Some(x.yesNo))
       )
   }
 
@@ -317,7 +318,7 @@ object AtedForms {
       Form(
         mapping(
           "yesNo" -> optional(boolean).verifying("yes-no.error.mandatory.delete.draft", x => x.isDefined)
-        )(YesNoQuestion.apply)(YesNoQuestion.unapply)
+        )(YesNoQuestion.apply)(x => Some(x.yesNo))
       )
   }
 

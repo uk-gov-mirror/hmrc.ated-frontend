@@ -23,7 +23,7 @@ import models.SubmitReturnsResponse
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{DataCacheService, ReliefsService, ServiceInfoService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.AtedConstants._
+import utils.AtedConstants.*
 
 import scala.concurrent.ExecutionContext
 
@@ -33,11 +33,11 @@ class ReliefsSentController @Inject()(mcc : MessagesControllerComponents,
                                       val dataCacheService: DataCacheService,
                                       val reliefsService: ReliefsService,
                                       template: views.html.reliefs.reliefsSent)
-                                     (implicit val appConfig: ApplicationConfig)
+                                     (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   def view(periodKey: Int): Action[AnyContent] = Action.async { implicit request =>
     authAction.authorisedAction { implicit authContext =>

@@ -19,13 +19,13 @@ package controllers.propertyDetails
 import config.ApplicationConfig
 import controllers.auth.{AuthAction, ClientHelper}
 import controllers.editLiability.EditLiabilitySummaryController
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import javax.inject.Inject
-import models._
+import models.*
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{BackLinkCacheService, DataCacheService, PropertyDetailsCacheSuccessResponse, PropertyDetailsService, ServiceInfoService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.AtedConstants._
+import utils.AtedConstants.*
 import utils.AtedUtils
 import uk.gov.hmrc.play.bootstrap.controller.WithUnsafeDefaultFormBinding
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,11 +41,11 @@ class PropertyDetailsSupportingInfoController @Inject()(mcc: MessagesControllerC
                                                         val backLinkCacheService: BackLinkCacheService,
                                                         template: views.html.propertyDetails.propertyDetailsSupportingInfo,
                                                         templateError: views.html.global_error)
-                                                       (implicit val appConfig: ApplicationConfig)
+                                                       (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = "PropertyDetailsSupportingInfoController"
 
   def view(id: String) : Action[AnyContent] = Action.async { implicit request =>

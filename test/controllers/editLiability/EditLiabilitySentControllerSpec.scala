@@ -24,20 +24,20 @@ import java.time.format.DateTimeFormatter
 import java.time.{ZonedDateTime, LocalDate}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Result}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.{DataCacheService, ServiceInfoService, SubscriptionDataService}
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.AtedConstants
-import utils.AtedConstants._
+import utils.AtedConstants.*
 import views.html.BtaNavigationLinks
 import views.html.editLiability.editLiabilitySent
 
@@ -46,14 +46,14 @@ import scala.concurrent.Future
 
 class EditLiabilitySentControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with MockAuthUtil {
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given hc: HeaderCarrier = HeaderCarrier()
 
   val mockMcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   val mockSubscriptionDataService: SubscriptionDataService = mock[SubscriptionDataService]
   val mockDataCacheService: DataCacheService = mock[DataCacheService]
   val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+  given messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
   val btaNavigationLinksView: BtaNavigationLinks = app.injector.instanceOf[BtaNavigationLinks]
   val mockServiceInfoService: ServiceInfoService = mock[ServiceInfoService]
   val injectedViewInstance: editLiabilitySent = app.injector.instanceOf[views.html.editLiability.editLiabilitySent]
@@ -63,7 +63,7 @@ class EditLiabilitySentControllerSpec extends PlaySpec with GuiceOneServerPerSui
   val formBundleNo2: String = "123456789011"
   val today: String = LocalDate.now().format(DateTimeFormatter.ofPattern("d LLLL yyyy"))
 
-class Setup {
+  class Setup {
 
   val mockAuthAction: AuthAction = new AuthAction(
     mockAppConfig,
@@ -85,11 +85,11 @@ class Setup {
     val userId = s"user-${UUID.randomUUID}"
     val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
     setAuthMocks(authMock)
-    when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
+    when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
     when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+      (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
     when(mockDataCacheService.fetchAndGetData[EditLiabilityReturnsResponseModel]
-      (ArgumentMatchers.eq(SubmitEditedLiabilityReturnsResponseFormId))(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(x))
+      (ArgumentMatchers.eq(SubmitEditedLiabilityReturnsResponseFormId))(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(x))
     val result = testEditLiabilitySentController.view(formBundleNo1).apply(SessionBuilder.buildRequestWithSession(userId))
     test(result)
   }
@@ -99,10 +99,10 @@ class Setup {
     val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
     setAuthMocks(authMock)
     when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+      (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
     when(mockDataCacheService.fetchAndGetData[EditLiabilityReturnsResponseModel]
-      (ArgumentMatchers.eq(SubmitEditedLiabilityReturnsResponseFormId))(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(x))
-    when(mockSubscriptionDataService.getOrganisationName(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(organisationName)))
+      (ArgumentMatchers.eq(SubmitEditedLiabilityReturnsResponseFormId))(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(x))
+    when(mockSubscriptionDataService.getOrganisationName(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(organisationName)))
 
     val result = testEditLiabilitySentController.viewPrintFriendlyEditLiabilitySent(formBundleNo1).apply(SessionBuilder.buildRequestWithSession(userId))
     test(result)

@@ -38,10 +38,10 @@ class ConfirmAddressController @Inject()(mcc: MessagesControllerComponents,
                                          val dataCacheService: DataCacheService,
                                          template: views.html.propertyDetails.confirmAddress,
                                          templateError: views.html.global_error)
-                                        (implicit val appConfig: ApplicationConfig)
+                                        (using val appConfig: ApplicationConfig)
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with ControllerIds {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   val controllerId: String = confirmAddressId
   val appName: String = "ated-frontend"

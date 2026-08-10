@@ -26,7 +26,7 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.mvc.{MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 import uk.gov.hmrc.auth.core.retrieve.~
@@ -39,8 +39,8 @@ import scala.concurrent.Future
 
 class ApplicationControllerSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerSuite with BeforeAndAfterEach with MockAuthUtil {
 
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given hc: HeaderCarrier = HeaderCarrier()
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
 
   val mockMcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   val injectedUnauthorisedView: unauthorised = app.injector.instanceOf[views.html.unauthorised]
@@ -81,7 +81,7 @@ class ApplicationControllerSpec extends PlaySpec with MockitoSugar with GuiceOne
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
-      val result = testApplicationController.keepAlive().apply(SessionBuilder.buildRequestWithSession(userId))
+      val result = testApplicationController.keepAlive.apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
     }
 
@@ -127,24 +127,24 @@ class ApplicationControllerSpec extends PlaySpec with MockitoSugar with GuiceOne
     "Cancel" must {
 
       "respond with a redirect" in new Setup {
-        val result: Future[Result] = testApplicationController.cancel().apply(FakeRequest())
+        val result: Future[Result] = testApplicationController.cancel.apply(FakeRequest())
         status(result) must be(SEE_OTHER)
       }
 
       "be redirected to the login page" in new Setup {
-        val result: Future[Result] = testApplicationController.cancel().apply(FakeRequest())
+        val result: Future[Result] = testApplicationController.cancel.apply(FakeRequest())
         redirectLocation(result).get must include("https://www.gov.uk/")
       }
 
       "Logout" must {
 
         "respond with a redirect" in new Setup {
-          val result: Future[Result] = testApplicationController.logout().apply(FakeRequest())
+          val result: Future[Result] = testApplicationController.logout.apply(FakeRequest())
           status(result) must be(SEE_OTHER)
         }
 
         "be redirected to the logout page" in new Setup {
-          val result: Future[Result] = testApplicationController.logout().apply(FakeRequest())
+          val result: Future[Result] = testApplicationController.logout.apply(FakeRequest())
           redirectLocation(result).get must include("/feedback/ATED")
         }
       }
@@ -164,14 +164,14 @@ class ApplicationControllerSpec extends PlaySpec with MockitoSugar with GuiceOne
         val userId = s"user-${UUID.randomUUID}"
         val authMock: Enrolments ~ Some[AffinityGroup] ~ Some[String] = authResultDefault(AffinityGroup.Individual, defaultEnrolmentSet)
         setAuthMocks(authMock)
-        val result: Future[Result] = testApplicationController.redirectToGuidance().apply(SessionBuilder.buildRequestWithSession(userId))
+        val result: Future[Result] = testApplicationController.redirectToGuidance.apply(SessionBuilder.buildRequestWithSession(userId))
         redirectLocation(result).get must include("/guidance/register-for-the-annual-tax-on-enveloped-dwellings-online-service")
       }
     }
 
     "redirectToSignIn" must {
       "redirect the user" in new Setup {
-        val result: Future[Result] = testApplicationController.redirectToSignIn().apply(FakeRequest())
+        val result: Future[Result] = testApplicationController.redirectToSignIn.apply(FakeRequest())
         redirectLocation(result).get must include ("http://localhost:9553/bas-gateway/sign-in?continue_url=http://localhost:9916/ated/home")
         status(result) mustBe SEE_OTHER
       }

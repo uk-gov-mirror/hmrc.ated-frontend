@@ -18,8 +18,8 @@ package forms
 
 import forms.AtedForms.validatePostCodeFormat
 import forms.mappings.DateTupleCustomError
-import models._
-import play.api.data.Forms._
+import models.*
+import play.api.data.Forms.*
 import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.data.{Form, FormError, Mapping}
 import utils.{AtedUtils, PeriodUtils}
@@ -74,7 +74,7 @@ object PropertyDetailsForms {
         .verifying("ated.error.address.line-4.format", x => AtedForms.validateAddressLine(x)),
       "postcode" -> optional(text)
         .verifying("ated.error.address.postalcode.format", x => validatePostCodeFormat(AtedUtils.formatPostCode(x)))
-    )(PropertyDetailsAddress.apply)(PropertyDetailsAddress.unapply)
+    )(PropertyDetailsAddress.apply)(x => Some(Tuple.fromProductTyped(x)))
   )
 
   val propertyDetailsTitleForm: Form[PropertyDetailsTitle] = Form(
@@ -83,43 +83,43 @@ object PropertyDetailsForms {
         .verifying("ated.error.titleNumber",
           x => x.isEmpty || (x.nonEmpty && x.replaceAll(" ", "").length <= titleNumberLength))
         .verifying("ated.error.titleNumber.invalid", x => x matches titleRegex)
-    )(PropertyDetailsTitle.apply)(PropertyDetailsTitle.unapply)
+    )(PropertyDetailsTitle.apply)(x => Some(x.titleNumber))
   )
 
   val hasValueChangedForm: Form[HasValueChanged] = Form(
     mapping(
       "hasValueChanged" -> optional(boolean).verifying("ated.change-property-value.hasValueChanged.error.non-selected", a => a.isDefined)
-    )(HasValueChanged.apply)(HasValueChanged.unapply)
+    )(HasValueChanged.apply)(x => Some(x.hasValueChanged))
   )
 
   val valueValidation: Mapping[Option[BigDecimal]] = propertyDetailsValueValidation
 
   val propertyDetailsAcquisitionForm: Form[PropertyDetailsAcquisition] = Form(
     mapping("anAcquisition" -> optional(boolean).verifying("ated.property-details-value.anAcquisition.error-field-name", x => x.isDefined)
-    )(PropertyDetailsAcquisition.apply)(PropertyDetailsAcquisition.unapply))
+    )(PropertyDetailsAcquisition.apply)(x => Some(x.anAcquisition)))
 
   val propertyDetailsHasBeenRevaluedForm: Form[HasBeenRevalued] = Form(
     mapping(
       "isPropertyRevalued" -> optional(boolean).verifying("ated.property-details-value.isPropertyRevalued.error.non-selected", x => x.isDefined),
-    )(HasBeenRevalued.apply)(HasBeenRevalued.unapply)
+    )(HasBeenRevalued.apply)(x => Some(x.isPropertyRevalued))
   )
 
   val propertyDetailsDateOfChangeForm: Form[DateOfChange] = Form (
     mapping(
       "dateOfChange" -> DateTupleCustomError("ated.error.date.invalid").dateTupleOptional()
-    )(DateOfChange.apply)(DateOfChange.unapply)
+    )(DateOfChange.apply)(x => Some(x.dateOfChange))
   )
 
   val propertyDetailsNewValuationForm: Form[PropertyDetailsNewValuation] = Form(
     mapping(
       "revaluedValue" -> valueValidation.verifying(revaluedValueConstraint())
-    )(PropertyDetailsNewValuation.apply)(PropertyDetailsNewValuation.unapply)
+    )(PropertyDetailsNewValuation.apply)(x => Some(x.revaluedValue))
   )
 
   val propertyDetailsDateOfRevalueForm: Form[DateOfRevalue] = Form (
     mapping(
       "dateOfRevalue" -> DateTupleCustomError("ated.error.date.invalid").dateTupleOptional()
-    )(DateOfRevalue.apply)(DateOfRevalue.unapply)
+    )(DateOfRevalue.apply)(x => Some(x.dateOfRevalue))
   )
 
   def OwnedBeforeYearConstraint(periodKey: Int): Constraint[Option[Boolean]] = Constraint({ model =>
@@ -148,87 +148,87 @@ object PropertyDetailsForms {
     mapping(
       "isOwnedBeforePolicyYear" -> optional(boolean).verifying(OwnedBeforeYearConstraint(periodKey)),
       "ownedBeforePolicyYearValue" -> valueValidation
-    )(PropertyDetailsOwnedBefore.apply)(PropertyDetailsOwnedBefore.unapply))
+    )(PropertyDetailsOwnedBefore.apply)(x => Some(Tuple.fromProductTyped(x))))
 
   val propertyDetailsProfessionallyValuedForm: Form[PropertyDetailsProfessionallyValued] = Form(
     mapping(
       "isValuedByAgent" -> optional(boolean).verifying("ated.property-details-value.isValuedByAgent.error.non-selected", x => x.isDefined)
-    )(PropertyDetailsProfessionallyValued.apply)(PropertyDetailsProfessionallyValued.unapply))
+    )(PropertyDetailsProfessionallyValued.apply)(x => Some(x.isValuedByAgent)))
 
   val propertyDetailsNewBuildForm: Form[PropertyDetailsNewBuild] = Form(
     mapping(
       "isNewBuild" -> optional(boolean).verifying("ated.property-details-value.isNewBuild.error.non-selected", x => x.isDefined)
-    )(PropertyDetailsNewBuild.apply)(PropertyDetailsNewBuild.unapply)
+    )(PropertyDetailsNewBuild.apply)(x => Some(x.isNewBuild))
   )
 
   val dateFirstOccupiedKnownForm: Form[DateFirstOccupiedKnown] = Form(
     mapping(
       "isDateFirstOccupiedKnown" -> optional(boolean).verifying("ated.property-details.first-occupied-known.non-selected", x => x.isDefined)
-    )(DateFirstOccupiedKnown.apply)(DateFirstOccupiedKnown.unapply)
+    )(DateFirstOccupiedKnown.apply)(x => Some(x.isDateFirstOccupiedKnown))
   )
 
   val dateCouncilRegisteredKnownForm: Form[DateCouncilRegisteredKnown] = Form(
     mapping(
       "isDateCouncilRegisteredKnown" -> optional(boolean).verifying("ated.property-details.council-registered-known.non-selected", x => x.isDefined)
-    )(DateCouncilRegisteredKnown.apply)(DateCouncilRegisteredKnown.unapply)
+    )(DateCouncilRegisteredKnown.apply)(x => Some(x.isDateCouncilRegisteredKnown))
   )
 
   val dateFirstOccupiedForm: Form[DateFirstOccupied] = Form(
     mapping(
       "dateFirstOccupied" -> DateTupleCustomError("ated.property-details.first-occupied-date.invalidInputType").dateTupleOptional()
-        )(DateFirstOccupied.apply)(DateFirstOccupied.unapply)
+        )(DateFirstOccupied.apply)(x => Some(x.dateFirstOccupied))
   )
 
   val dateCouncilRegisteredForm: Form[DateCouncilRegistered] = Form(
     mapping(
       "dateCouncilRegistered" -> DateTupleCustomError("ated.property-details.council-registered-date.invalidInputType").dateTupleOptional()
-    )(DateCouncilRegistered.apply)(DateCouncilRegistered.unapply)
+    )(DateCouncilRegistered.apply)(x => Some(x.dateCouncilRegistered))
   )
 
   val propertyDetailsNewBuildValueForm: Form[PropertyDetailsNewBuildValue] = Form(
     mapping(
       "newBuildValue" -> valueValidation.verifying("ated.property-details-value-error.newBuildValue.emptyValue", model => model.isDefined)
-    )(PropertyDetailsNewBuildValue.apply)(PropertyDetailsNewBuildValue.unapply)
+    )(PropertyDetailsNewBuildValue.apply)(x => Some(x.newBuildValue))
   )
 
   val propertyDetailsValueAcquiredForm: Form[PropertyDetailsValueOnAcquisition] = Form(
     mapping(
       "acquiredValue" -> valueValidation.verifying("ated.property-details-value-error.valueAcquired.emptyValue", model => model.isDefined )
-    )(PropertyDetailsValueOnAcquisition.apply)(PropertyDetailsValueOnAcquisition.unapply)
+    )(PropertyDetailsValueOnAcquisition.apply)(x => Some(x.acquiredValue))
   )
 
   val propertyDetailsWhenAcquiredDatesForm: Form[PropertyDetailsWhenAcquiredDates] = Form(
     mapping(
       "acquiredDate" -> DateTupleCustomError("ated.property-details.whenAcquired.invalidInputType").dateTupleOptional()
-    )(PropertyDetailsWhenAcquiredDates.apply)(PropertyDetailsWhenAcquiredDates.unapply)
+    )(PropertyDetailsWhenAcquiredDates.apply)(x => Some(x.acquiredDate))
   )
 
   val isFullTaxPeriodForm: Form[PropertyDetailsFullTaxPeriod] = Form(
     mapping(
       "isFullPeriod" -> optional(boolean).verifying("ated.property-details-period.isFullPeriod.error-field-name", x => x.isDefined)
-    )(PropertyDetailsFullTaxPeriod.apply)(PropertyDetailsFullTaxPeriod.unapply)
+    )(PropertyDetailsFullTaxPeriod.apply)(x => Some(x.isFullPeriod))
   )
 
   val periodsInAndOutReliefForm: Form[PropertyDetailsInRelief] = Form(
     mapping(
       "isInRelief" -> optional(boolean).verifying("ated.property-details-period.isInRelief.error-field-name", x => x.isDefined)
-    )(PropertyDetailsInRelief.apply)(PropertyDetailsInRelief.unapply)
+    )(PropertyDetailsInRelief.apply)(x => Some(x.isInRelief))
   )
   val periodDatesLiableForm: Form[PropertyDetailsDatesLiable] = Form(
     mapping(
       "startDate" -> DateTupleCustomError("error.invalid.date.format").dateTupleOptional(),
       "endDate" -> DateTupleCustomError("error.invalid.date.format").dateTupleOptional()
-    )(PropertyDetailsDatesLiable.apply)(PropertyDetailsDatesLiable.unapply)
+    )(PropertyDetailsDatesLiable.apply)(x => Some(Tuple.fromProductTyped(x)))
   )
 
   lazy val mandatoryRadio: Mapping[String] = optional(text)
     .verifying("ated.property-details-period.chooseRelief.error.non-selected", _.isDefined)
-    .transform({ s: Option[String] => s.getOrElse("") }, { v: String => Some(v) })
+    .transform((s: Option[String]) => s.getOrElse(""), (v: String) => Some(v))
 
   val periodChooseReliefForm: Form[PeriodChooseRelief] = Form(
     mapping(
       "reliefDescription" -> mandatoryRadio
-    )(PeriodChooseRelief.apply)(PeriodChooseRelief.unapply)
+    )(PeriodChooseRelief.apply)(x => Some(x.reliefDescription))
   )
 
   val periodInReliefDatesForm: Form[PropertyDetailsDatesInRelief] = Form(
@@ -236,20 +236,20 @@ object PropertyDetailsForms {
       "startDate" -> DateTupleCustomError("error.invalid.date.format").dateTupleOptional(),
       "endDate" -> DateTupleCustomError("error.invalid.date.format").dateTupleOptional(),
       "description" -> optional(text)
-    )(PropertyDetailsDatesInRelief.apply)(PropertyDetailsDatesInRelief.unapply)
+    )(PropertyDetailsDatesInRelief.apply)(x => Some(Tuple.fromProductTyped(x)))
   )
 
   val propertyDetailsTaxAvoidanceSchemeForm: Form[PropertyDetailsTaxAvoidanceScheme] = Form(
     mapping(
       "isTaxAvoidance" -> optional(boolean).verifying("ated.property-details-period.isTaxAvoidanceScheme.error-field-name", x => x.isDefined)
-    )(PropertyDetailsTaxAvoidanceScheme.apply)(PropertyDetailsTaxAvoidanceScheme.unapply)
+    )(PropertyDetailsTaxAvoidanceScheme.apply)(x => Some(x.isTaxAvoidance))
   )
 
   val propertyDetailsTaxAvoidanceReferenceForm: Form[PropertyDetailsTaxAvoidanceReferences] = Form(
      mapping(
        "taxAvoidanceScheme" -> optional(text),
        "taxAvoidancePromoterReference" -> optional(text)
-     )(PropertyDetailsTaxAvoidanceReferences.apply)(PropertyDetailsTaxAvoidanceReferences.unapply))
+     )(PropertyDetailsTaxAvoidanceReferences.apply)(x => Some(Tuple.fromProductTyped(x))))
    
 
   val propertyDetailsSupportingInfoForm: Form[PropertyDetailsSupportingInfo] = Form(
@@ -258,7 +258,7 @@ object PropertyDetailsForms {
         .verifying("ated.property-details-period-error.supportingInfo", x => x.isEmpty || (x.nonEmpty && x.length <= supportingInfo))
         .verifying("ated.property-details-period-error.supportingInfo.invalid", x => x matches supportingInfoRegex)
 
-    )(PropertyDetailsSupportingInfo.apply)(PropertyDetailsSupportingInfo.unapply)
+    )(PropertyDetailsSupportingInfo.apply)(x => Some(x.supportingInfo))
   )
 
   def propertyDetailsValueValidation: Mapping[Option[BigDecimal]] = {

@@ -17,7 +17,7 @@
 package views
 
 import config.ApplicationConfig
-import models._
+import models.*
 import java.time.LocalDate
 import org.jsoup.Jsoup
 import org.scalatest.featurespec.AnyFeatureSpec
@@ -29,18 +29,18 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import testhelpers.MockAuthUtil
-import utils.AtedConstants._
+import utils.AtedConstants.*
 import views.html.periodSummary
 
 class PeriodSummarySpec extends AnyFeatureSpec with GuiceOneAppPerSuite with MockitoSugar
   with BeforeAndAfterEach with GivenWhenThen with MockAuthUtil {
 
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   val injectedViewInstance: periodSummary = app.injector.instanceOf[views.html.periodSummary]
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
 
   val organisationName = "OrganisationName"
   val formBundleNo1 = "123456789012"

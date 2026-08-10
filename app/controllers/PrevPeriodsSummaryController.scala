@@ -24,7 +24,7 @@ import javax.inject.Inject
 import java.time.LocalDate
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services._
+import services.*
 import uk.gov.hmrc.http.ForbiddenException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.PeriodUtils
@@ -41,7 +41,7 @@ class PrevPeriodsSummaryController @Inject()(mcc: MessagesControllerComponents,
                                              serviceInfoService: ServiceInfoService,
                                              dateService: DateService,
                                              template: views.html.prevPeriodsSummary)
-                                            (implicit val appConfig: ApplicationConfig,
+                                            (using appConfig: ApplicationConfig,
                                              ec: ExecutionContext)
   extends FrontendController(mcc) with Logging {
 

@@ -19,9 +19,9 @@ package controllers.propertyDetails
 import config.ApplicationConfig
 import controllers.auth.{AuthAction, ClientHelper}
 import forms.PropertyDetailsForms
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import javax.inject.Inject
-import models._
+import models.*
 import play.api.i18n.{I18nSupport, Messages, MessagesImpl}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{BackLinkCacheService, DataCacheService, PropertyDetailsCacheSuccessResponse, PropertyDetailsService, ServiceInfoService}
@@ -39,13 +39,13 @@ class PeriodDatesLiableController @Inject()(mcc: MessagesControllerComponents,
                                             val dataCacheService: DataCacheService,
                                             val backLinkCacheService: BackLinkCacheService,
                                             template: views.html.propertyDetails.periodDatesLiable)
-                                           (implicit val appConfig: ApplicationConfig)
+                                           (using val appConfig: ApplicationConfig)
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with I18nSupport with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = "PeriodDatesLiableController"
 
-  implicit lazy val messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
+  given messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
 
   val dateFields = Seq(("startDate", Messages("ated.property-details-period.datesLiable.startDate.messageKey")),
     ("endDate", Messages("ated.property-details-period.datesLiable.endDate.messageKey")))
@@ -127,7 +127,7 @@ class PeriodDatesLiableController @Inject()(mcc: MessagesControllerComponents,
     }
   }
 
-  private def getBackLink(id: String, mode: Option[String])(implicit hc: HeaderCarrier) = {
+  private def getBackLink(id: String, mode: Option[String])(using hc: HeaderCarrier) = {
     mode match {
       case Some("add") => Future.successful(Some(controllers.propertyDetails.routes.PeriodsInAndOutReliefController.view(id).url))
       case _ => currentBackLink

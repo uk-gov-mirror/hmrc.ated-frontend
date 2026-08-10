@@ -29,7 +29,7 @@ case class EditLiabilityReturnsResponse(mode: String,
                                         paymentReference: Option[String])
 
 object EditLiabilityReturnsResponse {
-  implicit val formats: OFormat[EditLiabilityReturnsResponse] = Json.format[EditLiabilityReturnsResponse]
+  given formats: OFormat[EditLiabilityReturnsResponse] = Json.format[EditLiabilityReturnsResponse]
 }
 
 case class EditLiabilityReturnsResponseModel(processingDate: ZonedDateTime,
@@ -38,5 +38,5 @@ case class EditLiabilityReturnsResponseModel(processingDate: ZonedDateTime,
 
 object EditLiabilityReturnsResponseModel {
 
-  implicit val formats: OFormat[EditLiabilityReturnsResponseModel] = Json.format[EditLiabilityReturnsResponseModel]
+  given formats: OFormat[EditLiabilityReturnsResponseModel] = Json.format[EditLiabilityReturnsResponseModel]
 }

@@ -17,8 +17,8 @@
 package forms
 
 import config.ApplicationConfig
-import forms.ReliefForms._
-import models._
+import forms.ReliefForms.*
+import models.*
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
@@ -30,9 +30,9 @@ import play.api.test.FakeRequest
 
 class ReliefFormsSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar {
 
-  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  implicit lazy val messages: Messages = messagesApi.preferred(FakeRequest())
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  given messages: Messages = messagesApi.preferred(FakeRequest())
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
 
   val noPromoterErrorMessage = "ated.avoidance-schemes.promoter.empty"
   val noSchemeErrorMessage = "ated.avoidance-schemes.scheme.empty"

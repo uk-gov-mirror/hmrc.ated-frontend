@@ -25,7 +25,7 @@ case class SortCode(firstElement: String, secondElement: String, thirdElement: S
 
 object SortCode {
 
-  implicit val formats: OFormat[SortCode] = Json.format[SortCode]
+  given formats: OFormat[SortCode] = Json.format[SortCode]
   private val FIRST_ELEMENT_START = 0
   private val SECOND_ELEMENT_START = 2
   private val THIRD_ELEMENT_START = 4
@@ -75,7 +75,7 @@ case class BicSwiftCode(swiftCode: String) {
 }
 
 object BicSwiftCode extends (String => BicSwiftCode){
-  implicit val formats: OFormat[BicSwiftCode] = Json.format[BicSwiftCode]
+  given formats: OFormat[BicSwiftCode] = Json.format[BicSwiftCode]
 
   def isValid(swiftCode: String): Boolean = {
     val stripped = swiftCode.replaceAll(" ", "")
@@ -89,7 +89,7 @@ case class Iban(iban: String) {
   override def toString: String = iban
 }
 object Iban extends (String => Iban){
-  implicit val formats: OFormat[Iban] = Json.format[Iban]
+  given formats: OFormat[Iban] = Json.format[Iban]
 
   def isValid(iban: String): Boolean = {
     val stripped = iban.replaceAll(" ", "")
@@ -102,13 +102,13 @@ object Iban extends (String => Iban){
 case class HasBankDetails(hasBankDetails: Option[Boolean] = None)
 
 object HasBankDetails {
-  implicit val format: OFormat[HasBankDetails] = Json.format[HasBankDetails]
+  given format: OFormat[HasBankDetails] = Json.format[HasBankDetails]
 }
 
 case class HasUkBankAccount(hasUkBankAccount: Option[Boolean] = Some(false))
 
 object HasUkBankAccount {
-  implicit val format: OFormat[HasUkBankAccount] = Json.format[HasUkBankAccount]
+  given format: OFormat[HasUkBankAccount] = Json.format[HasUkBankAccount]
 }
 
 
@@ -121,7 +121,7 @@ case class BankDetails(hasUKBankAccount: Option[Boolean] = None,
                        iban: Option[Iban] = None)
 
 object BankDetails {
-  implicit val format: OFormat[BankDetails] = Json.format[BankDetails]
+  given format: OFormat[BankDetails] = Json.format[BankDetails]
 }
 
 
@@ -129,5 +129,5 @@ case class BankDetailsModel(hasBankDetails: Boolean,
                             bankDetails: Option[BankDetails] = None)
 
 object BankDetailsModel {
-  implicit val format: OFormat[BankDetailsModel] = Json.format[BankDetailsModel]
+  given format: OFormat[BankDetailsModel] = Json.format[BankDetailsModel]
 }

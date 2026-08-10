@@ -18,14 +18,14 @@ package controllers.propertyDetails
 
 import config.ApplicationConfig
 import controllers.auth.{AuthAction, ClientHelper}
-import forms.PropertyDetailsForms._
-import models._
+import forms.PropertyDetailsForms.*
+import models.*
 import play.api.i18n.{Messages, MessagesImpl}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{BackLinkCacheService, DataCacheService, PropertyDetailsCacheSuccessResponse, PropertyDetailsService, ServiceInfoService}
 import uk.gov.hmrc.play.bootstrap.controller.WithUnsafeDefaultFormBinding
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.AtedConstants._
+import utils.AtedConstants.*
 import utils.AtedUtils
 
 import javax.inject.Inject
@@ -39,15 +39,15 @@ class PropertyDetailsDateOfRevalueController @Inject()(mcc: MessagesControllerCo
                                                        val backLinkCacheService: BackLinkCacheService,
                                                        val dataCacheService: DataCacheService,
                                                        isFullTaxPeriodController: IsFullTaxPeriodController)
-                                                      (implicit val appConfig: ApplicationConfig)
+                                                      (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = "PropertyDetailsDateOfRevalueController"
   val dateFields: (String, String) = ("dateOfRevalue", messages("ated.property-details-value.dateOfRevalue.messageKey"))
 
-  implicit lazy val messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
+  given messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
 
   def view(id: String): Action[AnyContent] = Action.async { implicit request =>
     authAction.authorisedAction { implicit authContext =>

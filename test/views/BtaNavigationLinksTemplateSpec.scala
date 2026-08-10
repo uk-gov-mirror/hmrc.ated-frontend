@@ -31,9 +31,9 @@ class BtaNavigationLinksTemplateSpec extends PlaySpec with MockitoSugar with Gui
 
   val injector: Injector = app.injector
   val messagesApi: MessagesApi = injector.instanceOf[MessagesApi]
-  implicit val appConfig: ApplicationConfig = injector.instanceOf[ApplicationConfig]
-  lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
-  lazy implicit val lang: Lang = injector.instanceOf[Lang]
+  given appConfig: ApplicationConfig = injector.instanceOf[ApplicationConfig]
+  given messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+  given lang: Lang = injector.instanceOf[Lang]
 
   def formatHtml(body: Html): String = Jsoup.parseBodyFragment(s"\n$body\n").toString.trim
   val btaNavigationLinksView: BtaNavigationLinks = injector.instanceOf[BtaNavigationLinks]
@@ -46,7 +46,7 @@ class BtaNavigationLinksTemplateSpec extends PlaySpec with MockitoSugar with Gui
   "btaNavigationLinks" should {
 
     val view: Html = btaNavigationLinksView()(messages,appConfig)
-    lazy implicit val document: Document = Jsoup.parse(view.body)
+    given document: Document = Jsoup.parse(view.body)
 
 
     "have a link to BTA home" which {

@@ -21,7 +21,7 @@ import controllers.ControllerBaseSpec
 import models.requests.{NavContent, NavLinks}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.twirl.api.{Html, HtmlFormat}
 import views.html.{BtaNavigationLinks, service_info}
 
@@ -32,22 +32,22 @@ class ServiceInfoServiceSpec extends ControllerBaseSpec {
   val mockConnector: ServiceInfoPartialConnector = mock[ServiceInfoPartialConnector]
   val btanl: BtaNavigationLinks = injector.instanceOf[BtaNavigationLinks]
   val serviceInfoView: service_info = injector.instanceOf[service_info]
-  val service: ServiceInfoService = new ServiceInfoService(mockConnector,serviceInfoView, btanl)(messagesApi, mockAppConfig)
+  val service: ServiceInfoService = new ServiceInfoService(mockConnector,serviceInfoView, btanl)(using messagesApi, mockAppConfig)
   val navLinks = NavLinks("en", "/nav", None)
   val navContent = NavContent(navLinks, navLinks, navLinks, navLinks)
 
   "getServiceInfo Partial" should {
     "return bta Partial" in {
-      when(mockConnector.getNavLinks(any(), any())).thenReturn(Future.successful(Some(navContent)))
+      when(mockConnector.getNavLinks(using any(), any())).thenReturn(Future.successful(Some(navContent)))
 
-      val result: Html = await(service.getPartial(ec, organisationStandardRetrievals, fakeRequest ))
+      val result: Html = await(service.getPartial(using ec, organisationStandardRetrievals, fakeRequest ))
       val expectedResult: Html = serviceInfoView(utils.PartialFactory.partialList(navContent))
 
       result mustBe expectedResult
     }
     "return error HTML for an agent" in {
 
-      val result: Html = await(service.getPartial(ec, agentStandardRetrievals, fakeRequest))
+      val result: Html = await(service.getPartial(using ec, agentStandardRetrievals, fakeRequest))
       val expectedResult: Html = HtmlFormat.empty
 
       result mustBe expectedResult

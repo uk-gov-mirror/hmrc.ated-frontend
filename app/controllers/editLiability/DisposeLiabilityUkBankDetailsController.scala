@@ -38,10 +38,10 @@ class DisposeLiabilityUkBankDetailsController @Inject()(mcc: MessagesControllerC
                                                         val dataCacheService: DataCacheService,
                                                         val backLinkCacheService: BackLinkCacheService,
                                                         template: views.html.editLiability.disposeLiabilityUkBankDetails)
-                                                       (implicit val appConfig: ApplicationConfig)
+                                                       (using val appConfig: ApplicationConfig)
   extends FrontendController(mcc) with ClientHelper with BackLinkService with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   val controllerId = "DisposeLiabilityUkBankDetailsController"
 
@@ -54,7 +54,7 @@ class DisposeLiabilityUkBankDetailsController @Inject()(mcc: MessagesControllerC
               currentBackLink.map { backLink =>
                 val bankDetails = x.bankDetails.flatMap(_.bankDetails).fold(BankDetails())(a => a)
                 Ok(template
-                (bankDetailsForm.fill(bankDetails), oldFormBundleNo, serviceInfoContent, backLink)(authContext, implicitly, request, implicitly))
+                (bankDetailsForm.fill(bankDetails), oldFormBundleNo, serviceInfoContent, backLink))
               }
             case None => Future.successful(Redirect(controllers.routes.AccountSummaryController.view()))
           }

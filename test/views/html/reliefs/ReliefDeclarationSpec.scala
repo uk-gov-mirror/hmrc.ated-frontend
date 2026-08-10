@@ -23,9 +23,9 @@ import play.twirl.api.Html
 import testhelpers.{AtedViewSpec, MockAuthUtil}
 
 class ReliefDeclarationSpec extends AtedViewSpec with Injecting with MockAuthUtil {
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
 
-  implicit val mockAppConfig: ApplicationConfig = inject[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = inject[ApplicationConfig]
   val injectedView: reliefDeclaration = inject[views.html.reliefs.reliefDeclaration]
   private val periodKey = 2017
   "Relief Declaration" must {

@@ -25,8 +25,8 @@ import testhelpers.{AtedViewSpec, MockAuthUtil}
 
 class ReturnTypeSpec extends AtedViewSpec with MockAuthUtil with Injecting {
 
-  implicit val mockAppConfig: ApplicationConfig = inject[ApplicationConfig]
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given mockAppConfig: ApplicationConfig = inject[ApplicationConfig]
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
 
   val injectedView = inject[views.html.returnType]
   def view: Html = injectedView(2021, returnTypeForm, Html(""), Some("http://backLink"))

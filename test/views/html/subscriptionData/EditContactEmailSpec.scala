@@ -18,32 +18,34 @@ package views.html.subscriptionData
 
 import config.ApplicationConfig
 import forms.AtedForms.editContactDetailsEmailForm
-import models._
+import models.*
 import org.scalatestplus.mockito.MockitoSugar
 import play.twirl.api.Html
 import testhelpers.{AtedViewSpec, MockAuthUtil}
 
 class EditContactEmailSpec extends AtedViewSpec with MockitoSugar with MockAuthUtil {
-  implicit lazy val authContxt: StandardAuthRetrievals = organisationStandardRetrievals
+  given authContxt: StandardAuthRetrievals = organisationStandardRetrievals
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
   val injectedViewInstance = app.injector.instanceOf[views.html.subcriptionData.editContactEmail]
-"Edit contact email view" must {
 
-  "have correct page title" in {
-    doc.title mustBe messages("ated.contact-details-edit-email.title") + " - Submit and view your ATED returns - GOV.UK"
-  }
+  "Edit contact email view" must {
 
-  "have correct heading and caption" in {
-    doc.select(".govuk-caption-xl").text must include("This section is: Manage your ATED service")
-    doc.select("h1").text must include("Edit your ATED email address")
-  }
-
-  "have a backLink" in {
-    val backLink = new CssSelector("a.govuk-back-link")
-    doc must backLink
-  }
+    "have correct page title" in {
+      doc.title mustBe messages("ated.contact-details-edit-email.title") + " - Submit and view your ATED returns - GOV.UK"
     }
+
+    "have correct heading and caption" in {
+      doc.select(".govuk-caption-xl").text must include("This section is: Manage your ATED service")
+      doc.select("h1").text must include("Edit your ATED email address")
+    }
+
+    "have a backLink" in {
+      val backLink = new CssSelector("a.govuk-back-link")
+      doc must backLink
+    }
+  }
 
   "Edit contact email page" must {
 
@@ -80,6 +82,7 @@ class EditContactEmailSpec extends AtedViewSpec with MockitoSugar with MockAuthU
   val prePopulatedData = EditContactDetailsEmail(emailAddress = "test@test.com",
     emailConsent = true
   )
+
   override def view: Html = injectedViewInstance(editContactDetailsEmailForm.fill(prePopulatedData), Html(""), Some("http://backLink"))
 
 }

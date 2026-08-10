@@ -18,20 +18,20 @@ package controllers.propertyDetails
 
 import models.PropertyDetailsNewBuildDates
 import play.api.mvc.MessagesControllerComponents
-import services._
+import services.*
 import scala.concurrent.{ExecutionContext, Future}
 import models.{DateCouncilRegistered, DateFirstOccupied}
-import utils.AtedConstants._
+import utils.AtedConstants.*
 import play.api.Logging
 
 trait StoreNewBuildDates extends Logging {
   val mcc: MessagesControllerComponents
   val propertyDetailsService: PropertyDetailsService
   val dataCacheService: DataCacheService
-  implicit val ec: ExecutionContext
+  given ec: ExecutionContext
 
   def storeNewBuildDatesFromCache(id: String)
-                                 (implicit hc: uk.gov.hmrc.http.HeaderCarrier, authContext: models.StandardAuthRetrievals): Future[Int] = {
+                                 (using hc: uk.gov.hmrc.http.HeaderCarrier, authContext: models.StandardAuthRetrievals): Future[Int] = {
 
     dataCacheService.fetchAndGetData[DateFirstOccupied](NewBuildFirstOccupiedDate).flatMap{ firstOccupied =>
       dataCacheService.fetchAndGetData[DateCouncilRegistered](NewBuildCouncilRegisteredDate).flatMap{ councilRegistered =>

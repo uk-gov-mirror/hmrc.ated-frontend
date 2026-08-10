@@ -17,7 +17,7 @@
 package views.html.subscriptionData
 
 import config.ApplicationConfig
-import models._
+import models.*
 import org.scalatestplus.mockito.MockitoSugar
 import play.twirl.api.Html
 import testhelpers.{AtedViewSpec, MockAuthUtil}
@@ -27,8 +27,8 @@ import views.html.subcriptionData.companyDetails
 
 class CompanyDetailsSpec extends AtedViewSpec with MockitoSugar with MockAuthUtil {
 
-  implicit val authContext: StandardAuthRetrievals = organisationStandardRetrievals
-  implicit val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   val authMock: Enrolments ~ Some[AffinityGroup] ~ Some[String] = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
   setAuthMocks(authMock)
 

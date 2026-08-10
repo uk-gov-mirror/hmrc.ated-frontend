@@ -28,45 +28,48 @@ import play.api.test.FakeRequest
 import testhelpers.MockAuthUtil
 import views.html.propertyDetails.propertyDetailsExit
 
-class PropertyDetailsExitSpec extends PlaySpec with MockitoSugar with MockAuthUtil with GuiceOneAppPerSuite{
+class PropertyDetailsExitSpec extends PlaySpec with MockitoSugar with MockAuthUtil with GuiceOneAppPerSuite {
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
- implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
 
   val injectedView = app.injector.instanceOf[propertyDetailsExit]
   val view = injectedView(Some("backLink"))
   val doc = Jsoup.parse(view.toString)
 
-   "propertyDetailsExitSpec" when {
-     "Exit page" should {
+  "propertyDetailsExitSpec" when {
+    "Exit page" should {
 
-       "have the correct title" in {
-         assert(doc.title() == "You cannot submit this chargeable return - Submit and view your ATED returns - GOV.UK")
-       }
+      "have the correct title" in {
+        assert(doc.title() == "You cannot submit this chargeable return - Submit and view your ATED returns - GOV.UK")
+      }
 
-       "correctly render a backLink" in {
-         assert(doc.getElementsByClass("govuk-back-link").first().text == "Back")
-         assert(doc.getElementsByClass("govuk-back-link").first().attr("href") == "backLink")
-       }
+      "correctly render a backLink" in {
+        assert(doc.getElementsByClass("govuk-back-link").first().text == "Back")
+        assert(doc.getElementsByClass("govuk-back-link").first().attr("href") == "backLink")
+      }
 
-       "have the heading 'You cannot submit this chargeable return'" in {
-         assert(doc.getElementsByTag("h1").text() == "You cannot submit this chargeable return")
-       }
+      "have the heading 'You cannot submit this chargeable return'" in {
+        assert(doc.getElementsByTag("h1").text() == "You cannot submit this chargeable return")
+      }
 
-       "have the paragraph The property must be revalued before you can submit this chargeable return. " in {
-         assert(doc.getElementsByTag("p").first().text() == "The property must be revalued before you can submit this chargeable return.")
-       }
-       "have the button with text Back to your ATED summary" in {
-         assert(doc.select(".govuk-button").first().text() == "Back to your ATED summary")
-       }
-       "have the button with text Back to your ATED summary should move to ated summary page" in {
-         assert(doc.select(".govuk-button").attr("href") == "/ated/account-summary")
-       }
+      "have the paragraph The property must be revalued before you can submit this chargeable return. " in {
+        assert(doc.getElementsByTag("p").first().text() == "The property must be revalued before you can submit this chargeable return.")
+      }
+      "have the button with text Back to your ATED summary" in {
+        assert(doc.select(".govuk-button").first().text() == "Back to your ATED summary")
+      }
+      "have the button with text Back to your ATED summary should move to ated summary page" in {
+        assert(doc.select(".govuk-button").attr("href") == "/ated/account-summary")
+      }
 
-     }
+    }
 
-   }
+  }
 
 }

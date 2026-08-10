@@ -16,7 +16,7 @@
 
 package builders
 
-import models._
+import models.*
 import java.time.{ZonedDateTime, LocalDate}
 import java.time.format.DateTimeFormatter
 

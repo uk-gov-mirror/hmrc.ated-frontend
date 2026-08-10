@@ -18,32 +18,33 @@ package views.html.subscriptionData
 
 import config.ApplicationConfig
 import forms.AtedForms.editContactDetailsForm
-import models._
+import models.*
 import org.scalatestplus.mockito.MockitoSugar
 import play.twirl.api.Html
 import testhelpers.{AtedViewSpec, MockAuthUtil}
 
 class EditContactDetailsSpec extends AtedViewSpec with MockitoSugar with MockAuthUtil {
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
   val injectedViewInstance = app.injector.instanceOf[views.html.subcriptionData.editContactDetails]
-"Edit contact details view" must {
+  "Edit contact details view" must {
 
-  "have correct page title" in {
-    doc.title mustBe messages("ated.contact-details.title") + " - Submit and view your ATED returns - GOV.UK"
-  }
-
-  "have correct heading and caption" in {
-    doc.select("h1 .govuk-caption-xl").text must include("This section is: Manage your ATED service")
-    doc.select("h1").text must include("Edit your ATED contact details")
-  }
-
-  "have a backLink" in {
-    val backLink = new CssSelector("a.govuk-back-link")
-    doc must backLink
-  }
+    "have correct page title" in {
+      doc.title mustBe messages("ated.contact-details.title") + " - Submit and view your ATED returns - GOV.UK"
     }
+
+    "have correct heading and caption" in {
+      doc.select("h1 .govuk-caption-xl").text must include("This section is: Manage your ATED service")
+      doc.select("h1").text must include("Edit your ATED contact details")
+    }
+
+    "have a backLink" in {
+      val backLink = new CssSelector("a.govuk-back-link")
+      doc must backLink
+    }
+  }
 
   "Edit contact details page" must {
 
@@ -82,6 +83,7 @@ class EditContactDetailsSpec extends AtedViewSpec with MockitoSugar with MockAut
     lastName = "Z",
     phoneNumber = "0191"
   )
+
   override def view: Html = injectedViewInstance(editContactDetailsForm.fill(prePopulatedData), Html(""), Some("http://backLink"))
 
 }

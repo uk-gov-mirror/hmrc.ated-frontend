@@ -26,7 +26,7 @@ import models.{PropertyDetails, PropertyDetailsPeriod}
 import java.time.LocalDate
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -34,7 +34,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.{BackLinkCacheService, DataCacheService, PropertyDetailsCacheSuccessResponse, PropertyDetailsService, ServiceInfoService}
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.auth.core.AffinityGroup
@@ -46,8 +46,8 @@ import scala.concurrent.Future
 
 class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with MockAuthUtil {
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given hc: HeaderCarrier = HeaderCarrier()
 
   val mockMcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   val mockPropertyDetailsService: PropertyDetailsService = mock[PropertyDetailsService]
@@ -55,7 +55,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
   val mockBackLinkCacheService: BackLinkCacheService = mock[BackLinkCacheService]
   val mockPropertyDetailsTaxAvoidanceController: PropertyDetailsTaxAvoidanceSchemeController = mock[PropertyDetailsTaxAvoidanceSchemeController]
   val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+  given messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
   val btaNavigationLinksView: BtaNavigationLinks = app.injector.instanceOf[BtaNavigationLinks]
   val mockServiceInfoService: ServiceInfoService = mock[ServiceInfoService]
   val injectedViewInstance = app.injector.instanceOf[views.html.editLiability.editLiabilityDatesLiable]
@@ -91,12 +91,12 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
-      when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
       when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
-      when(mockPropertyDetailsService.retrieveDraftPropertyDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+      when(mockPropertyDetailsService.retrieveDraftPropertyDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(PropertyDetailsCacheSuccessResponse(propertyDetails)))
-      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
       val result = testEditLiabilityDatesLiableController.view(propertyDetails.id).apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
     }
@@ -115,8 +115,8 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
       val periodKey: Int = 2015
       val userId = s"user-${UUID.randomUUID}"
       when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
-      when(mockPropertyDetailsService.saveDraftPropertyDetailsDatesLiable(ArgumentMatchers.eq("1"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+      when(mockPropertyDetailsService.saveDraftPropertyDetailsDatesLiable(ArgumentMatchers.eq("1"), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).
         thenReturn(Future.successful(OK))
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
@@ -205,7 +205,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
 
       "Authorised users" must {
         "for invalid data, return BAD_REQUEST" in new Setup {
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("backLink")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("backLink")))
           submitWithAuthorisedUser(Nil) {
             result =>
               status(result) must be(BAD_REQUEST)
@@ -226,7 +226,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             ("endDate.day", ""),
             ("endDate.month", ""),
             ("endDate.year", ""))
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
           submitWithAuthorisedUser(startAndEndDatesList) {
             result =>
               status(result) must be(BAD_REQUEST)
@@ -246,7 +246,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             ("endDate.month", "8"),
             ("endDate.year", "2015"))
 
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
           submitWithAuthorisedUser(startAndEndDatesList) {
             result =>
               status(result) must be(BAD_REQUEST)
@@ -266,7 +266,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             ("endDate.month", ""),
             ("endDate.year", "2015"))
 
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
           submitWithAuthorisedUser(formBody) {
             result =>
               status(result) must be(BAD_REQUEST)
@@ -286,7 +286,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             ("endDate.month", "8"),
             ("endDate.year", ""))
 
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
           submitWithAuthorisedUser(formBody) {
             result =>
               status(result) must be(BAD_REQUEST)
@@ -306,7 +306,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             ("endDate.month", ""),
             ("endDate.year", "2016"))
 
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
           submitWithAuthorisedUser(formBody) {
             result =>
               status(result) must be(BAD_REQUEST)
@@ -326,7 +326,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             ("endDate.month", "8"),
             ("endDate.year", ""))
 
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
           submitWithAuthorisedUser(formBody) {
             result =>
               status(result) must be(BAD_REQUEST)
@@ -346,7 +346,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             ("endDate.month", ""),
             ("endDate.year", ""))
 
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
           submitWithAuthorisedUser(formBody) {
             result =>
               status(result) must be(BAD_REQUEST)
@@ -366,7 +366,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             ("endDate.month", "8"),
             ("endDate.year", "2016"))
 
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
           submitWithAuthorisedUser(formBody) {
             result =>
               status(result) must be(BAD_REQUEST)
@@ -386,7 +386,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             ("endDate.month", "18"),
             ("endDate.year", "2016"))
 
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
           submitWithAuthorisedUser(formBody) {
             result =>
               status(result) must be(BAD_REQUEST)
@@ -406,7 +406,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             ("endDate.month", "8"),
             ("endDate.year", "201333"))
 
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
           submitWithAuthorisedUser(formBody) {
             result =>
               status(result) must be(BAD_REQUEST)
@@ -426,7 +426,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             ("endDate.month", "9"),
             ("endDate.year", "2016"))
 
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
           submitWithAuthorisedUser(formBody) {
             result =>
               status(result) must be(BAD_REQUEST)
@@ -446,7 +446,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             ("endDate.month", "9"),
             ("endDate.year", "defg"))
 
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
           submitWithAuthorisedUser(formBody) {
             result =>
               status(result) must be(BAD_REQUEST)
@@ -466,7 +466,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             ("endDate.month", "2"),
             ("endDate.year", "2017"))
 
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
           submitWithAuthorisedUser(formBody) {
             result =>
               status(result) must be(BAD_REQUEST)
@@ -486,7 +486,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             ("endDate.month", "2"),
             ("endDate.year", "2024"))
 
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
           submitWithAuthorisedUser(formBody) {
             result =>
               status(result) must be(BAD_REQUEST)
@@ -506,7 +506,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             ("endDate.month", "8"),
             ("endDate.year", "2020"))
 
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
           submitWithAuthorisedUser(formBody) {
             result =>
               status(result) must be(BAD_REQUEST)
@@ -526,7 +526,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             ("endDate.month", "07"),
             ("endDate.year", "2022"))
 
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
           submitWithAuthorisedUser(formBody) {
             result =>
               status(result) must be(BAD_REQUEST)
@@ -546,7 +546,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             ("endDate.month", "8"),
             ("endDate.year", "2015"))
 
-          when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+          when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
           submitWithAuthorisedUser(formBody) {
             result =>
               status(result) must be(SEE_OTHER)

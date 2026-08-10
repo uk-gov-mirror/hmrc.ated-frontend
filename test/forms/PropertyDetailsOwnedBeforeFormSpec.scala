@@ -25,8 +25,10 @@ import utils.PeriodUtils
 
 class PropertyDetailsOwnedBeforeFormSpec extends PlaySpec with GuiceOneServerPerSuite {
 
-  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  implicit lazy val messages: Messages = messagesApi.preferred(FakeRequest())
+  given messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+
+  given messages: Messages = messagesApi.preferred(FakeRequest())
+
   val periodKey = 2021
   val calculatedPeriodKey: String = PeriodUtils.calculateLowerTaxYearBoundary(periodKey).getYear.toString
 
@@ -47,13 +49,13 @@ class PropertyDetailsOwnedBeforeFormSpec extends PlaySpec with GuiceOneServerPer
       }
 
       "Option 'yes' is selected and ownedBefore value is empty" in {
-          val input: Map[String, String] =  Map("isOwnedBeforePolicyYear" -> "true",
+        val input: Map[String, String] = Map("isOwnedBeforePolicyYear" -> "true",
           "ownedBeforePolicyYearValue" -> ""
         )
 
         PropertyDetailsForms.validatePropertyDetailsOwnedBefore(propertyDetailsOwnedBeforeForm(periodKey).bind(input)).fold(
           hasErrors => {
-            hasErrors.errors.length mustBe  1
+            hasErrors.errors.length mustBe 1
             hasErrors.errors.last.message mustBe "ated.property-details-value.ownedBeforePolicyYearValue.error.empty"
           },
           _ => {
@@ -63,13 +65,13 @@ class PropertyDetailsOwnedBeforeFormSpec extends PlaySpec with GuiceOneServerPer
       }
 
       "Option 'yes' is selected and ownedBefore value is too high" in {
-        val input: Map[String, String] =  Map("isOwnedBeforePolicyYear" -> "true",
+        val input: Map[String, String] = Map("isOwnedBeforePolicyYear" -> "true",
           "ownedBeforePolicyYearValue" -> "10000000000000"
         )
 
         PropertyDetailsForms.validatePropertyDetailsOwnedBefore(propertyDetailsOwnedBeforeForm(periodKey).bind(input)).fold(
           hasErrors => {
-            hasErrors.errors.length mustBe  1
+            hasErrors.errors.length mustBe 1
             hasErrors.errors.last.message mustBe "ated.property-details-value.ownedBeforePolicyYearValue.error.too-high"
           },
           _ => {
@@ -80,12 +82,12 @@ class PropertyDetailsOwnedBeforeFormSpec extends PlaySpec with GuiceOneServerPer
 
 
       "Option 'yes' is selected and ownedBefore value is too low" in {
-        val input: Map[String, String] =  Map("isOwnedBeforePolicyYear" -> "true",
+        val input: Map[String, String] = Map("isOwnedBeforePolicyYear" -> "true",
           "ownedBeforePolicyYearValue" -> "500000"
         )
         PropertyDetailsForms.validatePropertyDetailsOwnedBefore(propertyDetailsOwnedBeforeForm(periodKey).bind(input)).fold(
           hasErrors => {
-            hasErrors.errors.length mustBe  1
+            hasErrors.errors.length mustBe 1
             hasErrors.errors.last.message mustBe "ated.property-details-value.ownedBeforePolicyYearValue.error.too-low"
           },
           _ => {
@@ -95,12 +97,12 @@ class PropertyDetailsOwnedBeforeFormSpec extends PlaySpec with GuiceOneServerPer
       }
 
       "Option 'yes' is selected and owned Before value is invalid" in {
-        val input: Map[String, String] =  Map("isOwnedBeforePolicyYear" -> "true",
+        val input: Map[String, String] = Map("isOwnedBeforePolicyYear" -> "true",
           "ownedBeforePolicyYearValue" -> "ahgfhagsfhafshg"
         )
         propertyDetailsOwnedBeforeForm(periodKey).bind(input).fold(
           hasErrors => {
-            hasErrors.errors.length mustBe  1
+            hasErrors.errors.length mustBe 1
             hasErrors.errors.head.message mustBe "ated.property-details-value.incorrect-format"
           },
           _ => {

@@ -20,13 +20,13 @@ import audit.Auditable
 import config.ApplicationConfig
 import controllers.ControllerIds
 import controllers.auth.{AuthAction, ClientHelper}
-import forms.AddressLookupForms._
+import forms.AddressLookupForms.*
 import javax.inject.Inject
 import models.{AddressLookup, AddressSearchResults, PropertyDetailsAddress}
 import play.api.data.FormError
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services._
+import services.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.DefaultAuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
@@ -45,10 +45,10 @@ class AddressLookupController @Inject()(mcc: MessagesControllerComponents,
                                         val dataCacheService: DataCacheService,
                                         template: views.html.propertyDetails.addressLookup,
                                         templateResults: views.html.propertyDetails.addressLookupResults)
-                                       (implicit val appConfig: ApplicationConfig)
+                                       (using val appConfig: ApplicationConfig)
 extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with Auditable with ControllerIds with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   val controllerId: String = addressLookupId
   val appName: String = "ated-frontend"
@@ -160,7 +160,7 @@ extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper wi
     }
   }
 
-  def auditInputAddress(address: PropertyDetailsAddress)(implicit hc: HeaderCarrier, ec: ExecutionContext): Unit = {
+  def auditInputAddress(address: PropertyDetailsAddress)(using hc: HeaderCarrier, ec: ExecutionContext): Unit = {
     sendDataEvent("postcodeAddressSubmitted", detail = Map(
       "submittedLine1" -> address.line_1,
       "submittedLine2" -> address.line_2,

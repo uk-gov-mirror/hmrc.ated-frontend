@@ -33,7 +33,7 @@ class HomeController @Inject()(mcc: MessagesControllerComponents,
                                applicationConfig: ApplicationConfig)
   extends FrontendController(mcc) with Logging {
 
-  implicit val ec : ExecutionContext = mcc.executionContext
+  given ec : ExecutionContext = mcc.executionContext
 
   def home(callerId: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
     authAction.authorisedForNoEnrolments { implicit authContext =>
@@ -44,11 +44,11 @@ class HomeController @Inject()(mcc: MessagesControllerComponents,
     }
   }
 
-  private def isSubscribedUser(implicit authContext: StandardAuthRetrievals): Boolean = {
+  private def isSubscribedUser(using authContext: StandardAuthRetrievals): Boolean = {
     authContext.agentRefNo.isDefined || Try{authContext.atedReferenceNumber}.isSuccess
   }
 
-  private def redirectSubscribedUser(callerId: Option[String])(implicit authContext: StandardAuthRetrievals, request: Request[AnyContent]): Result = {
+  private def redirectSubscribedUser(callerId: Option[String])(using authContext: StandardAuthRetrievals, request: Request[AnyContent]): Result = {
     if (authContext.isAgent) {
       logger.debug("[redirectSubscribedUser] agent redirected to mandate:" + authContext)
       Redirect(applicationConfig.agentRedirectedToMandate)

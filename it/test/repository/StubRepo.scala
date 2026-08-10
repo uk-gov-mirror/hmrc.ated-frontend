@@ -16,7 +16,7 @@
 
 package repository
 
-import play.api.libs.json._
+import play.api.libs.json.*
 import repositories.CacheRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.cache.DataKey
@@ -31,12 +31,12 @@ class StubRepo extends CacheRepository with ISpecCacheFixtures {
 
   private def store[T] = mutable.Map.empty[String, T]
 
-  override def putSession[T: Writes](dataKey: DataKey[T], data: T)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[T] = {
+  override def putSession[T: Writes](dataKey: DataKey[T], data: T)(using hc: HeaderCarrier, ec: ExecutionContext): Future[T] = {
     store.put(dataKey.unwrap, data)
     Future.successful(data)
   }
 
-  override def getFromSession[T: Reads](dataKey: DataKey[T])(implicit hc: HeaderCarrier): Future[Option[T]] = {
+  override def getFromSession[T: Reads](dataKey: DataKey[T])(using hc: HeaderCarrier): Future[Option[T]] = {
 
     dataKey.unwrap match {
       case RetrieveReturnsResponseId =>
@@ -50,5 +50,5 @@ class StubRepo extends CacheRepository with ISpecCacheFixtures {
 
   }
 
-  override def deleteFromSession(implicit hc: HeaderCarrier): Future[Unit] = Future.successful(store.clear())
+  override def deleteFromSession(using hc: HeaderCarrier): Future[Unit] = Future.successful(store.clear())
 }

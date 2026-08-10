@@ -26,10 +26,10 @@ import testhelpers.{AtedViewSpec, MockAuthUtil}
 
 class PropertyDetailsNewBuildValueSpec extends AtedViewSpec with MockAuthUtil {
 
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
   val injectedViewInstance: propertyDetailsNewBuildValue = app.injector.instanceOf[views.html.propertyDetails.propertyDetailsNewBuildValue]
 
-  implicit val appConfig: ApplicationConfig = mock[ApplicationConfig]
+  given appConfig: ApplicationConfig = mock[ApplicationConfig]
   stubServiceNavigationUrls(appConfig)
   private val form = PropertyDetailsForms.propertyDetailsNewBuildValueForm
   override def view: Html = injectedViewInstance(id, periodKey,  form, None, Html(""), Some("backLink"), testDate)

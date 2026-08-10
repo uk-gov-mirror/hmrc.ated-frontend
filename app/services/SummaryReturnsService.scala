@@ -20,20 +20,20 @@ import config.ApplicationConfig
 import connectors.AtedConnector
 
 import javax.inject.Inject
-import models._
+import models.*
 import play.api.Logging
-import play.api.http.Status._
+import play.api.http.Status.*
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.AtedConstants._
+import utils.AtedConstants.*
 import utils.{PeriodUtils, ReliefsUtils}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.math.Ordering.Implicits.infixOrderingOps
 
 class SummaryReturnsService @Inject()(atedConnector: AtedConnector, dataCacheService: DataCacheService)(
-  implicit val appConfig: ApplicationConfig, ec: ExecutionContext) extends Logging {
+  using appConfig: ApplicationConfig, ec: ExecutionContext) extends Logging {
 
-  def getSummaryReturns(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[SummaryReturnsModel] = {
+  def getSummaryReturns(using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[SummaryReturnsModel] = {
     def convertSeqOfPeriodSummariesToObject(x: Seq[PeriodSummaryReturns]): PeriodSummaryReturns = {
       val allDrafts = x.flatMap(a => a.draftReturns)
       val allSubmitted = x.flatMap(a => a.submittedReturns)
@@ -135,7 +135,7 @@ class SummaryReturnsService @Inject()(atedConnector: AtedConnector, dataCacheSer
     } yield summaryReturns
   }
 
-  def getPeriodSummaryReturns(period: Int)(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[PeriodSummaryReturns]] = {
+  def getPeriodSummaryReturns(period: Int)(using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[PeriodSummaryReturns]] = {
     for {
       summaryReturnsModel <- getSummaryReturns
     } yield {
@@ -162,7 +162,7 @@ class SummaryReturnsService @Inject()(atedConnector: AtedConnector, dataCacheSer
     }
   }
 
-  def getPreviousSubmittedLiabilityDetails(selectedPeriodKey: Int)(implicit authContext: StandardAuthRetrievals,
+  def getPreviousSubmittedLiabilityDetails(selectedPeriodKey: Int)(using authContext: StandardAuthRetrievals,
                                                                    hc: HeaderCarrier): Future[Seq[PreviousReturns]] =
     getSummaryReturns.flatMap { returnSummary =>
       val periodSummaryReturns = returnSummary.returnsCurrentTaxYear ++ returnSummary.returnsOtherTaxYears
@@ -174,11 +174,11 @@ class SummaryReturnsService @Inject()(atedConnector: AtedConnector, dataCacheSer
     }
 
   private def savePastReturnDetails(pastReturnDetails: Seq[PreviousReturns])
-                                   (implicit headerCarrier: HeaderCarrier): Future[Seq[PreviousReturns]] = {
+                                   (using headerCarrier: HeaderCarrier): Future[Seq[PreviousReturns]] = {
     dataCacheService.saveFormData[Seq[PreviousReturns]](PreviousReturnsDetailsList, pastReturnDetails)
   }
 
-  def retrieveCachedPreviousReturnAddressList(implicit hc: HeaderCarrier): Future[Option[Seq[PreviousReturns]]] = {
+  def retrieveCachedPreviousReturnAddressList(using hc: HeaderCarrier): Future[Option[Seq[PreviousReturns]]] = {
     dataCacheService.fetchAndGetData[Seq[PreviousReturns]](PreviousReturnsDetailsList)
   }
 

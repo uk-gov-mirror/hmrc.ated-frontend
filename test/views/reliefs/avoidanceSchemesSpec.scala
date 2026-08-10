@@ -18,7 +18,7 @@ package views.reliefs
 
 import builders.ReliefBuilder.reliefTaxAvoidance
 import config.ApplicationConfig
-import forms.ReliefForms._
+import forms.ReliefForms.*
 import models.StandardAuthRetrievals
 import org.jsoup.Jsoup
 import org.scalatest.featurespec.AnyFeatureSpec
@@ -35,11 +35,11 @@ import views.html.reliefs
 class avoidanceSchemesSpec extends AnyFeatureSpec with GuiceOneAppPerSuite
   with MockitoSugar with BeforeAndAfterEach with GivenWhenThen with MockAuthUtil {
 
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
   val periodKey = 2015
 
   val injectedViewInstance: reliefs.avoidanceSchemes = app.injector.instanceOf[views.html.reliefs.avoidanceSchemes]

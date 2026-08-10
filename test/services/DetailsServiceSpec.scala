@@ -19,9 +19,9 @@ package services
 import java.util.UUID
 import builders.RegistrationBuilder
 import connectors.{AgentClientMandateFrontendConnector, AtedConnector}
-import models._
+import models.*
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -29,7 +29,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, HttpResponse, InternalServerException}
@@ -39,7 +39,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class DetailsServiceSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
 
-  implicit val ec: ExecutionContext = inject[ExecutionContext]
+  given ec: ExecutionContext = inject[ExecutionContext]
+
   val mockAtedConnector: AtedConnector = mock[AtedConnector]
   val mockMandateFrontendConnector: AgentClientMandateFrontendConnector = mock[AgentClientMandateFrontendConnector]
   val mockDataCacheService: DataCacheService = mock[DataCacheService]
@@ -57,16 +58,16 @@ class DetailsServiceSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
                           mandateFrontendGetClientDetailsResponse: HttpResponse = HttpResponse(NOT_FOUND, ""),
                           dataCacheSaveFormDataResponse: String = ""
                         ): Unit = {
-      when(mockAtedConnector.getDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockAtedConnector.getDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(atedGetDetailsResponse))
 
-      when(mockAtedConnector.updateRegistrationDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockAtedConnector.updateRegistrationDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(atedUpdateRegistrationDetailsResponse))
 
-      when(mockMandateFrontendConnector.getClientDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockMandateFrontendConnector.getClientDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(mandateFrontendGetClientDetailsResponse))
 
-      when(mockDataCacheService.saveFormData[String](ArgumentMatchers.any(), ArgumentMatchers.any())(
+      when(mockDataCacheService.saveFormData[String](ArgumentMatchers.any(), ArgumentMatchers.any())(using 
         ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(dataCacheSaveFormDataResponse))
     }
@@ -115,9 +116,9 @@ class DetailsServiceSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
     """.stripMargin
   )
 
-  val failureResponse: JsValue = Json.parse( """{"reason":"Agent not found!"}""")
-  implicit val hc: HeaderCarrier = HeaderCarrier()
-  implicit lazy val authContext: StandardAuthRetrievals = mock[StandardAuthRetrievals]
+  val failureResponse: JsValue = Json.parse("""{"reason":"Agent not found!"}""")
+  given hc: HeaderCarrier = HeaderCarrier()
+  given authContext: StandardAuthRetrievals = mock[StandardAuthRetrievals]
   val identifier = "JARN1234567"
   val identifierType = "arn"
 
@@ -181,7 +182,7 @@ class DetailsServiceSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
 
   "update registration data" must {
     "save registration details" must {
-      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
       val registeredDetails = RegisteredDetails(isEditable = true, "testName", RegisteredAddressDetails(addressLine1 = "newLine1",
         addressLine2 = "newLine2", countryCode = "GB"))
@@ -292,7 +293,7 @@ class DetailsServiceSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
     "return None when agent tries to get details" in new Setup {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       implicit val authContext: StandardAuthRetrievals = StandardAuthRetrievals(Set(), Some(AffinityGroup.Agent), None)
-      val result: Future[Option[ClientMandateDetails]] = testDetailsService.getClientMandateDetails("clientId", "ated")(authContext, request)
+      val result: Future[Option[ClientMandateDetails]] = testDetailsService.getClientMandateDetails("clientId", "ated")
       await(result) must be(None)
     }
 
@@ -308,12 +309,12 @@ class DetailsServiceSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
 
     "save the new client ref num, if clear cache is successful" in new Setup {
 
-      when(mockDataCacheService.saveFormData[String](ArgumentMatchers.any(), ArgumentMatchers.any())(
+      when(mockDataCacheService.saveFormData[String](ArgumentMatchers.any(), ArgumentMatchers.any())(using 
         ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful("XN1200000100001"))
       setupCommonMocks(dataCacheSaveFormDataResponse = "XN1200000100001")
 
-      val result: Future[String] = testDetailsService.cacheClientReference("XN1200000100001")(hc)
+      val result: Future[String] = testDetailsService.cacheClientReference("XN1200000100001")
       await(result) must be("XN1200000100001")
     }
 

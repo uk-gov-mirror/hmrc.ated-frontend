@@ -17,7 +17,7 @@
 package views.propertyDetails
 
 import config.ApplicationConfig
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import models.{PeriodChooseRelief, StandardAuthRetrievals}
 import org.jsoup.Jsoup
 import org.scalatest.featurespec.AnyFeatureSpecLike
@@ -35,13 +35,17 @@ import views.html.propertyDetails.periodChooseRelief
 class PeriodChooseReliefSpec extends AnyFeatureSpecLike with GuiceOneAppPerSuite with MockitoSugar
   with BeforeAndAfterEach with GivenWhenThen with MockAuthUtil {
 
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
+
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
   val injectedViewInstance: periodChooseRelief = app.injector.instanceOf[views.html.propertyDetails.periodChooseRelief]
 
-Feature("The user can add a period that the property is in relief") {
+  Feature("The user can add a period that the property is in relief") {
 
     info("as a client i want to indicate when my property is in relief")
 
@@ -80,38 +84,38 @@ Feature("The user can add a period that the property is in relief") {
       assert(document.select(".govuk-width-container > a.govuk-back-link").text === "Back")
     }
 
-  Scenario("allow selecting a relief in 2020") {
+    Scenario("allow selecting a relief in 2020") {
 
-    Given("the client is adding a relief")
-    When("The user views the page")
+      Given("the client is adding a relief")
+      When("The user views the page")
 
-    val html = injectedViewInstance("1", 2020, periodChooseReliefForm, Html(""), Some("backLink"))
+      val html = injectedViewInstance("1", 2020, periodChooseReliefForm, Html(""), Some("backLink"))
 
-    val document = Jsoup.parse(html.toString())
-    Then("The header should match - Select the type of relief")
-    assert(document.select("h1").text contains "Select the type of relief")
+      val document = Jsoup.parse(html.toString())
+      Then("The header should match - Select the type of relief")
+      assert(document.select("h1").text contains "Select the type of relief")
 
-    Then("The subheader should be - Create return")
-    assert(document.getElementsByClass("govuk-caption-xl").text() contains "This section is: Create return")
+      Then("The subheader should be - Create return")
+      assert(document.getElementsByClass("govuk-caption-xl").text() contains "This section is: Create return")
 
-    Then("The correct radio buttons for relief types should be present")
+      Then("The correct radio buttons for relief types should be present")
 
-    assert(document.getElementsByAttributeValue("for","reliefDescription").text() === "Rental business")
-    assert(document.getElementsByAttributeValue("for","reliefDescription-2").text() === "Open to the public")
-    assert(document.getElementsByAttributeValue("for","reliefDescription-3").text() === "Property developer")
-    assert(document.getElementsByAttributeValue("for","reliefDescription-4").text() === "Property trading")
-    assert(document.getElementsByAttributeValue("for","reliefDescription-5").text() === "Lending")
-    assert(document.getElementsByAttributeValue("for","reliefDescription-6").text() === "Employee occupation")
-    assert(document.getElementsByAttributeValue("for","reliefDescription-7").text() === "Farmhouse")
-    assert(document.getElementsByAttributeValue("for","reliefDescription-8").text() === "Provider of social housing or housing co-operative")
-    assert(document.getElementsByAttributeValue("for","reliefDescription-9").text() === "Equity release scheme (home reversion plans)")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription").text() === "Rental business")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription-2").text() === "Open to the public")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription-3").text() === "Property developer")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription-4").text() === "Property trading")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription-5").text() === "Lending")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription-6").text() === "Employee occupation")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription-7").text() === "Farmhouse")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription-8").text() === "Provider of social housing or housing co-operative")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription-9").text() === "Equity release scheme (home reversion plans)")
 
-    Then("The submit button should have the correct name")
-    assert(document.getElementsByClass("govuk-button").text() === "Save and continue")
+      Then("The submit button should have the correct name")
+      assert(document.getElementsByClass("govuk-button").text() === "Save and continue")
 
-    Then("The back link is correct")
-    assert(document.select(".govuk-width-container > a.govuk-back-link").text === "Back")
-  }
+      Then("The back link is correct")
+      assert(document.select(".govuk-width-container > a.govuk-back-link").text === "Back")
+    }
 
     Scenario("display a selected a relief") {
 
@@ -133,15 +137,15 @@ Feature("The user can add a period that the property is in relief") {
 
       Then("The correct radio buttons for relief types should be present")
 
-      assert(document.getElementsByAttributeValue("for","reliefDescription").text() === "Rental business")
-      assert(document.getElementsByAttributeValue("for","reliefDescription-2").text() === "Open to the public")
-      assert(document.getElementsByAttributeValue("for","reliefDescription-3").text() === "Property developer")
-      assert(document.getElementsByAttributeValue("for","reliefDescription-4").text() === "Property trading")
-      assert(document.getElementsByAttributeValue("for","reliefDescription-5").text() === "Lending")
-      assert(document.getElementsByAttributeValue("for","reliefDescription-6").text() === "Employee occupation")
-      assert(document.getElementsByAttributeValue("for","reliefDescription-7").text() === "Farmhouse")
-      assert(document.getElementsByAttributeValue("for","reliefDescription-8").text() === "Social housing")
-      assert(document.getElementsByAttributeValue("for","reliefDescription-9").text() === "Equity release scheme (home reversion plans)")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription").text() === "Rental business")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription-2").text() === "Open to the public")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription-3").text() === "Property developer")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription-4").text() === "Property trading")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription-5").text() === "Lending")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription-6").text() === "Employee occupation")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription-7").text() === "Farmhouse")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription-8").text() === "Social housing")
+      assert(document.getElementsByAttributeValue("for", "reliefDescription-9").text() === "Equity release scheme (home reversion plans)")
 
       Then("The submit button should have the correct name")
       assert(document.getElementsByClass("govuk-button").text() === "Save and continue")

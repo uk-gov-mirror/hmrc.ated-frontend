@@ -18,10 +18,10 @@ package builders
 
 import builders.ChangeLiabilityReturnBuilder.generateFormBundlePropertyDetails
 import config.ApplicationConfig
-import models._
+import models.*
 import java.time.LocalDate
 import utils.AtedConstants
-import utils.PeriodUtils._
+import utils.PeriodUtils.*
 
 object PropertyDetailsBuilder {
 

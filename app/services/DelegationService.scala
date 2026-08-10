@@ -25,16 +25,16 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class DelegationService @Inject()(delegationConnector: DelegationConnector)(implicit val ec: ExecutionContext) extends Logging {
+class DelegationService @Inject()(delegationConnector: DelegationConnector)(using ec: ExecutionContext) extends Logging {
 
 
-  def delegationCall(id: String)(implicit hc: HeaderCarrier): Future[Option[DelegationModel]] = {
+  def delegationCall(id: String)(using hc: HeaderCarrier): Future[Option[DelegationModel]] = {
     delegationConnector.delegationDataCall(id).map { response =>
       response.status match {
         case _ => response.json.asOpt[DelegationModel]
       }
     }.recover {
-      case e =>
+      case _ =>
         logger.warn("[DelegationService][delegationCall] no Delegation Returned")
         None
     }

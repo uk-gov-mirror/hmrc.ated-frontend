@@ -25,7 +25,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.Injecting
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
@@ -34,8 +34,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class DelegationServiceSpec extends PlaySpec with MockitoSugar with BeforeAndAfterEach with GuiceOneAppPerSuite with Injecting {
 
   val mockDelegationConnector: DelegationConnector = mock[DelegationConnector]
-  implicit val ec: ExecutionContext = inject[ExecutionContext]
-  implicit val hc: HeaderCarrier = HeaderCarrier()
+  given ec: ExecutionContext = inject[ExecutionContext]
+  given hc: HeaderCarrier = HeaderCarrier()
 
   class Setup {
     val testDelegationService: DelegationService = new DelegationService(
@@ -77,7 +77,7 @@ class DelegationServiceSpec extends PlaySpec with MockitoSugar with BeforeAndAft
           supplementaryData = Some(Map()),
           internalId = Some("test")
         )
-        when(mockDelegationConnector.delegationDataCall(ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockDelegationConnector.delegationDataCall(ArgumentMatchers.any())(using ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(OK, returnJson.toString)))
         val result: Future[Option[DelegationModel]] = testDelegationService.delegationCall("String")
         await(result) mustBe Some(expectedModel)
@@ -87,7 +87,7 @@ class DelegationServiceSpec extends PlaySpec with MockitoSugar with BeforeAndAft
     "not return a delegation model" when {
       "no http response is returned" in new Setup {
 
-        when(mockDelegationConnector.delegationDataCall(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, "")))
+        when(mockDelegationConnector.delegationDataCall(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, "")))
         val result: Future[Option[DelegationModel]] = testDelegationService.delegationCall("String")
         await(result) mustBe None
       }

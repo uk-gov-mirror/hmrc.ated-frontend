@@ -17,7 +17,7 @@
 package views.reliefs
 
 import config.ApplicationConfig
-import forms.ReliefForms._
+import forms.ReliefForms.*
 import models.{IsTaxAvoidance, StandardAuthRetrievals}
 import java.time.LocalDate
 import org.jsoup.Jsoup
@@ -35,11 +35,11 @@ import views.html.reliefs.avoidanceSchemeBeingUsed
 class isAvoidanceSchemeSpec extends AnyFeatureSpec with GuiceOneAppPerSuite
   with MockitoSugar with BeforeAndAfterEach with GivenWhenThen with MockAuthUtil {
 
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
   val periodKey = 2015
 
   val injectedViewInstance: avoidanceSchemeBeingUsed = app.injector.instanceOf[views.html.reliefs.avoidanceSchemeBeingUsed]

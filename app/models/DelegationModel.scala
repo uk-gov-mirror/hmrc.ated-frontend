@@ -28,7 +28,7 @@ case class DelegationModel(attorneyName: String,
                            internalId: Option[String] = None)
 
 object DelegationModel {
-  implicit val format: Format[DelegationModel] = Json.format[DelegationModel]
+  given format: Format[DelegationModel] = Json.format[DelegationModel]
 }
 
 
@@ -41,7 +41,7 @@ case class PrincipalTaxIdentifiers(paye: Option[Nino] = None,
                                    ated: Option[AtedUtr] = None)
 
 object PrincipalTaxIdentifiers {
-  implicit val format: Format[PrincipalTaxIdentifiers] = Json.format[PrincipalTaxIdentifiers]
+  given format: Format[PrincipalTaxIdentifiers] = Json.format[PrincipalTaxIdentifiers]
 }
 
 
@@ -49,5 +49,5 @@ case class Link(text: String,
                 url: String)
 
 object Link {
-  implicit val format: Format[Link] = Json.format[Link]
+  given format: Format[Link] = Json.format[Link]
 }

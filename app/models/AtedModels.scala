@@ -26,36 +26,36 @@ import play.api.libs.json.Writes._
 case class EditRelief(changeRelief: Option[String] = None)
 
 object EditRelief {
-  implicit val formats: OFormat[EditRelief] = Json.format[EditRelief]
+  given formats: OFormat[EditRelief] = Json.format[EditRelief]
 }
 
 case class ReturnType(returnType: Option[String] = None)// CR = chargeable-return && RR = relief-return
 
 object ReturnType {
-  implicit val formats: OFormat[ReturnType] = Json.format[ReturnType]
+  given formats: OFormat[ReturnType] = Json.format[ReturnType]
 }
 
 case class SelectPeriod(period: Option[String] = None)
 object SelectPeriod {
-  implicit val formats: OFormat[SelectPeriod] = Json.format[SelectPeriod]
+  given formats: OFormat[SelectPeriod] = Json.format[SelectPeriod]
 }
 
 case class EditLiabilityReturnType(editLiabilityType: Option[String] = None)// ER = edit-return, DP = dispose-property && MP = move-property
 
 object EditLiabilityReturnType {
-  implicit val formats: OFormat[EditLiabilityReturnType] = Json.format[EditLiabilityReturnType]
+  given formats: OFormat[EditLiabilityReturnType] = Json.format[EditLiabilityReturnType]
 }
 
 case class DisposeLiability(dateOfDisposal: Option[LocalDate] = None, periodKey: Int)
 
 object DisposeLiability {
-  implicit val formats: OFormat[DisposeLiability] = Json.format[DisposeLiability]
+  given formats: OFormat[DisposeLiability] = Json.format[DisposeLiability]
 }
 
 case class DisposeCalculated(liabilityAmount: BigDecimal, amountDueOrRefund: BigDecimal)
 
 object DisposeCalculated {
-  implicit val formats: OFormat[DisposeCalculated] = Json.format[DisposeCalculated]
+  given formats: OFormat[DisposeCalculated] = Json.format[DisposeCalculated]
 }
 
 case class DisposeLiabilityReturn(id: String,
@@ -65,7 +65,7 @@ case class DisposeLiabilityReturn(id: String,
                                   bankDetails: Option[BankDetailsModel] = None)
 
 object DisposeLiabilityReturn {
-  implicit val formats: OFormat[DisposeLiabilityReturn] = Json.format[DisposeLiabilityReturn]
+  given formats: OFormat[DisposeLiabilityReturn] = Json.format[DisposeLiabilityReturn]
 
   def isComplete(dlr: DisposeLiabilityReturn): Boolean = {
     val addressProvided = dlr.formBundleReturn.propertyDetails.address.addressLine1 > ""

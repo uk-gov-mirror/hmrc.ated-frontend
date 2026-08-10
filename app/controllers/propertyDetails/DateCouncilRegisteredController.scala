@@ -19,12 +19,12 @@ package controllers.propertyDetails
 import config.ApplicationConfig
 import controllers.auth.{AuthAction, ClientHelper}
 import forms.PropertyDetailsForms
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import models.{DateCouncilRegistered, DateFirstOccupiedKnown}
 import java.time.LocalDate
 import play.api.i18n.{Messages, MessagesImpl}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services._
+import services.*
 import uk.gov.hmrc.play.bootstrap.controller.WithUnsafeDefaultFormBinding
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.AtedConstants.{NewBuildCouncilRegisteredDate, NewBuildFirstOccupiedDateKnown, SelectedPreviousReturn}
@@ -41,14 +41,14 @@ class DateCouncilRegisteredController @Inject()(val mcc: MessagesControllerCompo
                                                 val dataCacheService: DataCacheService,
                                                 val backLinkCacheService: BackLinkCacheService,
                                                 template: views.html.propertyDetails.dateCouncilRegistered)
-                                                      (implicit val appConfig: ApplicationConfig)
+                                                      (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with WithUnsafeDefaultFormBinding with StoreNewBuildDates {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = DateCouncilRegisteredControllerId
 
-  implicit lazy val messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
+  given messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
 
   val dateFields = Seq(("dateCouncilRegistered", Messages("ated.property-details.council-registered-date.messageKey")))
 

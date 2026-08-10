@@ -32,12 +32,12 @@ import utils.{PeriodUtils, TestModels}
 
 class PrevPeriodsSummarySpec extends PlaySpec with MockAuthUtil with GuiceOneAppPerTest with TestModels {
 
-  implicit val mockAppConfig: ApplicationConfig = mock[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = mock[ApplicationConfig]
   stubServiceNavigationUrls(mockAppConfig)
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
-  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  implicit lazy val messages: Messages = MessagesImpl(Lang("en-GB"), messagesApi)
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  given messages: Messages = MessagesImpl(Lang("en-GB"), messagesApi)
   when(mockAppConfig.atedPeakStartDay)
     .thenReturn("16")
 

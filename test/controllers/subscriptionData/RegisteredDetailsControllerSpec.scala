@@ -20,10 +20,10 @@ import java.util.UUID
 import builders.{SessionBuilder, TitleBuilder}
 import config.ApplicationConfig
 import controllers.auth.AuthAction
-import models._
+import models.*
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -33,7 +33,7 @@ import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.{DataCacheService, DetailsService, ServiceInfoService, SubscriptionDataService}
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.auth.core.AffinityGroup
@@ -45,8 +45,9 @@ import scala.concurrent.Future
 
 class RegisteredDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with MockAuthUtil {
 
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given hc: HeaderCarrier = HeaderCarrier()
+
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
 
   val mockMcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   val mockEnvironment: Environment = app.injector.instanceOf[Environment]
@@ -54,66 +55,68 @@ class RegisteredDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSui
   val mockDetailsService: DetailsService = mock[DetailsService]
   val mockSubscriptionDataService: SubscriptionDataService = mock[SubscriptionDataService]
   val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+
+  given messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+
   val btaNavigationLinksView: BtaNavigationLinks = app.injector.instanceOf[BtaNavigationLinks]
   val mockServiceInfoService: ServiceInfoService = mock[ServiceInfoService]
   val injectedViewInstance: registeredDetails = app.injector.instanceOf[views.html.subcriptionData.registeredDetails]
 
-class Setup {
+  class Setup {
 
-  val mockAuthAction: AuthAction = new AuthAction(
-    mockAppConfig,
-    mockDelegationService,
-    mockAuthConnector
-  )
+    val mockAuthAction: AuthAction = new AuthAction(
+      mockAppConfig,
+      mockDelegationService,
+      mockAuthConnector
+    )
 
-  val testRegisteredDetailsController: RegisteredDetailsController = new RegisteredDetailsController(
+    val testRegisteredDetailsController: RegisteredDetailsController = new RegisteredDetailsController(
       mockMcc,
       mockAuthAction,
       mockSubscriptionDataService,
       mockServiceInfoService,
       mockEnvironment,
       injectedViewInstance
-  )
+    )
 
-  def getWithAuthorisedUser(registeredDetails: Option[RegisteredDetails]=None)(test: Future[Result] => Any): Unit = {
-    val userId = s"user-${UUID.randomUUID}"
-    val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
-    setAuthMocks(authMock)
-    when(mockSubscriptionDataService.getRegisteredDetails(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(registeredDetails))
-    when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
+    def getWithAuthorisedUser(registeredDetails: Option[RegisteredDetails] = None)(test: Future[Result] => Any): Unit = {
+      val userId = s"user-${UUID.randomUUID}"
+      val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
+      setAuthMocks(authMock)
+      when(mockSubscriptionDataService.getRegisteredDetails(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(registeredDetails))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages, mockAppConfig)))
 
-    val result = testRegisteredDetailsController.edit().apply(SessionBuilder.buildRequestWithSession(userId))
+      val result = testRegisteredDetailsController.edit().apply(SessionBuilder.buildRequestWithSession(userId))
 
-    test(result)
+      test(result)
+    }
+
+    def getWithUnAuthorisedUser: Future[Result] = {
+      val userId = s"user-${UUID.randomUUID}"
+      val authMock = authResultDefault(AffinityGroup.Organisation, invalidEnrolmentSet)
+      setInvalidAuthMocks(authMock)
+      testRegisteredDetailsController.edit()(SessionBuilder.buildRequestWithSession(userId))
+    }
+
+    def submitWithAuthorisedUserSuccess(updatedDetails: Option[RegisteredDetails] = None)
+                                       (fakeRequest: FakeRequest[AnyContentAsJson])(test: Future[Result] => Any): Unit = {
+      val userId = s"user-${UUID.randomUUID}"
+      val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
+      setAuthMocks(authMock)
+      when(mockSubscriptionDataService.updateRegisteredDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(updatedDetails))
+      val result = testRegisteredDetailsController.submit().apply(SessionBuilder.updateRequestWithSession(fakeRequest, userId))
+
+      test(result)
+    }
+
+    def submitWithUnAuthorisedUser(test: Future[Result] => Any): Unit = {
+      val userId = s"user-${UUID.randomUUID}"
+      val authMock = authResultDefault(AffinityGroup.Organisation, invalidEnrolmentSet)
+      setInvalidAuthMocks(authMock)
+      val result = testRegisteredDetailsController.submit().apply(SessionBuilder.buildRequestWithSession(userId))
+      test(result)
+    }
   }
-
-  def getWithUnAuthorisedUser: Future[Result] =  {
-    val userId = s"user-${UUID.randomUUID}"
-    val authMock = authResultDefault(AffinityGroup.Organisation, invalidEnrolmentSet)
-    setInvalidAuthMocks(authMock)
-    testRegisteredDetailsController.edit()(SessionBuilder.buildRequestWithSession(userId))
-  }
-
-  def submitWithAuthorisedUserSuccess(updatedDetails: Option[RegisteredDetails]=None)
-                                     (fakeRequest: FakeRequest[AnyContentAsJson])(test: Future[Result] => Any): Unit = {
-    val userId = s"user-${UUID.randomUUID}"
-    val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
-    setAuthMocks(authMock)
-    when(mockSubscriptionDataService.updateRegisteredDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(updatedDetails))
-    val result = testRegisteredDetailsController.submit().apply(SessionBuilder.updateRequestWithSession(fakeRequest, userId))
-
-    test(result)
-  }
-
-  def submitWithUnAuthorisedUser(test: Future[Result] => Any): Unit = {
-    val userId = s"user-${UUID.randomUUID}"
-    val authMock = authResultDefault(AffinityGroup.Organisation, invalidEnrolmentSet)
-    setInvalidAuthMocks(authMock)
-    val result = testRegisteredDetailsController.submit().apply(SessionBuilder.buildRequestWithSession(userId))
-    test(result)
-  }
-}
 
   override def beforeEach(): Unit = {
   }
@@ -123,11 +126,11 @@ class Setup {
 
       "unauthorised users" must {
         "respond with a redirect" in new Setup {
-            status(getWithUnAuthorisedUser) must be(SEE_OTHER)
+          status(getWithUnAuthorisedUser) must be(SEE_OTHER)
         }
 
         "be redirected to the login page" in new Setup {
-            redirectLocation(getWithUnAuthorisedUser).get must include("/ated/unauthorised")
+          redirectLocation(getWithUnAuthorisedUser).get must include("/ated/unauthorised")
 
         }
       }
@@ -146,7 +149,7 @@ class Setup {
             result =>
               val document = Jsoup.parse(contentAsString(result))
 
-              document.title() must be (TitleBuilder.buildTitle("Edit business name and address"))
+              document.title() must be(TitleBuilder.buildTitle("Edit business name and address"))
               assert(document.getElementById("service-info-list").text() === "Home Manage account Messages Help and contact")
               document.select("h1").text() must include("Edit business name and address")
               document.getElementById("addressDetails.addressLine1").attr("value") must be("")
@@ -172,7 +175,7 @@ class Setup {
             result =>
               val document = Jsoup.parse(contentAsString(result))
 
-              document.title() must be (TitleBuilder.buildTitle("Edit business name and address"))
+              document.title() must be(TitleBuilder.buildTitle("Edit business name and address"))
               document.select("h1").text() must include("Edit business name and address")
               document.getElementById("addressDetails.addressLine1").attr("value") must be("bpline1")
               document.getElementById("addressDetails.addressLine2").attr("value") must be("bpline2")
@@ -195,7 +198,7 @@ class Setup {
         }
 
         "be redirected to the unauthorised page" in new Setup {
-            redirectLocation(getWithUnAuthorisedUser).get must include("/ated/unauthorised")
+          redirectLocation(getWithUnAuthorisedUser).get must include("/ated/unauthorised")
         }
       }
 
@@ -223,13 +226,13 @@ class Setup {
           "If registration details entered are valid but the save fails, throw a validation error" in new Setup {
             val inputJson: JsValue = Json.parse(
               """{ "isEditable": true,
-              | "name": "sdfsdf",
-              |"addressDetails" : {
-              |"addressLine1": "sdfsdf",
-              |"addressLine2": "sdfsdf",
-              |"addressLine3": "sdfsdf",
-              |"addressLine4": "sdfsdf",
-              |"countryCode": "AR"}}""".stripMargin)
+                | "name": "sdfsdf",
+                |"addressDetails" : {
+                |"addressLine1": "sdfsdf",
+                |"addressLine2": "sdfsdf",
+                |"addressLine3": "sdfsdf",
+                |"addressLine4": "sdfsdf",
+                |"countryCode": "AR"}}""".stripMargin)
 
             submitWithAuthorisedUserSuccess(None)(FakeRequest().withJsonBody(inputJson)) {
               result =>

@@ -26,8 +26,8 @@ import play.api.test.FakeRequest
 
 class BankDetailFormsSpec extends PlaySpec with GuiceOneServerPerSuite {
 
-  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  implicit lazy val messages: Messages = messagesApi.preferred(FakeRequest())
+  given messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  given messages: Messages = messagesApi.preferred(FakeRequest())
 
   val validUkData: Map[String, String] = Map("hasUKBankAccount" -> "true",
       "accountName" -> "Account Name",

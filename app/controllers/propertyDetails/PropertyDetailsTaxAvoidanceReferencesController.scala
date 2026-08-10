@@ -19,8 +19,8 @@ package controllers.propertyDetails
 import config.ApplicationConfig
 import controllers.auth.{AuthAction, ClientHelper}
 import forms.PropertyDetailsForms
-import forms.PropertyDetailsForms._
-import models._
+import forms.PropertyDetailsForms.*
+import models.*
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{BackLinkCacheService, DataCacheService, PropertyDetailsCacheSuccessResponse, PropertyDetailsService, ServiceInfoService}
 import uk.gov.hmrc.play.bootstrap.controller.WithUnsafeDefaultFormBinding
@@ -39,10 +39,10 @@ class PropertyDetailsTaxAvoidanceReferencesController @Inject()(mcc: MessagesCon
                                                                 val dataCacheService: DataCacheService,
                                                                 val backLinkCacheService: BackLinkCacheService,
                                                                 template: views.html.propertyDetails.propertyDetailsTaxAvoidanceReferences)
-                                                     (implicit val appConfig: ApplicationConfig)
+                                                     (using val appConfig: ApplicationConfig)
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = "PropertyDetailsTaxAvoidanceReferencesController"
 
   def view(id: String): Action[AnyContent] = Action.async { implicit request =>

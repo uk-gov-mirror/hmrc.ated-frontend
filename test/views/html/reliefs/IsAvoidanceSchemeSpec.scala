@@ -26,9 +26,9 @@ import testhelpers.{AtedViewSpec, MockAuthUtil}
 
 class IsAvoidanceSchemeSpec extends AtedViewSpec with MockAuthUtil with Injecting {
 
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
 
-  implicit val mockAppConfig: ApplicationConfig = inject[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = inject[ApplicationConfig]
   val periodKey = 2017
   val periodStartDate = LocalDate.now()
   val injectedView: avoidanceSchemeBeingUsed = inject[views.html.reliefs.avoidanceSchemeBeingUsed]

@@ -18,14 +18,14 @@ package controllers.propertyDetails
 
 import config.ApplicationConfig
 import controllers.auth.{AuthAction, ClientHelper}
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 
 import javax.inject.Inject
-import models._
+import models.*
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{BackLinkCacheService, DataCacheService, PropertyDetailsCacheSuccessResponse, PropertyDetailsService, ServiceInfoService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.AtedConstants._
+import utils.AtedConstants.*
 import utils.{AtedUtils, PeriodUtils}
 import uk.gov.hmrc.play.bootstrap.controller.WithUnsafeDefaultFormBinding
 
@@ -40,11 +40,11 @@ class IsFullTaxPeriodController @Inject()(mcc: MessagesControllerComponents,
                                           val dataCacheService: DataCacheService,
                                           val backLinkCacheService: BackLinkCacheService,
                                           template: views.html.propertyDetails.isFullTaxPeriod)
-                                         (implicit val appConfig: ApplicationConfig)
+                                         (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   val controllerId: String = "IsFullTaxPeriodController"
 

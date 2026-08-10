@@ -18,7 +18,7 @@ package forms
 
 import models.OverseasCompanyRegistration
 import play.api.data.Form
-import play.api.data.Forms._
+import play.api.data.Forms.*
 
 object OverseasCompanyRegistrationForm {
 
@@ -32,6 +32,6 @@ object OverseasCompanyRegistrationForm {
       "issuingInstitution" -> optional(text)
         .verifying("ated.non-uk-reg.issuingInstitution.length", x => x.isEmpty || (x.nonEmpty && x.get.length <= length40)),
       "countryCode" -> optional(text)
-    )(OverseasCompanyRegistration.apply)(OverseasCompanyRegistration.unapply)
+    )(OverseasCompanyRegistration.apply)(o => Some(Tuple.fromProductTyped(o)))
   )
 }

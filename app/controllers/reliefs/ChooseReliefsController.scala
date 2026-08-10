@@ -18,7 +18,7 @@ package controllers.reliefs
 
 import config.ApplicationConfig
 import controllers.auth.{AuthAction, ClientHelper}
-import forms.ReliefForms._
+import forms.ReliefForms.*
 import models.Reliefs
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{BackLinkCacheService, BackLinkService, DataCacheService, ReliefsService, ServiceInfoService}
@@ -40,11 +40,11 @@ class ChooseReliefsController @Inject()(mcc: MessagesControllerComponents,
                                         val backLinkCacheService: BackLinkCacheService,
                                         val templateInvalidPeriodKey: views.html.reliefs.invalidPeriodKey,
                                         template: views.html.reliefs.chooseReliefs)
-                                       (implicit val appConfig: ApplicationConfig)
+                                       (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with BackLinkService with ReliefHelpers with ClientHelper {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   override val controllerId: String = "ChooseReliefsController"
 
   def view(periodKey: Int): Action[AnyContent] = Action.async { implicit request =>

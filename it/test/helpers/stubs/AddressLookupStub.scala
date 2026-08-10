@@ -16,9 +16,9 @@
 
 package test.helpers.stubs
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import test.helpers.IntegrationBase
 
 object AddressLookupStub extends IntegrationBase {

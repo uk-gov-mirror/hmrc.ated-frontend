@@ -27,7 +27,7 @@ import testhelpers.{AtedViewSpec, MockAuthUtil}
 
 class PropertyDetailsTaxAvoidanceSchemeHtmlViewSpec extends AtedViewSpec with MockitoSugar with MockAuthUtil {
 
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
 
   val injectedViewInstance: propertyDetailsTaxAvoidanceScheme = app.injector.instanceOf[views.html.propertyDetails.propertyDetailsTaxAvoidanceScheme]
 
@@ -36,7 +36,7 @@ class PropertyDetailsTaxAvoidanceSchemeHtmlViewSpec extends AtedViewSpec with Mo
 
   override def view: Html = injectedViewInstance("", 0, form, None, Html(""), Some("backLink"))
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   "The Property Details Professionally Valued View page" must {
 
     "have a the correct page title" in {

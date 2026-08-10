@@ -28,7 +28,7 @@ import uk.gov.hmrc.crypto.PlainText
 
 trait GGLoginStub extends IntegrationConstants {
 
-  val app: Application
+  lazy val app: Application
   lazy val signerSession: SessionCookieBaker = app.injector.instanceOf[SessionCookieBaker]
   lazy val cookieHeader: DefaultCookieHeaderEncoding = app.injector.instanceOf[DefaultCookieHeaderEncoding]
   lazy val cookieCrypto: SessionCookieCrypto = app.injector.instanceOf[SessionCookieCrypto]
@@ -41,10 +41,10 @@ trait GGLoginStub extends IntegrationConstants {
   )
 
   def encryptedSessionCookie(cookie: Cookie = getSessionCookie): WSCookie =
-    encryptedCookie(getSessionCookie)
+    encryptedCookie(cookie)
 
   def getSessionCookie: Cookie = signerSession.encodeAsCookie(Session(cookieData))
-  def getCookieHeader(sessionCookie: Cookie): String = cookieHeader.encodeSetCookieHeader(Seq(getSessionCookie))
+  def getCookieHeader(sessionCookie: Cookie): String = cookieHeader.encodeSetCookieHeader(Seq(sessionCookie))
 
   private def encryptedCookie(sessionCookie: Cookie): WSCookie =
     DefaultWSCookie(

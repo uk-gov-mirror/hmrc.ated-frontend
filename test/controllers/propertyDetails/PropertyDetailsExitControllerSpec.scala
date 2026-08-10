@@ -17,7 +17,7 @@
 package controllers.propertyDetails
 
 import builders.SessionBuilder
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AffinityGroup
 import views.html.propertyDetails.propertyDetailsExit
 

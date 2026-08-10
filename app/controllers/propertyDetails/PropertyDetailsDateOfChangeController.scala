@@ -22,7 +22,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{BackLinkCacheService, DataCacheService, PropertyDetailsCacheSuccessResponse, PropertyDetailsService, ServiceInfoService}
 import uk.gov.hmrc.play.bootstrap.controller.WithUnsafeDefaultFormBinding
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import models.DateOfChange
 import play.api.i18n.{Messages, MessagesImpl}
 import utils.AtedConstants.{FortyThousandValueDateOfChange, SelectedPreviousReturn}
@@ -39,11 +39,11 @@ class PropertyDetailsDateOfChangeController @Inject()(mcc: MessagesControllerCom
                                                       val backLinkCacheService: BackLinkCacheService,
                                                       val dataCacheService: DataCacheService,
                                                       newValuationController: PropertyDetailsNewValuationController)
-                                                     (implicit val appConfig: ApplicationConfig)
+                                                     (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = "PropertyDetailsDateOfChangeController"
 
   def view(id: String): Action[AnyContent] = Action.async { implicit request =>
@@ -51,7 +51,7 @@ class PropertyDetailsDateOfChangeController @Inject()(mcc: MessagesControllerCom
       ensureClientContext {
         serviceInfoService.getPartial.flatMap { serviceInfoContent =>
           propertyDetailsCacheResponse(id) {
-            case PropertyDetailsCacheSuccessResponse(propertyDetails) => {}
+            case PropertyDetailsCacheSuccessResponse(propertyDetails) =>
               currentBackLink.flatMap { backlink =>
                 dataCacheService.fetchAndGetData[Boolean](SelectedPreviousReturn).flatMap { isPrevReturn =>
                   dataCacheService.fetchAndGetData[DateOfChange](FortyThousandValueDateOfChange).map { cachedDateOfChange =>
@@ -72,7 +72,7 @@ class PropertyDetailsDateOfChangeController @Inject()(mcc: MessagesControllerCom
   }
 
 
-  implicit lazy val messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
+  given messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
 
   val dateFields: (String, String) = ("dateOfChange", messages("ated.property-details-value.dateOfChange.messageKey"))
 

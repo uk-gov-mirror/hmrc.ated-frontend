@@ -45,7 +45,7 @@ class AuthAction @Inject()(appConfig: ApplicationConfig,
   def unauthorisedUrl(isSa: Boolean = false): Result = Redirect(controllers.routes.ApplicationController.unauthorised(isSa).url)
 
   def authorisedForNoEnrolments(body: StandardAuthRetrievals => Future[Result])
-                                (implicit ex: ExecutionContext,
+                                (using ex: ExecutionContext,
                   hc: HeaderCarrier): Future[Result] = {
     authorised(
       AffinityGroup.Organisation or AffinityGroup.Agent
@@ -71,7 +71,7 @@ class AuthAction @Inject()(appConfig: ApplicationConfig,
   }
 
   def authorisedAction(body: StandardAuthRetrievals => Future[Result])
-                      (implicit ex: ExecutionContext,
+                      (using ex: ExecutionContext,
                        hc: HeaderCarrier): Future[Result] = {
     authorised(
       (Enrolment("HMRC-ATED-ORG") or Enrolment("HMRC-AGENT-AGENT") or Enrolment("IR-SA")) and

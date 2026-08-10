@@ -33,11 +33,11 @@ class PropertyDetailsDeclarationController @Inject()(mcc: MessagesControllerComp
                                                      val backLinkCacheService: BackLinkCacheService,
                                                      template: views.html.propertyDetails.propertyDetailsDeclaration,
                                                      templateError: views.html.global_error)
-                                                    (implicit val appConfig: ApplicationConfig)
+                                                    (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId = "PropertyDetailsDeclarationController"
 
   def view(id: String): Action[AnyContent] = Action.async { implicit request =>

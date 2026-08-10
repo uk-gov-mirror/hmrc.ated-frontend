@@ -35,13 +35,13 @@ import scala.concurrent.{ExecutionContext, Future}
 class ServiceInfoService @Inject()(serviceInfoPartialConnector: ServiceInfoPartialConnector,
                                       service_info: service_info,
                                       btaNavigationLinks: BtaNavigationLinks)
-                                      (implicit val messagesApi: MessagesApi, config: ApplicationConfig) extends HeaderCarrierConverter{
+                                      (using messagesApi: MessagesApi, config: ApplicationConfig) extends HeaderCarrierConverter{
 
-  def getPartial(implicit ec: ExecutionContext, authContext: StandardAuthRetrievals, request: Request[_]): Future[Html] = {
+  def getPartial(using ec: ExecutionContext, authContext: StandardAuthRetrievals, request: Request[_]): Future[Html] = {
     val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    implicit val hc: HeaderCarrier = headerCarrier.copy(extraHeaders = headerCarrier.headers(Seq(HeaderNames.COOKIE)))
+    given hc: HeaderCarrier = headerCarrier.copy(extraHeaders = headerCarrier.headers(Seq(HeaderNames.COOKIE)))
     val maybeNavLinks = serviceInfoPartialConnector.getNavLinks
-    implicit val messages: Messages = messagesApi.preferred(request)
+    given messages: Messages = messagesApi.preferred(request)
 
     if(authContext.isAgent){
       Future.successful(HtmlFormat.empty)

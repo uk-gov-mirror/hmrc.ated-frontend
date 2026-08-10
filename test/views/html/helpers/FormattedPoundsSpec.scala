@@ -25,8 +25,8 @@ import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}
 
 class FormattedPoundsSpec extends PlaySpec with GuiceOneAppPerTest {
 
-  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  implicit lazy val messages: Messages = MessagesImpl(Lang("en-GB"), messagesApi)
+  given messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  given messages: Messages = MessagesImpl(Lang("en-GB"), messagesApi)
 
   ".formattedPounds" should {
 

@@ -18,11 +18,11 @@ package controllers.propertyDetails
 
 import config.ApplicationConfig
 import controllers.auth.{AuthAction, ClientHelper}
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import models.PropertyDetailsWhenAcquiredDates
 import play.api.i18n.{Messages, MessagesImpl}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services._
+import services.*
 import uk.gov.hmrc.play.bootstrap.controller.WithUnsafeDefaultFormBinding
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.AtedConstants.SelectedPreviousReturn
@@ -40,11 +40,11 @@ class PropertyDetailsWhenAcquiredController @Inject()(mcc: MessagesControllerCom
                                                       val dataCacheService: DataCacheService,
                                                       val backLinkCacheService: BackLinkCacheService,
                                                       template: html.propertyDetails.propertyDetailsWhenAcquired)
-                                                     (implicit val appConfig: ApplicationConfig)
+                                                     (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = "PropertyDetailsWhenAcquiredController"
 
   def view(id: String): Action[AnyContent] = Action.async { implicit request =>
@@ -70,7 +70,7 @@ class PropertyDetailsWhenAcquiredController @Inject()(mcc: MessagesControllerCom
     }
   }
 
-  implicit lazy val messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
+  given messages: Messages = MessagesImpl(mcc.langs.availables.head, messagesApi)
 
   val dateFields: Seq[(String, String)] = Seq(("acquiredDate", Messages("ated.property-details.whenAcquired.messageKey")))
 

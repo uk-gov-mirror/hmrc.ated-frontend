@@ -16,9 +16,9 @@
 
 package forms
 
-import models._
+import models.*
 import play.api.data.Form
-import play.api.data.Forms._
+import play.api.data.Forms.*
 
 object AddressLookupForms {
 
@@ -27,11 +27,11 @@ object AddressLookupForms {
       "postcode" -> text
         .verifying("ated.error.address.postalcode.format",  x => AtedForms.validatePostCodeFormat(Some(x.toUpperCase))),
       "houseName" -> optional(text)
-    )(AddressLookup.apply)(AddressLookup.unapply)
+    )(AddressLookup.apply)(x => Some(Tuple.fromProductTyped(x)))
   )
 
   val addressSelectedForm = Form(mapping(
       "selected" -> optional(text).verifying("ated.address-lookup.error.non-selected.field", _.isDefined)
-    )(AddressSelected.apply)(AddressSelected.unapply))
+    )(AddressSelected.apply)(x => Some(x.selected)))
 
 }

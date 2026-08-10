@@ -20,15 +20,15 @@ import builders.PropertyDetailsBuilder
 import config.ApplicationConfig
 import models.StandardAuthRetrievals
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.PartialFunctionValues
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.mvc.Results._
 import play.api.mvc.{MessagesControllerComponents, Result}
-import play.api.test.Helpers._
-import services._
+import play.api.test.Helpers.*
+import services.*
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -36,17 +36,17 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class PropertyDetailsHelperSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with PartialFunctionValues with MockAuthUtil {
 
-  implicit val authContext: StandardAuthRetrievals = organisationStandardRetrievals
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given hc: HeaderCarrier = HeaderCarrier()
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
 
   val mockPropertyDetailsService: PropertyDetailsService = mock[PropertyDetailsService]
   val mockBackLinkCache: BackLinkCacheService = mock[BackLinkCacheService]
   val mockMcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
   object TestPropertyDetailsHelpers extends PropertyDetailsHelpers {
-    implicit val ec: ExecutionContext = mockMcc.executionContext
-   val delegationService: DelegationService = mockDelegationService
+    given ec: ExecutionContext = mockMcc.executionContext
+    val delegationService: DelegationService = mockDelegationService
     val propertyDetailsService: PropertyDetailsService = mockPropertyDetailsService
     override val controllerId: String = "controllerId"
     override val backLinkCacheService: BackLinkCacheService = mockBackLinkCache
@@ -79,7 +79,7 @@ class PropertyDetailsHelperSpec extends PlaySpec with GuiceOneServerPerSuite wit
 
   def getDataWithAuthorisedUser(cacheSuccessResponse: PropertyDetailsCacheResponse)(test: Future[Result] => Any): Unit = {
     when(mockPropertyDetailsService.retrieveDraftPropertyDetails
-    (ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(cacheSuccessResponse))
+    (ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(cacheSuccessResponse))
 
     val result = TestPropertyDetailsHelpers.propertyDetailsCacheResponse("1") {
       case PropertyDetailsCacheSuccessResponse(_) => Future.successful(Ok)

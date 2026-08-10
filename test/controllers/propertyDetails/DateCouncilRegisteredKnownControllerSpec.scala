@@ -29,8 +29,8 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Result}
-import play.api.test.Helpers._
-import services._
+import play.api.test.Helpers.*
+import services.*
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
@@ -49,14 +49,14 @@ class DateCouncilRegisteredKnownControllerSpec
     with MockitoSugar
     with MockAuthUtil {
 
-  implicit val mockAppConfig: ApplicationConfig          = app.injector.instanceOf[ApplicationConfig]
-  implicit lazy val hc: HeaderCarrier                    = HeaderCarrier()
+  given mockAppConfig: ApplicationConfig          = app.injector.instanceOf[ApplicationConfig]
+  given hc: HeaderCarrier                    = HeaderCarrier()
   val mockMcc: MessagesControllerComponents              = app.injector.instanceOf[MessagesControllerComponents]
   val mockBackLinkCacheService: BackLinkCacheService   = mock[BackLinkCacheService]
   val mockPropertyDetailsService: PropertyDetailsService = mock[PropertyDetailsService]
   val mockDataCacheService: DataCacheService         = mock[DataCacheService]
   val messagesApi: MessagesApi                           = app.injector.instanceOf[MessagesApi]
-  lazy implicit val messages: MessagesImpl               = MessagesImpl(Lang("en-GB"), messagesApi)
+  given messages: MessagesImpl               = MessagesImpl(Lang("en-GB"), messagesApi)
   val mockServiceInfoService: ServiceInfoService         = mock[ServiceInfoService]
   val injectedViewInstance: dateCouncilRegisteredKnown   = app.injector.instanceOf[views.html.propertyDetails.dateCouncilRegisteredKnown]
 
@@ -93,28 +93,28 @@ class DateCouncilRegisteredKnownControllerSpec
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       noDelegationModelAuthMocks(authMock)
 
-      when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(HtmlFormat.empty))
 
-      when(mockDataCacheService.fetchAndGetData[Boolean](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockDataCacheService.fetchAndGetData[Boolean](ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(true)))
 
       when(
-        mockDataCacheService.fetchAndGetData[DateCouncilRegisteredKnown](ArgumentMatchers.eq(NewBuildCouncilRegisteredDateKnown))(
+        mockDataCacheService.fetchAndGetData[DateCouncilRegisteredKnown](ArgumentMatchers.eq(NewBuildCouncilRegisteredDateKnown))(using
           ArgumentMatchers.any(),
           ArgumentMatchers.any())).thenReturn(Future.successful(Some(DateCouncilRegisteredKnown(Some(true)))))
 
       when(
         mockDataCacheService
-          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("XN1200000100001")))
 
       when(
-        mockPropertyDetailsService.retrieveDraftPropertyDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn {
+        mockPropertyDetailsService.retrieveDraftPropertyDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn {
         Future.successful(PropertyDetailsCacheSuccessResponse(PropertyDetailsBuilder.getPropertyDetails("1")))
       }
 
-      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
       val result = dateCouncilRegisteredKnownController.view("1").apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)

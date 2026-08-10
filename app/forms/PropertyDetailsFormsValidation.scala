@@ -20,7 +20,7 @@ import models.LineItem
 import java.time.LocalDate
 import play.api.data.{Form, FormError}
 import utils.PeriodUtils
-import utils.PeriodUtils._
+import utils.PeriodUtils.*
 
 import scala.util.{Left, Try}
 

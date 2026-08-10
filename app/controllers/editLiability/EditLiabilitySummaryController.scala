@@ -38,10 +38,10 @@ class EditLiabilitySummaryController @Inject()(mcc: MessagesControllerComponents
                                                val dataCacheService: DataCacheService,
                                                val backLinkCacheService: BackLinkCacheService,
                                                template: views.html.editLiability.editLiabilitySummary)
-                                              (implicit val appConfig: ApplicationConfig)
+                                              (using val appConfig: ApplicationConfig)
   extends FrontendController(mcc) with BackLinkService with ClientHelper with I18nSupport with ControllerIds {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = editLiabilitySummaryId
 
   def view(oldFormBundleNo: String): Action[AnyContent] = Action.async { implicit request =>
@@ -51,9 +51,7 @@ class EditLiabilitySummaryController @Inject()(mcc: MessagesControllerComponents
           x.fold(
             Future.successful(
               Redirect(controllers.propertyDetails.routes.PropertyDetailsSummaryController.view(oldFormBundleNo)))
-          )
-          {
-            propertyDetails =>
+          ) { propertyDetails =>
               propertyDetails.calculated.flatMap(_.amountDueOrRefund) match {
                 case Some(amount) if amount < 0 =>
                   forwardBackLinkToNextPage(
@@ -84,7 +82,7 @@ class EditLiabilitySummaryController @Inject()(mcc: MessagesControllerComponents
   }
 
   private def viewSummaryDetails(propertyDetails: PropertyDetails)
-                                (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, request: Request[AnyContent]) = {
+                                (using authContext: StandardAuthRetrievals, hc: HeaderCarrier, request: Request[AnyContent]) = {
     serviceInfoService.getPartial.flatMap { serviceInfoContent =>
       currentBackLink.map(
         backLink =>

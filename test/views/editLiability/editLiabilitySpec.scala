@@ -32,13 +32,17 @@ import testhelpers.MockAuthUtil
 import views.html.editLiability.editLiability
 
 class editLiabilitySpec extends AnyFeatureSpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen with MockAuthUtil {
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
+
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
   val injectedViewInstance: editLiability = app.injector.instanceOf[views.html.editLiability.editLiability]
 
-Feature("The user can view an edit liability type page") {
+  Feature("The user can view an edit liability type page") {
 
     info("as a user I want to view the correct page content")
 
@@ -47,7 +51,8 @@ Feature("The user can view an edit liability type page") {
       Given("A user visits the page and clicks yes")
       When("The user views the page and clicks yes")
 
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
       val html = injectedViewInstance(editLiabilityReturnTypeForm, "formBundleNo", 2015, editAllowed = true, Html(""), Some("backLink"))
 
       val document = Jsoup.parse(html.toString())
@@ -80,9 +85,9 @@ Feature("The user can view an edit liability type page") {
       Given("A user visits the page to and they are allowed to edit the data")
       When("The user views the page without an edit option")
 
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-      val html = injectedViewInstance(editLiabilityReturnTypeForm, "formBundleNo", 2015, editAllowed = false,  Html(""), Some("http://backLink"))
+      val html = injectedViewInstance(editLiabilityReturnTypeForm, "formBundleNo", 2015, editAllowed = false, Html(""), Some("http://backLink"))
 
       val document = Jsoup.parse(html.toString())
       Then("the page title : Have you disposed of the property?")

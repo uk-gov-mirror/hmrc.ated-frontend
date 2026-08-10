@@ -40,9 +40,9 @@ trait BaseSpec
     with IntegrationPatience
     with EitherValues {
 
-  implicit lazy val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  given appConfig: ApplicationConfig = inject[ApplicationConfig]
 
-  implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
+  given ec: ExecutionContext = inject[ExecutionContext]
 
   override def fakeApplication(): Application = GuiceApplicationBuilder().build()
 

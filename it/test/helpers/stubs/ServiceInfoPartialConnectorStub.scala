@@ -16,7 +16,7 @@
 
 package test.helpers.stubs
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 
 object ServiceInfoPartialConnectorStub {
 

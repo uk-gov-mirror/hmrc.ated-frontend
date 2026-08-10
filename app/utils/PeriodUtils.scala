@@ -17,17 +17,17 @@
 package utils
 
 import config.ApplicationConfig
-import models._
+import models.*
 import java.time.{LocalTime, LocalDate, ZoneOffset}
-import utils.AtedConstants._
+import utils.AtedConstants.*
 import scala.language.postfixOps
 
 object PeriodUtils {
-  implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochSecond(LocalTime.NOON, ZoneOffset.UTC))
+  given localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochSecond(LocalTime.NOON, ZoneOffset.UTC))
 
   val lowestBound = 2012
 
-  def calculatePeakStartYear(date: LocalDate = LocalDate.now(), month: Int = 3)(implicit appConfig: ApplicationConfig): Int = {
+  def calculatePeakStartYear(date: LocalDate = LocalDate.now(), month: Int = 3)(using appConfig: ApplicationConfig): Int = {
 
     val draftReturnsAllowedFrom = LocalDate.of(date.getYear, month, appConfig.atedPeakStartDay.toInt)
 
@@ -85,13 +85,13 @@ object PeriodUtils {
           }
       }
     }
-    implicit val lineItemOrdering: Ordering[FormBundleProperty] = Ordering.by(_.dateFrom)
+    given lineItemOrdering: Ordering[FormBundleProperty] = Ordering.by(_.dateFrom)
     val filteredFormBundle = mergeValueChanges(lineItems.sorted)
     sortAndConvertLineItemsForDisplay(filteredFormBundle.map(item => LineItem(item.`type`, item.dateFrom, item.dateTo, item.reliefDescription)), periodKey)
   }
 
   private def sortAndConvertLineItemsForDisplay(lineItems: Seq[LineItem], periodKey: Int) = {
-    implicit val lineItemOrdering: Ordering[LineItem] = Ordering.by(_.startDate)
+    given lineItemOrdering: Ordering[LineItem] = Ordering.by(_.startDate)
 
     lineItems.map{
       lineItem =>
@@ -120,7 +120,7 @@ object PeriodUtils {
   }
 
   def getOrderedReturnPeriodValues(lineItems: Seq[FormBundleProperty], dateOfAcquisition : Option[LocalDate] = None): Seq[LineItemValue] = {
-    implicit val lineItemOrdering: Ordering[FormBundleProperty] = Ordering.by(_.dateFrom)
+    given lineItemOrdering: Ordering[FormBundleProperty] = Ordering.by(_.dateFrom)
 
     def filterReturnPeriodValues(lineItems: Seq[FormBundleProperty]) = {
       val startingVal = List[LineItemValue]()

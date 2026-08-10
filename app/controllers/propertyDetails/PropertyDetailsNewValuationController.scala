@@ -22,7 +22,7 @@ import controllers.auth.{AuthAction, ClientHelper}
 import forms.PropertyDetailsForms.propertyDetailsNewValuationForm
 import models.PropertyDetailsNewValuation
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services._
+import services.*
 import uk.gov.hmrc.play.bootstrap.controller.WithUnsafeDefaultFormBinding
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.AtedConstants.{SelectedPreviousReturn, propertyDetailsNewValuationValue}
@@ -39,11 +39,11 @@ class PropertyDetailsNewValuationController @Inject()(mcc: MessagesControllerCom
                                                       val propertyDetailsService: PropertyDetailsService,
                                                       propertyDetailsDateOfRevalueController: PropertyDetailsDateOfRevalueController,
                                                       template: views.html.propertyDetails.propertyDetailsNewValuation)
-                                                     (implicit val appConfig: ApplicationConfig)
+                                                     (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with WithUnsafeDefaultFormBinding with PropertyDetailsHelpers with ClientHelper {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = "PropertyDetailsNewValuationController"
 
   def view(id: String): Action[AnyContent] = Action.async { implicit request =>

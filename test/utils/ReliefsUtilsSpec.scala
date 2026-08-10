@@ -25,7 +25,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 
 class ReliefsUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerSuite {
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
 
   "ReliefsUtils" must {
     "return the ATED relief description for multiple properties when passed the ETMP description" in {

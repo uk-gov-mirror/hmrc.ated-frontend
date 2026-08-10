@@ -29,16 +29,16 @@ class ApplicationController @Inject()(mcc: MessagesControllerComponents,
                                       authAction: AuthAction,
                                       template: views.html.unauthorised,
                                       individual: views.html.error.individual)
-                                     (implicit val appConfig: ApplicationConfig)
+                                     (using val appConfig: ApplicationConfig)
   extends FrontendController(mcc) {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   def unauthorised(isSa: Boolean): Action[AnyContent] = Action.async { implicit request =>
     if(isSa) {
-      Future.successful(Ok(template()(implicitly, implicitly)))
+      Future.successful(Ok(template()))
     } else {
-      Future.successful(Ok(individual()(implicitly, implicitly, implicitly)))
+      Future.successful(Ok(individual()))
     }
   }
 

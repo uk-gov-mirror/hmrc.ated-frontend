@@ -30,7 +30,7 @@ case class RegisteredAddressDetails(addressLine1: String,
                                     countryCode: String)
 
 object RegisteredAddressDetails {
-  implicit val formats: OFormat[RegisteredAddressDetails] = Json.format[RegisteredAddressDetails]
+  given formats: OFormat[RegisteredAddressDetails] = Json.format[RegisteredAddressDetails]
 }
 
 case class RegisteredDetails(isEditable: Boolean,
@@ -38,7 +38,7 @@ case class RegisteredDetails(isEditable: Boolean,
                              addressDetails: RegisteredAddressDetails)
 
 object RegisteredDetails {
-  implicit val formats: OFormat[RegisteredDetails] = Json.format[RegisteredDetails]
+  given formats: OFormat[RegisteredDetails] = Json.format[RegisteredDetails]
 }
 
 case class Individual(firstName: String,
@@ -47,7 +47,7 @@ case class Individual(firstName: String,
                       dateOfBirth: LocalDate)
 
 object Individual {
-  implicit val formats: OFormat[Individual] = Json.format[Individual]
+  given formats: OFormat[Individual] = Json.format[Individual]
 }
 
 
@@ -56,13 +56,13 @@ case class Organisation(organisationName: String,
                         organisationType: Option[String] = None)
 
 object Organisation {
-  implicit val formats: OFormat[Organisation] = Json.format[Organisation]
+  given formats: OFormat[Organisation] = Json.format[Organisation]
 }
 
 case class Identification(idNumber: String, issuingInstitution: String, issuingCountryCode: String)
 
 object Identification {
-  implicit val formats: OFormat[Identification] = Json.format[Identification]
+  given formats: OFormat[Identification] = Json.format[Identification]
 }
 
 case class EtmpRegistrationDetails(sapNumber: String,
@@ -87,13 +87,13 @@ case class EtmpRegistrationDetails(sapNumber: String,
 }
 
 object EtmpRegistrationDetails {
-  implicit val formats: OFormat[EtmpRegistrationDetails] = Json.format[EtmpRegistrationDetails]
+  given formats: OFormat[EtmpRegistrationDetails] = Json.format[EtmpRegistrationDetails]
 }
 
 case class UpdateOrganisation(organisationName: String)
 
 object UpdateOrganisation {
-  implicit val formats: OFormat[UpdateOrganisation] = Json.format[UpdateOrganisation]
+  given formats: OFormat[UpdateOrganisation] = Json.format[UpdateOrganisation]
 }
 
 case class UpdateRegistrationDetailsRequest(isAnIndividual: Boolean,
@@ -109,5 +109,5 @@ case class UpdateRegistrationDetailsRequest(isAnIndividual: Boolean,
 }
 
 object UpdateRegistrationDetailsRequest {
-  implicit val formats: OFormat[UpdateRegistrationDetailsRequest] = Json.format[UpdateRegistrationDetailsRequest]
+  given formats: OFormat[UpdateRegistrationDetailsRequest] = Json.format[UpdateRegistrationDetailsRequest]
 }

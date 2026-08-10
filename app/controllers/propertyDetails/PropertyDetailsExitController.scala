@@ -22,7 +22,7 @@ import javax.inject.Inject
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import controllers.auth.{AuthAction, ClientHelper}
 import config.ApplicationConfig
-import services._
+import services.*
 import scala.concurrent.{ExecutionContext, Future}
 
 class PropertyDetailsExitController @Inject()(mcc: MessagesControllerComponents,
@@ -31,10 +31,10 @@ class PropertyDetailsExitController @Inject()(mcc: MessagesControllerComponents,
                                               val dataCacheService: DataCacheService,
                                               val backLinkCacheService: BackLinkCacheService,
                                               template: views.html.propertyDetails.propertyDetailsExit)
-                                             (implicit val appConfig: ApplicationConfig)
+                                             (using val appConfig: ApplicationConfig)
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = "PropertyDetailsExitController"
 
   def view(): Action[AnyContent] = Action.async { implicit request =>

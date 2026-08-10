@@ -28,8 +28,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ServiceInfoPartialConnectorISpec extends PlaySpec with IntegrationBase with Injecting with AuthAudit{
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
-  implicit val ec: ExecutionContext = inject[ExecutionContext]
+  given hc: HeaderCarrier = HeaderCarrier()
+  given ec: ExecutionContext = inject[ExecutionContext]
 
   lazy val connector: ServiceInfoPartialConnector = inject[ServiceInfoPartialConnector]
 
@@ -47,7 +47,7 @@ class ServiceInfoPartialConnectorISpec extends PlaySpec with IntegrationBase wit
         stubAuth()
         ServiceInfoPartialConnectorStub.withResponseForNavLinks()(200, Some(testNavLinkJson))
 
-        val result: Future[Option[NavContent]] = connector.getNavLinks(ec, hc)
+        val result: Future[Option[NavContent]] = connector.getNavLinks(using ec, hc)
 
         await(result) mustBe expectedNavlinks
 
@@ -59,7 +59,7 @@ class ServiceInfoPartialConnectorISpec extends PlaySpec with IntegrationBase wit
         stubAuth()
         ServiceInfoPartialConnectorStub.withResponseForNavLinks()(500, None)
 
-        val result: Future[Option[NavContent]] = connector.getNavLinks(ec, hc)
+        val result: Future[Option[NavContent]] = connector.getNavLinks(using ec, hc)
 
         await(result) mustBe None
 

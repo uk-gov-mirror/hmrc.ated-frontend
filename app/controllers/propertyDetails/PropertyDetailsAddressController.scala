@@ -20,16 +20,16 @@ import audit.Auditable
 import config.ApplicationConfig
 import controllers.ControllerIds
 import controllers.auth.{AuthAction, ClientHelper}
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import javax.inject.Inject
 import models.{PropertyDetailsAddress, SelectPeriod}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services._
+import services.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.audit.DefaultAuditConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.AtedConstants._
+import utils.AtedConstants.*
 import utils.AtedUtils
 import uk.gov.hmrc.play.bootstrap.controller.WithUnsafeDefaultFormBinding
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,11 +43,11 @@ class PropertyDetailsAddressController @Inject()(mcc: MessagesControllerComponen
                                                  val dataCacheService: DataCacheService,
                                                  val backLinkCacheService: BackLinkCacheService,
                                                  template: views.html.propertyDetails.propertyDetailsAddress)
-                                                (implicit val appConfig: ApplicationConfig)
+                                                (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with Auditable with ControllerIds with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   val appName: String = "ated-frontend"
   val controllerId: String = propertyDetailsAddressId
@@ -217,7 +217,7 @@ class PropertyDetailsAddressController @Inject()(mcc: MessagesControllerComponen
     }
   }
 
-  def auditInputAddress(address: PropertyDetailsAddress, addressEditMode: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Unit = {
+  def auditInputAddress(address: PropertyDetailsAddress, addressEditMode: String)(using hc: HeaderCarrier, ec: ExecutionContext): Unit = {
     val auditType = addressEditMode match {
       case "create-address" => "manualAddressSubmitted"
       case "edit-address" => "postcodeAddressModifiedSubmitted"

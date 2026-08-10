@@ -30,7 +30,7 @@
       formHelper: FormWithCSRF,
       govukWarningText: GovukWarningText)
 
-@(id: String, serviceInfoContent: Html = HtmlFormat.empty, backLink: Option[String])(implicit authContext: StandardAuthRetrievals, messages: Messages, request: Request[AnyContent], appConfig: ApplicationConfig)
+@(id: String, serviceInfoContent: Html = HtmlFormat.empty, backLink: Option[String])(using authContext: StandardAuthRetrievals, messages: Messages, request: Request[AnyContent], appConfig: ApplicationConfig)
 
 @backLinkHtml = {
     @if(backLink.isDefined) {

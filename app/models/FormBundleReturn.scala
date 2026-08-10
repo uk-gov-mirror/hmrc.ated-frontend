@@ -24,33 +24,33 @@ import play.api.libs.json.Writes._
 case class FormBundleProperty(propertyValue: BigDecimal,dateFrom: LocalDate,dateTo: LocalDate,`type`: String,reliefDescription: Option[String])
 
 object FormBundleProperty {
-  implicit val formats: OFormat[FormBundleProperty] = Json.format[FormBundleProperty]
+  given formats: OFormat[FormBundleProperty] = Json.format[FormBundleProperty]
 }
 
 case class FormBundleAddress(addressLine1: String, addressLine2: String, addressLine3: Option[String],
                              addressLine4: Option[String], postalCode: Option[String] = None, countryCode: String)
 
 object FormBundleAddress {
-  implicit val formats: OFormat[FormBundleAddress] = Json.format[FormBundleAddress]
+  given formats: OFormat[FormBundleAddress] = Json.format[FormBundleAddress]
 }
 
 
 case class FormBundlePropertyDetails(titleNumber: Option[String], address: FormBundleAddress, additionalDetails: Option[String])
 
 object FormBundlePropertyDetails {
-  implicit val formats: OFormat[FormBundlePropertyDetails] = Json.format[FormBundlePropertyDetails]
+  given formats: OFormat[FormBundlePropertyDetails] = Json.format[FormBundlePropertyDetails]
 }
 
 case class FormBundleUKAccount( accountNumber: String, sortCode: String)
 
 object FormBundleUKAccount {
-  implicit val format: OFormat[FormBundleUKAccount] = Json.format[FormBundleUKAccount]
+  given format: OFormat[FormBundleUKAccount] = Json.format[FormBundleUKAccount]
 }
 
 case class FormBundleInternationalAccount(bicSwiftCode: String, iban: String)
 
 object FormBundleInternationalAccount {
-  implicit val format: OFormat[FormBundleInternationalAccount] = Json.format[FormBundleInternationalAccount]
+  given format: OFormat[FormBundleInternationalAccount] = Json.format[FormBundleInternationalAccount]
 }
 
 case class FormBundleBankDetails(accountName: Option[String] = None,
@@ -58,7 +58,7 @@ case class FormBundleBankDetails(accountName: Option[String] = None,
                                  internationalAccount: Option[FormBundleInternationalAccount] = None)
 
 object FormBundleBankDetails {
-  implicit val format: OFormat[FormBundleBankDetails] = Json.format[FormBundleBankDetails]
+  given format: OFormat[FormBundleBankDetails] = Json.format[FormBundleBankDetails]
 }
 
 
@@ -79,5 +79,5 @@ case class FormBundleReturn(periodKey: String,
                            )
 
 object FormBundleReturn {
-  implicit val formats: OFormat[FormBundleReturn] = Json.format[FormBundleReturn]
+  given formats: OFormat[FormBundleReturn] = Json.format[FormBundleReturn]
 }

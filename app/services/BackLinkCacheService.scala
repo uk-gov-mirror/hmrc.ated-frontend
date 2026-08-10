@@ -27,21 +27,21 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class BackLinkCacheService @Inject()(
     sessionCache: SessionCacheRepository
-)(implicit ec: ExecutionContext) {
+)(using ec: ExecutionContext) {
 
   private val sourceId: String = "ATED_Back_Link"
 
   def dataKey(pageId: String): DataKey[BackLinkModel] = DataKey[BackLinkModel](s"$sourceId$pageId")
 
-  def fetchAndGetBackLink(pageId: String)(implicit hc: HeaderCarrier): Future[Option[String]] = {
+  def fetchAndGetBackLink(pageId: String)(using hc: HeaderCarrier): Future[Option[String]] = {
     sessionCache.getFromSession[BackLinkModel](dataKey(pageId)).map(_.flatMap(_.backLink))
   }
 
-  def saveBackLink(pageId: String, returnUrl: Option[String])(implicit hc: HeaderCarrier): Future[Option[String]] = {
+  def saveBackLink(pageId: String, returnUrl: Option[String])(using hc: HeaderCarrier): Future[Option[String]] = {
     sessionCache.putSession(dataKey(pageId), BackLinkModel(returnUrl)).map(_ => returnUrl)
   }
 
-  def clearBackLinks(pageIds: List[String] = Nil)(implicit hc: HeaderCarrier): Future[List[Option[String]]] =
+  def clearBackLinks(pageIds: List[String] = Nil)(using hc: HeaderCarrier): Future[List[Option[String]]] =
     if (pageIds.nonEmpty) {
       Future.sequence {
         val cleared = pageIds.map(pageId => saveBackLink(pageId, None))

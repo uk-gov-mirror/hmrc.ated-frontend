@@ -25,12 +25,12 @@ trait StringFormatting[T] {
 }
 
 object StringFormatting {
-  implicit val stringformatting: StringFormatting[LocalDate] = new StringFormatting[LocalDate]{
+  given stringformatting: StringFormatting[LocalDate] = new StringFormatting[LocalDate]{
       def toString(format: String)(value: LocalDate): String = value.format(DateTimeFormatter.ofPattern(format))
   }
 
   // Syntax
-  implicit class StringFormattingOps[A](value: A) {
-    def toString(format: String)(implicit a: StringFormatting[A]): String = a.toString(format)(value)
+  extension [A](value: A) {
+    def toString(format: String)(using a: StringFormatting[A]): String = a.toString(format)(value)
   }
 }

@@ -21,41 +21,41 @@ import play.api.libs.json.{Json, OFormat}
 case class IdentifierForDisplay(`type`: String, value: String)
 
 object IdentifierForDisplay {
-  implicit val formats: OFormat[IdentifierForDisplay] = Json.format[IdentifierForDisplay]
+  given formats: OFormat[IdentifierForDisplay] = Json.format[IdentifierForDisplay]
 }
 
 case class RetrieveClientAllocation(friendlyName: String, identifiersForDisplay: List[IdentifierForDisplay])
 
 object RetrieveClientAllocation {
-  implicit val formats: OFormat[RetrieveClientAllocation] = Json.format[RetrieveClientAllocation]
+  given formats: OFormat[RetrieveClientAllocation] = Json.format[RetrieveClientAllocation]
 }
 
 case class Identifier(identifierType: String, value: String)
 
 object Identifier {
-  implicit val format: OFormat[Identifier] = Json.format[Identifier]
+  given format: OFormat[Identifier] = Json.format[Identifier]
 }
 
 case class ClientToAssign(serviceName: String, identifiers: List[Identifier])
 
 object ClientToAssign {
-  implicit val format: OFormat[ClientToAssign] = Json.format[ClientToAssign]
+  given format: OFormat[ClientToAssign] = Json.format[ClientToAssign]
 }
 
 case class AssignClientAllocation(clientAllocation: ClientToAssign)
 
 object AssignClientAllocation {
-  implicit val format: OFormat[AssignClientAllocation] = Json.format[AssignClientAllocation]
+  given format: OFormat[AssignClientAllocation] = Json.format[AssignClientAllocation]
 }
 
 case class ClientToSetFriendlyName(serviceName: String, identifiers: List[Identifier], newFriendlyName:String)
 
 object ClientToSetFriendlyName {
-  implicit val format: OFormat[ClientToSetFriendlyName] = Json.format[ClientToSetFriendlyName]
+  given format: OFormat[ClientToSetFriendlyName] = Json.format[ClientToSetFriendlyName]
 }
 
 case class SetFriendlyNameClientAllocation(clientAllocation: ClientToSetFriendlyName)
 
 object SetFriendlyNameClientAllocation {
-  implicit val format: OFormat[SetFriendlyNameClientAllocation] = Json.format[SetFriendlyNameClientAllocation]
+  given format: OFormat[SetFriendlyNameClientAllocation] = Json.format[SetFriendlyNameClientAllocation]
 }

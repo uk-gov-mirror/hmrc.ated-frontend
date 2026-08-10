@@ -18,7 +18,7 @@ package views.propertyDetails
 
 import config.ApplicationConfig
 import forms.AddressLookupForms._
-import models._
+import models.*
 import org.jsoup.Jsoup
 import org.scalatest.featurespec.AnyFeatureSpecLike
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
@@ -34,13 +34,17 @@ import views.html.propertyDetails.addressLookupResults
 
 class AddressLookupResultsSpec extends AnyFeatureSpecLike with GuiceOneAppPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen with MockAuthUtil {
 
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
+
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
   val injectedViewInstance: addressLookupResults = app.injector.instanceOf[views.html.propertyDetails.addressLookupResults]
 
-Feature("The user can search for an address via the post code") {
+  Feature("The user can search for an address via the post code") {
 
     info("as a user I want to be able to search for an address via the post code")
 
@@ -48,7 +52,8 @@ Feature("The user can search for an address via the post code") {
 
       Given("A user has searched for a property while creating a new liability")
       When("The user views the page")
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       val results = AddressSearchResults(searchCriteria = AddressLookup("XX1 1XX", None), Nil)
       val html = injectedViewInstance(None, 2015, addressSelectedForm, results, None, Html(""), Some("backLink"))
@@ -67,7 +72,7 @@ Feature("The user can search for an address via the post code") {
       Then("The search criteria header should be - Postcode")
       assert(document.getElementById("search-criteria-header").text() === "Postcode")
       assert(document.getElementById("postcode").text() === "XX1 1XX")
-      assert(document.getElementById("change-address-search-link").text ===  "Change postcode")
+      assert(document.getElementById("change-address-search-link").text === "Change postcode")
 
       Then("The search criteria results header should be - Property address")
       assert(document.getElementById("search-results-header").text() === "Property address")
@@ -89,15 +94,16 @@ Feature("The user can search for an address via the post code") {
 
       Given("A user has searched for a property while editing a chargeable return")
       When("The user views the page")
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       val address1 = AddressLookupRecord(1, AddressSearchResult(List("1", "result street"), None, None, "XX1 1XX", AddressLookupCountry("UK", "UK")))
       val address2 = AddressLookupRecord(2, AddressSearchResult(List("2", "result street"), None, None, "XX1 1XX", AddressLookupCountry("UK", "UK")))
       val address3 = AddressLookupRecord(3, AddressSearchResult(List("3", "result street"), None, None, "XX1 1XX", AddressLookupCountry("UK", "UK")))
       val results = AddressSearchResults(searchCriteria = AddressLookup("XX1 1XX", None),
         results = List(address1, address2, address3))
-           val html = injectedViewInstance(Some("123456"),
-             2015, addressSelectedForm, results, Some(AtedUtils.EDIT_SUBMITTED), Html(""), Some("http://backLink"))
+      val html = injectedViewInstance(Some("123456"),
+        2015, addressSelectedForm, results, Some(AtedUtils.EDIT_SUBMITTED), Html(""), Some("http://backLink"))
 
       val document = Jsoup.parse(html.toString())
       Then("Select the address of the property")
@@ -110,7 +116,7 @@ Feature("The user can search for an address via the post code") {
       assert(document.getElementsByClass("govuk-caption-xl").text() === "This section is: Change return")
 
       Then("The search criteria header should be - Postcode")
-      assert(document.getElementById("search-criteria-header").text() contains  "Postcode")
+      assert(document.getElementById("search-criteria-header").text() contains "Postcode")
       assert(document.getElementById("postcode").text() === "XX1 1XX")
       assert(document.getElementById("change-address-search-link").text() === "Change postcode")
       assert(document.getElementById("change-address-search-link").attr("href") === "/ated/liability/address-lookup/view/2015?propertyKey=123456")

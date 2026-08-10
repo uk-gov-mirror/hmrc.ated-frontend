@@ -36,11 +36,11 @@ class ChangeReliefReturnController @Inject()(mcc: MessagesControllerComponents,
                                              val dataCacheService: DataCacheService,
                                              val backLinkCacheService: BackLinkCacheService,
                                              template: views.html.reliefs.changeReliefReturn)
-                                            (implicit val appConfig: ApplicationConfig)
+                                            (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with BackLinkService with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId = "ChangeReliefReturnController"
 
 

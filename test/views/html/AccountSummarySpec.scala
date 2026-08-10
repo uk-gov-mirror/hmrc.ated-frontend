@@ -27,10 +27,10 @@ import utils.TestModels
 
 class AccountSummarySpec extends AtedViewSpec with MockAuthUtil with TestModels with Injecting {
 
-  implicit val mockAppConfig: ApplicationConfig = inject[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = inject[ApplicationConfig]
 
-  implicit lazy val authContext: StandardAuthRetrievals = organisationStandardRetrievals
-  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  given authContext: StandardAuthRetrievals = organisationStandardRetrievals
+  given messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
 
   val injectedViewInstance: accountSummary = inject[views.html.accountSummary]
   val staticYearOf2026 = 2026

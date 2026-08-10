@@ -18,7 +18,7 @@ package controllers.reliefs
 
 import config.ApplicationConfig
 import controllers.auth.{AuthAction, ClientHelper}
-import forms.ReliefForms._
+import forms.ReliefForms.*
 import javax.inject.Inject
 import models.TaxAvoidance
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -37,11 +37,11 @@ class AvoidanceSchemesController @Inject()(mcc: MessagesControllerComponents,
                                            val backLinkCacheService: BackLinkCacheService,
                                            template: views.html.reliefs.avoidanceSchemes,
                                            val templateInvalidPeriodKey: views.html.reliefs.invalidPeriodKey)
-                                          (implicit val appConfig: ApplicationConfig)
+                                          (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with BackLinkService with ReliefHelpers with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   val controllerId: String = "AvoidanceSchemesController"
 
   def view(periodKey: Int): Action[AnyContent] = Action.async { implicit request =>

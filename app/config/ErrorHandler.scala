@@ -26,15 +26,15 @@ import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 
 class ErrorHandler @Inject()(val messagesApi: MessagesApi,
                              val templateError: views.html.global_error,
-                             val configuration: Configuration,
-                             implicit val applicationConfig: ApplicationConfig, val ec: scala.concurrent.ExecutionContext) extends FrontendErrorHandler {
+                             val configuration: Configuration)
+                             (using applicationConfig: ApplicationConfig, val ec: scala.concurrent.ExecutionContext) extends FrontendErrorHandler {
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)
-                                    (implicit request: RequestHeader): Future[Html] = {
+                                    (using request: RequestHeader): Future[Html] = {
     Future.successful(templateError(pageTitle, heading, message, None, None, None, None, Html("")))
   }
 
-  override def internalServerErrorTemplate(implicit request: RequestHeader): Future[Html] = {
+  override def internalServerErrorTemplate(using request: RequestHeader): Future[Html] = {
     Future.successful(templateError(Messages("ated.generic.error.title"),
       Messages("ated.generic.error.header"),
       Messages("ated.generic.error.message"),

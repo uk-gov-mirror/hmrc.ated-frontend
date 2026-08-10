@@ -18,14 +18,14 @@ package services
 
 import java.util.UUID
 import connectors.AtedConnector
-import models._
+import models.*
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.Injecting
 import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, HttpResponse, InternalServerException}
@@ -35,7 +35,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class SubscriptionDataAdapterServiceSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSuite with Injecting {
 
-  implicit val ec: ExecutionContext = inject[ExecutionContext]
+  given ec: ExecutionContext = inject[ExecutionContext]
   val mockAtedConnector: AtedConnector = mock[AtedConnector]
 
   class Setup {
@@ -174,15 +174,15 @@ class SubscriptionDataAdapterServiceSpec extends PlaySpec with MockitoSugar with
       |}
     """.stripMargin
 
-  implicit lazy val authContext: StandardAuthRetrievals = mock[StandardAuthRetrievals]
+  given authContext: StandardAuthRetrievals = mock[StandardAuthRetrievals]
 
   "SubscriptionDataAdapterService" must {
     "return data if we have some" in new Setup {
 
-      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
       val successResponse: JsValue = Json.parse(successJson)
-      when(mockAtedConnector.retrieveSubscriptionData()(any(), any()))
+      when(mockAtedConnector.retrieveSubscriptionData())
         .thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
       val result: Future[Option[SubscriptionData]] = testSubscriptionDataAdapterService.retrieveSubscriptionData
@@ -193,9 +193,9 @@ class SubscriptionDataAdapterServiceSpec extends PlaySpec with MockitoSugar with
     }
 
     "return no data if we have none" in new Setup {
-      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
+      given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
 
-      when(mockAtedConnector.retrieveSubscriptionData()(any(), any()))
+      when(mockAtedConnector.retrieveSubscriptionData())
         .thenReturn(Future.successful(HttpResponse(NOT_FOUND, "")))
 
       val result: Future[Option[SubscriptionData]] = testSubscriptionDataAdapterService.retrieveSubscriptionData
@@ -204,9 +204,9 @@ class SubscriptionDataAdapterServiceSpec extends PlaySpec with MockitoSugar with
     }
 
     "throws an exception for a bad request" in new Setup {
-      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
+      given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
 
-      when(mockAtedConnector.retrieveSubscriptionData()(any(), any()))
+      when(mockAtedConnector.retrieveSubscriptionData())
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
 
       val result: Future[Option[SubscriptionData]] = testSubscriptionDataAdapterService.retrieveSubscriptionData
@@ -215,9 +215,9 @@ class SubscriptionDataAdapterServiceSpec extends PlaySpec with MockitoSugar with
     }
 
     "throws an exception for a internal server error" in new Setup {
-      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
+      given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
 
-      when(mockAtedConnector.retrieveSubscriptionData()(any(), any()))
+      when(mockAtedConnector.retrieveSubscriptionData())
         .thenReturn(Future.successful(HttpResponse(NO_CONTENT, "")))
 
       val result: Future[Option[SubscriptionData]] = testSubscriptionDataAdapterService.retrieveSubscriptionData
@@ -227,14 +227,14 @@ class SubscriptionDataAdapterServiceSpec extends PlaySpec with MockitoSugar with
 
     "update subscription data" must {
       "save address details" must {
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
         val updatedAddress = Address(Some("name1"), Some("name2"), addressDetails = AddressDetails("Correspondence", "line1", "line2", None, None, None, "GB"))
         val updateSubscriptionData = UpdateSubscriptionDataRequest(emailConsent = true, changeIndicators = ChangeIndicators(), Seq(updatedAddress))
 
         "save the address details" in new Setup {
 
-          when(mockAtedConnector.updateSubscriptionData(any())(any(), any()))
+          when(mockAtedConnector.updateSubscriptionData(any())(using any(), any()))
             .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
 
           val result: Future[Option[UpdateSubscriptionDataRequest]] = testSubscriptionDataAdapterService.updateSubscriptionData(updateSubscriptionData)
@@ -243,7 +243,7 @@ class SubscriptionDataAdapterServiceSpec extends PlaySpec with MockitoSugar with
         }
 
         "save the address details successful" in new Setup {
-          when(mockAtedConnector.updateSubscriptionData(any())(any(), any()))
+          when(mockAtedConnector.updateSubscriptionData(any())(using any(), any()))
             .thenReturn(Future.successful(HttpResponse(OK, "")))
 
           val result: Future[Option[UpdateSubscriptionDataRequest]] = testSubscriptionDataAdapterService.updateSubscriptionData(updateSubscriptionData)

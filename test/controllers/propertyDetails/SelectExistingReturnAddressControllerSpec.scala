@@ -20,11 +20,11 @@ import java.util.UUID
 import builders.{SessionBuilder, TitleBuilder}
 import config.ApplicationConfig
 import controllers.auth.AuthAction
-import models._
+import models.*
 import java.time.LocalDate
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -33,8 +33,8 @@ import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import services._
+import play.api.test.Helpers.*
+import services.*
 import testhelpers.MockAuthUtil
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
@@ -46,8 +46,8 @@ import scala.concurrent.Future
 
 class SelectExistingReturnAddressControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with MockAuthUtil {
 
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given hc: HeaderCarrier = HeaderCarrier()
 
   val mockMcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   val mockSummaryReturnsService: SummaryReturnsService = mock[SummaryReturnsService]
@@ -58,7 +58,7 @@ class SelectExistingReturnAddressControllerSpec extends PlaySpec with GuiceOneSe
   val mockBackLinkCacheService: BackLinkCacheService = mock[BackLinkCacheService]
   val mockConfirmAddressController: ConfirmAddressController = mock[ConfirmAddressController]
   val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  lazy implicit val messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+  given messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
   val btaNavigationLinksView: BtaNavigationLinks = app.injector.instanceOf[BtaNavigationLinks]
   val mockServiceInfoService: ServiceInfoService = mock[ServiceInfoService]
   val injectedViewInstance: selectPreviousReturn = app.injector.instanceOf[views.html.propertyDetails.selectPreviousReturn]
@@ -94,10 +94,10 @@ class SelectExistingReturnAddressControllerSpec extends PlaySpec with GuiceOneSe
       setInvalidAuthMocks(authMock)
       val prevReturns = Seq(PreviousReturns("1, addressLine1", "12345678", LocalDate.parse("2018-09-10"), true))
       when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
       when(mockSummaryReturnsService.getPreviousSubmittedLiabilityDetails
-      (ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(prevReturns))
-      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      (ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(prevReturns))
+      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
       val result = testSelectExistingReturnAddressController.view(periodKey, returnTypeCharge).apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
     }
@@ -107,11 +107,11 @@ class SelectExistingReturnAddressControllerSpec extends PlaySpec with GuiceOneSe
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
-      when(mockServiceInfoService.getPartial(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages, mockAppConfig)))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages, mockAppConfig)))
       when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
-      when(mockSummaryReturnsService.retrieveCachedPreviousReturnAddressList(ArgumentMatchers.any())).thenReturn(Future.successful(prevReturns))
-      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+      when(mockSummaryReturnsService.retrieveCachedPreviousReturnAddressList(using ArgumentMatchers.any())).thenReturn(Future.successful(prevReturns))
+      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
       val result = testSelectExistingReturnAddressController.view(periodKey, returnTypeCharge).apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
     }
@@ -121,9 +121,9 @@ class SelectExistingReturnAddressControllerSpec extends PlaySpec with GuiceOneSe
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
       when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
-      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("http://")))
-      when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("http://")))
+      when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
       val result = testSelectExistingReturnAddressController.continueWithThisReturnRedirect(2015, returnTypeCharge).apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
     }
@@ -135,8 +135,8 @@ class SelectExistingReturnAddressControllerSpec extends PlaySpec with GuiceOneSe
       setInvalidAuthMocks(authMock)
       val prevReturns = Some(Seq(PreviousReturns("1, addressLine1", "12345678", LocalDate.parse("2018-09-10"), true)))
       when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
-      when(mockSummaryReturnsService.retrieveCachedPreviousReturnAddressList(ArgumentMatchers.any())).thenReturn(Future.successful(prevReturns))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+      when(mockSummaryReturnsService.retrieveCachedPreviousReturnAddressList(using ArgumentMatchers.any())).thenReturn(Future.successful(prevReturns))
       val result = testSelectExistingReturnAddressController.continue(periodKey, returnTypeCharge).apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
     }
@@ -153,19 +153,19 @@ class SelectExistingReturnAddressControllerSpec extends PlaySpec with GuiceOneSe
       setAuthMocks(authMock)
 
       when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
       when(mockDataCacheService.fetchAndGetData[Boolean](ArgumentMatchers.eq(AtedConstants.SelectedPreviousReturn))
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(answer))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(answer))
       when(mockDataCacheService.fetchAndGetData[SelectPeriod](ArgumentMatchers.eq(AtedConstants.RetrieveSelectPeriodFormId))
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(pKey))
-      when(mockSummaryReturnsService.retrieveCachedPreviousReturnAddressList(ArgumentMatchers.any())).thenReturn(Future.successful(prevReturns))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(pKey))
+      when(mockSummaryReturnsService.retrieveCachedPreviousReturnAddressList(using ArgumentMatchers.any())).thenReturn(Future.successful(prevReturns))
       when(mockFormBundleReturnsService.getFormBundleReturns
-      (ArgumentMatchers.eq("12345678"))(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(formBundleReturn))
+      (ArgumentMatchers.eq("12345678"))(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(formBundleReturn))
       when(mockDataCacheService.saveFormData[Boolean]
-        (ArgumentMatchers.eq(AtedConstants.SelectedPreviousReturn), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(true))
-      when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        (ArgumentMatchers.eq(AtedConstants.SelectedPreviousReturn), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(true))
+      when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
       when(mockPropertyDetailsService.saveDraftPropertyDetailsAddress(ArgumentMatchers.any(), ArgumentMatchers.any())
-      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(""))
+      (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(""))
       val result = testSelectExistingReturnAddressController.continue(periodKey, returnTypeCharge)
         .apply(SessionBuilder.updateRequestWithSession(FakeRequest().withJsonBody(inputJson), userId))
       test(result)

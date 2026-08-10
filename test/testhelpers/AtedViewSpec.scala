@@ -27,8 +27,8 @@ import play.api.test.FakeRequest
 import play.twirl.api.Html
 
 trait AtedViewSpec extends PlaySpec with JsoupArgumentMatchers with GuiceOneServerPerSuite with MockitoSugar {
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
   def view: Html
 

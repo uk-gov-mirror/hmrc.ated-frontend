@@ -19,10 +19,10 @@ package services
 import connectors.{AgentClientMandateFrontendConnector, AtedConnector}
 
 import javax.inject.Inject
-import models._
+import models.*
 import play.api.Logging
 import play.api.mvc.Request
-import play.mvc.Http.Status._
+import play.mvc.Http.Status.*
 import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, InternalServerException}
 import utils.AtedConstants
 
@@ -31,14 +31,14 @@ import scala.concurrent.{ExecutionContext, Future}
 class DetailsService @Inject()(atedConnector: AtedConnector,
                                mandateFrontendConnector: AgentClientMandateFrontendConnector,
                                dataCacheService: DataCacheService)
-                              (implicit val ec: ExecutionContext)extends Logging {
+                              (using ec: ExecutionContext) extends Logging {
 
 
   val delegatedClientAtedRefNumber = "delegatedClientAtedRefNumber"
 
 
   def getDetails(identifier: String, identifierType: String)(
-    implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[EtmpRegistrationDetails]] = {
+    using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[EtmpRegistrationDetails]] = {
     atedConnector.getDetails(identifier = identifier, identifierType = identifierType) map {
       response =>
         response.status match {
@@ -57,7 +57,7 @@ class DetailsService @Inject()(atedConnector: AtedConnector,
   }
 
   def updateOrganisationRegisteredDetails(oldDetails: EtmpRegistrationDetails, updatedData: RegisteredDetails)
-                                         (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[UpdateRegistrationDetailsRequest]] = {
+                                         (using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[UpdateRegistrationDetailsRequest]] = {
 
     if (oldDetails.isAnIndividual) {
       logger.warn(s"[DetailsService] [updateRegisteredDetails] tried to update an individual")
@@ -88,7 +88,7 @@ class DetailsService @Inject()(atedConnector: AtedConnector,
   }
 
   def updateOverseasCompanyRegistration(oldDetails: EtmpRegistrationDetails, updatedData: Option[Identification])
-                                         (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[UpdateRegistrationDetailsRequest]] = {
+                                         (using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[UpdateRegistrationDetailsRequest]] = {
 
     if (oldDetails.isAnIndividual) {
       logger.warn(s"[DetailsService] [updateRegisteredDetails] tried to update an individual")
@@ -118,7 +118,7 @@ class DetailsService @Inject()(atedConnector: AtedConnector,
     }
   }
 
-  def getRegisteredDetailsFromSafeId(safeId: String)(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[EtmpRegistrationDetails]] = {
+  def getRegisteredDetailsFromSafeId(safeId: String)(using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[EtmpRegistrationDetails]] = {
     for {
       returnedJsValue <- getDetails(safeId, AtedConstants.IdentifierSafeId)
     } yield {
@@ -126,7 +126,7 @@ class DetailsService @Inject()(atedConnector: AtedConnector,
     }
   }
 
-  def getClientMandateDetails(clientId: String, service: String)(implicit authContext: StandardAuthRetrievals, request: Request[_]): Future[Option[ClientMandateDetails]] = {
+  def getClientMandateDetails(clientId: String, service: String)(using authContext: StandardAuthRetrievals, request: Request[_]): Future[Option[ClientMandateDetails]] = {
     if (authContext.isAgent) {
       Future.successful(None)
     } else {
@@ -139,7 +139,7 @@ class DetailsService @Inject()(atedConnector: AtedConnector,
     }
   }
 
-  def cacheClientReference(atedRef: String)(implicit hc: HeaderCarrier): Future[String] = {
+  def cacheClientReference(atedRef: String)(using hc: HeaderCarrier): Future[String] = {
       dataCacheService.saveFormData[String](delegatedClientAtedRefNumber, atedRef)
   }
 }

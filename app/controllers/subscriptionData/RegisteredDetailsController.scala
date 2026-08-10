@@ -35,10 +35,10 @@ class RegisteredDetailsController @Inject()(mcc: MessagesControllerComponents,
                                             serviceInfoService: ServiceInfoService,
                                             val environment: Environment,
                                             template: views.html.subcriptionData.registeredDetails)
-                                           (implicit val appConfig: ApplicationConfig)
+                                           (using val appConfig: ApplicationConfig)
   extends FrontendController(mcc) with CountryCodeUtils with WithUnsafeDefaultFormBinding {
 
-  implicit val ec : ExecutionContext = mcc.executionContext
+  given ec : ExecutionContext = mcc.executionContext
 
   def edit(): Action[AnyContent] = Action.async { implicit request =>
     authAction.authorisedAction { implicit authContext =>

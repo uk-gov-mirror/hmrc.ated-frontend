@@ -33,14 +33,14 @@ import views.html.reliefs.reliefDeclaration
 class ReliefDeclarationSpec extends AnyFeatureSpec with GuiceOneAppPerSuite with MockitoSugar
   with BeforeAndAfterEach with GivenWhenThen with MockAuthUtil {
 
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
-  implicit val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+  given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
 
   val injectedViewInstance: reliefDeclaration = app.injector.instanceOf[views.html.reliefs.reliefDeclaration]
   Feature("The user can view the relief declaration page") {
 
-    implicit val authContext: StandardAuthRetrievals = organisationStandardRetrievals.copy(delegationModel = None)
+    given authContext: StandardAuthRetrievals = organisationStandardRetrievals.copy(delegationModel = None)
 
     info("as a user I want to view the correct page content")
 
@@ -74,7 +74,7 @@ class ReliefDeclarationSpec extends AnyFeatureSpec with GuiceOneAppPerSuite with
 
   Feature("The agent can view the relief declaration page as a client") {
 
-    implicit lazy val authContext: StandardAuthRetrievals = agentStandardRetrievals
+    given authContext: StandardAuthRetrievals = agentStandardRetrievals
 
     info("as an agent I want to view the correct page content")
 

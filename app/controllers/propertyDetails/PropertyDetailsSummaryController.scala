@@ -36,11 +36,11 @@ class PropertyDetailsSummaryController @Inject()(mcc: MessagesControllerComponen
                                                  val dataCacheService: DataCacheService,
                                                  val backLinkCacheService: BackLinkCacheService,
                                                  template: views.html.propertyDetails.propertyDetailsSummary)
-                                                (implicit val appConfig: ApplicationConfig)
+                                                (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with BackLinkService with PropertyDetailsHelpers with ClientHelper {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
   override val controllerId = "PropertyDetailsSummaryController"
 
   def view(propertyKey: String): Action[AnyContent] = Action.async { implicit request =>

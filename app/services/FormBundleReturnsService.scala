@@ -19,17 +19,17 @@ package services
 import connectors.AtedConnector
 
 import javax.inject.Inject
-import models._
+import models.*
 import play.api.Logging
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{InternalServerException, BadRequestException, HeaderCarrier}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class FormBundleReturnsService @Inject()(atedConnector: AtedConnector)(implicit ec: ExecutionContext) extends Logging {
+class FormBundleReturnsService @Inject()(atedConnector: AtedConnector)(using ec: ExecutionContext) extends Logging {
 
-  def getFormBundleReturns(formBundleNumber: String)(implicit authContext: StandardAuthRetrievals,
+  def getFormBundleReturns(formBundleNumber: String)(using authContext: StandardAuthRetrievals,
                                                      headerCarrier: HeaderCarrier): Future[Option[FormBundleReturn]] = {
     atedConnector.retrieveFormBundleReturns(formBundleNumber).map {
       response =>

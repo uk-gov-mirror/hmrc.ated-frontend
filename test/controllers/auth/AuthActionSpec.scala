@@ -32,16 +32,16 @@ import testhelpers.TestUtil
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.HeaderCarrier
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class AuthActionSpec extends PlaySpec with MockitoSugar with BeforeAndAfterEach with TestUtil with DefaultAwaitTimeout {
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
-  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = mock[MessagesApi].preferred(request)
+  given hc: HeaderCarrier = HeaderCarrier()
+  given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given messages: Messages = mock[MessagesApi].preferred(request)
 
   val mockAuthConnector: PlayAuthConnector = mock[PlayAuthConnector]
   val mockDelegationService: DelegationService = mock[DelegationService]
@@ -72,7 +72,7 @@ class AuthActionSpec extends PlaySpec with MockitoSugar with BeforeAndAfterEach 
     "return a valid 200 response" when {
       "affinity group is authorised with valid delegation"  in new Setup {
 
-        when(mockDelegationService.delegationCall(any())(any())).thenReturn(Future.successful(Some(delegationModel)))
+        when(mockDelegationService.delegationCall(any())(using any())).thenReturn(Future.successful(Some(delegationModel)))
         when(mockAuthConnector.authorise[RetrievalType](any(), any())(any(), any()))
           .thenReturn(Future.successful(buildRetrieval(AffinityGroup.Organisation, atedOnlyEnrolmentSet)) )
 
@@ -84,7 +84,7 @@ class AuthActionSpec extends PlaySpec with MockitoSugar with BeforeAndAfterEach 
       }
 
       "affinity group is authorised with no delegation returned"  in new Setup {
-        when(mockDelegationService.delegationCall(any())(any()))
+        when(mockDelegationService.delegationCall(any())(using any()))
           .thenReturn(Future.successful(None))
         when(mockAuthConnector.authorise[RetrievalType](any(), any())(any(), any()))
           .thenReturn(Future.successful(buildRetrieval(AffinityGroup.Agent, agentOnlyEnrolmentSet)) )
@@ -99,7 +99,7 @@ class AuthActionSpec extends PlaySpec with MockitoSugar with BeforeAndAfterEach 
 
     "return 303 redirect response" when {
       "affinity group fails authorisation for reason UnsupportedAffinityGroup (AuthorisationException)"  in new Setup {
-        when(mockDelegationService.delegationCall(any())(any()))
+        when(mockDelegationService.delegationCall(any())(using any()))
           .thenReturn(Future.successful(Some(delegationModel)))
         when(mockAuthConnector.authorise[RetrievalType](any(), any())(any(), any()))
           .thenReturn(Future.failed(UnsupportedAffinityGroup("error")))
@@ -116,7 +116,7 @@ class AuthActionSpec extends PlaySpec with MockitoSugar with BeforeAndAfterEach 
         when(mockAppConfig.loginURL).thenReturn("http://localhost:9553/bas-gateway/sign-in")
         when(mockAppConfig.continueURL).thenReturn("http://localhost:9916/ated/home")
 
-        when(mockDelegationService.delegationCall(any())(any()))
+        when(mockDelegationService.delegationCall(any())(using any()))
           .thenReturn(Future.successful(Some(delegationModel)))
         when(mockAuthConnector.authorise[RetrievalType](any(), any())(any(), any()))
           .thenReturn(Future.failed(InvalidBearerToken("error")))
@@ -131,7 +131,7 @@ class AuthActionSpec extends PlaySpec with MockitoSugar with BeforeAndAfterEach 
 
       "affinity group fails authorisation for reason InsufficientConfidenceLevel (AuthorisationException)"  in new Setup {
 
-        when(mockDelegationService.delegationCall(any())(any()))
+        when(mockDelegationService.delegationCall(any())(using any()))
           .thenReturn(Future.successful(Some(delegationModel)))
         when(mockAuthConnector.authorise[RetrievalType](any(), any())(any(), any()))
           .thenReturn(Future.failed(InsufficientConfidenceLevel("error")))
@@ -191,9 +191,9 @@ class AuthActionSpec extends PlaySpec with MockitoSugar with BeforeAndAfterEach 
 
       "enrolment is for an individual IR-SA" in new Setup {
 
-        when(mockDelegationService.delegationCall(any())(any())).thenReturn(Future.successful(Some(delegationModel)))
+        when(mockDelegationService.delegationCall(any())(using any())).thenReturn(Future.successful(Some(delegationModel)))
 
-        when(mockAuthConnector.authorise[RetrievalType](any(), any())(any(), any()))
+        when(mockAuthConnector.authorise[RetrievalType](any(), any())(using any(), any()))
           .thenReturn(Future.successful(buildRetrieval(AffinityGroup.Individual, saEnrolmentSet)) )
 
         val res: Future[Result] = testAuthAction.authorisedAction(func)
@@ -203,9 +203,9 @@ class AuthActionSpec extends PlaySpec with MockitoSugar with BeforeAndAfterEach 
 
       "affinity group fails authorisation for reason InsufficientConfidenceLevel (AuthorisationException)" in new Setup {
 
-        when(mockDelegationService.delegationCall(any())(any())).thenReturn(Future.successful(Some(delegationModel)))
+        when(mockDelegationService.delegationCall(any())(using any())).thenReturn(Future.successful(Some(delegationModel)))
 
-        when(mockAuthConnector.authorise[RetrievalType](any(), any())(any(), any()))
+        when(mockAuthConnector.authorise[RetrievalType](any(), any())(using any(), any()))
           .thenReturn(Future.failed(InsufficientConfidenceLevel("error")))
 
         val res: Future[Result] = testAuthAction.authorisedAction(func)
@@ -217,9 +217,9 @@ class AuthActionSpec extends PlaySpec with MockitoSugar with BeforeAndAfterEach 
         when(mockAppConfig.loginURL).thenReturn("http://localhost:9553/sign-in")
         when(mockAppConfig.continueURL).thenReturn("http://localhost:9553/continue")
 
-        when(mockDelegationService.delegationCall(any())(any())).thenReturn(Future.successful(Some(delegationModel)))
+        when(mockDelegationService.delegationCall(any())(using any())).thenReturn(Future.successful(Some(delegationModel)))
 
-        when(mockAuthConnector.authorise[RetrievalType](any(), any())(any(), any()))
+        when(mockAuthConnector.authorise[RetrievalType](any(), any())(using any(), any()))
           .thenReturn(Future.failed(BearerTokenExpired("error")))
 
         val res: Future[Result] = testAuthAction.authorisedAction(func)
@@ -232,10 +232,10 @@ class AuthActionSpec extends PlaySpec with MockitoSugar with BeforeAndAfterEach 
     "return a valid 200 making a call to Delegation model" when {
 
       "affinity Organisation groups are authorised with valid delegation " in new Setup {
-        when(mockDelegationService.delegationCall(any())(any()))
+        when(mockDelegationService.delegationCall(any())(using any()))
           .thenReturn(Future.successful(Some(delegationModel)))
 
-        when(mockAuthConnector.authorise[RetrievalType](any(), any())(any(), any()))
+        when(mockAuthConnector.authorise[RetrievalType](any(), any())(using any(), any()))
           .thenReturn(Future.successful(buildRetrieval(AffinityGroup.Organisation, atedAgentEnrolmentSet)) )
 
         val res: Future[Result] = testAuthAction.authorisedAction(func)
@@ -243,10 +243,10 @@ class AuthActionSpec extends PlaySpec with MockitoSugar with BeforeAndAfterEach 
       }
 
       "affinity Agent groups are authorised with valid delegation " in new Setup {
-        when(mockDelegationService.delegationCall(any())(any()))
+        when(mockDelegationService.delegationCall(any())(using any()))
           .thenReturn(Future.successful(Some(delegationModel)))
 
-        when(mockAuthConnector.authorise[RetrievalType](any(), any())(any(), any()))
+        when(mockAuthConnector.authorise[RetrievalType](any(), any())(using any(), any()))
           .thenReturn(Future.successful(buildRetrieval(AffinityGroup.Agent, atedAgentEnrolmentSet)) )
 
         val res: Future[Result] = testAuthAction.authorisedAction(func)
@@ -254,7 +254,7 @@ class AuthActionSpec extends PlaySpec with MockitoSugar with BeforeAndAfterEach 
       }
 
       "affinity group is authorised with no delegation returned " in new Setup {
-        when(mockDelegationService.delegationCall(any())(any()))
+        when(mockDelegationService.delegationCall(any())(using any()))
           .thenReturn(Future.successful(None))
 
         when(mockAuthConnector.authorise[RetrievalType](any(), any())(any(), any()))

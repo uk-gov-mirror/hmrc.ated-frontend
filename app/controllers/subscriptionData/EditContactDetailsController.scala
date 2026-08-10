@@ -33,11 +33,11 @@ class EditContactDetailsController @Inject()(mcc: MessagesControllerComponents,
                                              serviceInfoService: ServiceInfoService,
                                              subscriptionDataService: SubscriptionDataService,
                                              template: views.html.subcriptionData.editContactDetails)
-                                            (implicit val appConfig: ApplicationConfig)
+                                            (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with WithUnsafeDefaultFormBinding {
 
-implicit val ec: ExecutionContext = mcc.executionContext
+given ec: ExecutionContext = mcc.executionContext
 
   def edit: Action[AnyContent] = Action.async { implicit request =>
     authAction.authorisedAction { implicit authContext =>

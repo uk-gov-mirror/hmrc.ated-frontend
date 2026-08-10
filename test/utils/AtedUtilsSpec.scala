@@ -22,6 +22,7 @@ import java.time.LocalDate
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.mvc.{AnyContent, Request}
 import play.api.test.FakeRequest
 
 import scala.collection.mutable.ArrayBuffer
@@ -193,7 +194,7 @@ class AtedUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerSui
   }
 
   "adds the new parameter in the request data" in {
-    implicit val request = FakeRequest()
+    given request: Request[AnyContent] = FakeRequest()
     AtedUtils.addParamsToRequest(Map("periodKey" -> ArrayBuffer("2017").toSeq)) must be(None)
   }
 

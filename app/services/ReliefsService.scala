@@ -20,20 +20,20 @@ import config.ApplicationConfig
 import connectors.AtedConnector
 
 import javax.inject.Inject
-import models._
+import models.*
 import play.api.Logging
-import play.mvc.Http.Status._
+import play.mvc.Http.Status.*
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, InternalServerException}
-import utils.AtedConstants._
+import utils.AtedConstants.*
 import utils.ReliefsUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class ReliefsService @Inject()(atedConnector: AtedConnector,
-                               dataCacheService: DataCacheService)(implicit val ec: ExecutionContext) extends Logging {
+                               dataCacheService: DataCacheService)(using ec: ExecutionContext) extends Logging {
 
   def saveDraftReliefs(atedRefNo: String, periodKey: Int, reliefs: Reliefs)
-                      (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[ReliefsTaxAvoidance]] = {
+                      (using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[ReliefsTaxAvoidance]] = {
     for {
       newTaxAvoidanceReliefs <- updateReliefs(atedRefNo, periodKey, reliefs)
       response <- atedConnector.saveDraftReliefs(atedRefNo, newTaxAvoidanceReliefs)
@@ -49,7 +49,7 @@ class ReliefsService @Inject()(atedConnector: AtedConnector,
   }
 
   def saveDraftIsTaxAvoidance(atedRefNo: String, periodKey: Int, isAvoidanceScheme: Boolean)
-                             (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[ReliefsTaxAvoidance]] = {
+                             (using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[ReliefsTaxAvoidance]] = {
     for {
       newTaxAvoidanceReliefs <- updateIsTaxAvoidance(atedRefNo, periodKey, isAvoidanceScheme)
       response <- atedConnector.saveDraftReliefs(atedRefNo, newTaxAvoidanceReliefs)
@@ -65,7 +65,7 @@ class ReliefsService @Inject()(atedConnector: AtedConnector,
   }
 
   def saveDraftTaxAvoidance(atedRefNo: String, periodKey: Int, taxAvoidance: TaxAvoidance)
-                           (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[ReliefsTaxAvoidance]] = {
+                           (using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[ReliefsTaxAvoidance]] = {
     for {
       newTaxAvoidanceReliefs <- updateTaxAvoidance(atedRefNo, periodKey, taxAvoidance)
       response <- atedConnector.saveDraftReliefs(atedRefNo, newTaxAvoidanceReliefs)
@@ -81,7 +81,7 @@ class ReliefsService @Inject()(atedConnector: AtedConnector,
   }
 
   // FIXME: rename method to retrievePeriodDraftReliefs
-  def retrieveDraftReliefs(atedRefNo: String, periodKey: Int)(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[ReliefsTaxAvoidance]] = {
+  def retrieveDraftReliefs(atedRefNo: String, periodKey: Int)(using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[ReliefsTaxAvoidance]] = {
     for {
       response <- atedConnector.retrievePeriodDraftReliefs(atedRefNo, periodKey)
     }
@@ -96,7 +96,7 @@ class ReliefsService @Inject()(atedConnector: AtedConnector,
       }
   }
 
-  def submitDraftReliefs(atedRefNo: String, periodKey: Int)(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[HttpResponse] = {
+  def submitDraftReliefs(atedRefNo: String, periodKey: Int)(using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[HttpResponse] = {
     for {
       httpResponse <- atedConnector.submitDraftReliefs(atedRefNo, periodKey)
       _ <- dataCacheService.clearCache()
@@ -116,7 +116,7 @@ class ReliefsService @Inject()(atedConnector: AtedConnector,
     }
   }
 
-  private def updateReliefs(atedRefNo: String, periodKey: Int, reliefs: Reliefs)(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier) = {
+  private def updateReliefs(atedRefNo: String, periodKey: Int, reliefs: Reliefs)(using authContext: StandardAuthRetrievals, hc: HeaderCarrier) = {
     for {
       draftReliefs <- retrieveDraftReliefs(atedRefNo, periodKey)
     } yield {
@@ -126,7 +126,7 @@ class ReliefsService @Inject()(atedConnector: AtedConnector,
   }
 
   private def updateIsTaxAvoidance(atedRefNo: String, periodKey: Int, isAvoidanceScheme: Boolean)
-                                  (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier) = {
+                                  (using authContext: StandardAuthRetrievals, hc: HeaderCarrier) = {
 
     for {
       draftReliefs <- retrieveDraftReliefs(atedRefNo, periodKey)
@@ -138,7 +138,7 @@ class ReliefsService @Inject()(atedConnector: AtedConnector,
   }
 
   private def updateTaxAvoidance(atedRefNo: String, periodKey: Int, taxAvoidance: TaxAvoidance)
-                                (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier) = {
+                                (using authContext: StandardAuthRetrievals, hc: HeaderCarrier) = {
     for {
       draftReliefs <- retrieveDraftReliefs(atedRefNo, periodKey)
     } yield {
@@ -148,7 +148,7 @@ class ReliefsService @Inject()(atedConnector: AtedConnector,
     }
   }
 
-  def viewReliefReturn(periodKey: Int, formBundleNo: String)(implicit hc: HeaderCarrier,
+  def viewReliefReturn(periodKey: Int, formBundleNo: String)(using hc: HeaderCarrier,
                        appConfig: ApplicationConfig): Future[(Option[SubmittedReliefReturns], Boolean)] = {
     for {
       cachedReturns <- dataCacheService.fetchAndGetData[SummaryReturnsModel](RetrieveReturnsResponseId)
@@ -166,7 +166,7 @@ class ReliefsService @Inject()(atedConnector: AtedConnector,
     }
   }
 
-  def deleteDraftReliefs(periodKey: Int)(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[HttpResponse] = {
+  def deleteDraftReliefs(periodKey: Int)(using authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[HttpResponse] = {
     atedConnector.deleteDraftReliefsByYear(periodKey)
   }
 }

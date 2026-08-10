@@ -18,7 +18,7 @@ package controllers.propertyDetails
 
 import config.ApplicationConfig
 import controllers.auth.{AuthAction, ClientHelper}
-import forms.PropertyDetailsForms._
+import forms.PropertyDetailsForms.*
 import javax.inject.Inject
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{BackLinkCacheService, DataCacheService, PropertyDetailsService, ServiceInfoService}
@@ -33,11 +33,11 @@ class PeriodChooseReliefController @Inject()(mcc: MessagesControllerComponents,
                                              val dataCacheService: DataCacheService,
                                              val backLinkCacheService: BackLinkCacheService,
                                              template: views.html.propertyDetails.periodChooseRelief)
-                                            (implicit val appConfig: ApplicationConfig)
+                                            (using val appConfig: ApplicationConfig)
 
   extends FrontendController(mcc) with PropertyDetailsHelpers with ClientHelper with WithUnsafeDefaultFormBinding {
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   val controllerId: String = "PeriodChooseReliefController"
 
