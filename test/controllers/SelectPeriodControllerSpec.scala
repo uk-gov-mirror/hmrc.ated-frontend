@@ -128,7 +128,7 @@ class SelectPeriodControllerSpec extends PlaySpec with GuiceOneAppPerSuite with 
       setAuthMocks(authMock)
       when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
       when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(atedRef))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(atedRef))
       when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
       val result = testSelectPeriodController.submit.apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
       test(result)

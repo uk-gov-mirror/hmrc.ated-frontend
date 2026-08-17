@@ -45,6 +45,7 @@ import scala.concurrent.Future
 class HasBankDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with MockAuthUtil {
 
   given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
   given hc: HeaderCarrier = HeaderCarrier()
 
   val mockMcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
@@ -53,79 +54,81 @@ class HasBankDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite 
   val mockBackLinkCacheService: BackLinkCacheService = mock[BackLinkCacheService]
   val mockBankDetailsController: HasUkBankAccountController = mock[HasUkBankAccountController]
   val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+
   given messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+
   val btaNavigationLinksView: BtaNavigationLinks = app.injector.instanceOf[BtaNavigationLinks]
   val mockServiceInfoService: ServiceInfoService = mock[ServiceInfoService]
   val injectedViewInstance: hasBankDetails = app.injector.instanceOf[views.html.editLiability.hasBankDetails]
 
   class Setup {
 
-  val mockAuthAction: AuthAction = new AuthAction(
-    mockAppConfig,
-    mockDelegationService,
-    mockAuthConnector
-  )
+    val mockAuthAction: AuthAction = new AuthAction(
+      mockAppConfig,
+      mockDelegationService,
+      mockAuthConnector
+    )
 
-  val testHasBankDetailsController: HasBankDetailsController = new HasBankDetailsController (
-    mockMcc,
-    mockChangeLiabilityReturnService,
-    mockAuthAction,
-    mockBankDetailsController,
-    mockServiceInfoService,
-    mockDataCacheService,
-    mockBackLinkCacheService,
-    injectedViewInstance
-  )
+    val testHasBankDetailsController: HasBankDetailsController = new HasBankDetailsController(
+      mockMcc,
+      mockChangeLiabilityReturnService,
+      mockAuthAction,
+      mockBankDetailsController,
+      mockServiceInfoService,
+      mockDataCacheService,
+      mockBackLinkCacheService,
+      injectedViewInstance
+    )
 
-  def viewWithAuthorisedUser(changeLiabilityReturnOpt: Option[PropertyDetails])(test: Future[Result] => Any): Unit = {
-    val userId = s"user-${UUID.randomUUID}"
-    val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
-    setAuthMocks(authMock)
-    when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-      .thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
-    when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-      (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
-    when(mockChangeLiabilityReturnService.retrieveSubmittedLiabilityReturnAndCache
-    (ArgumentMatchers.eq("12345678901"), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
-      .thenReturn(Future.successful(changeLiabilityReturnOpt))
-    when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any()))
-      .thenReturn(Future.successful(Some("http://backlink")))
-    val result = testHasBankDetailsController.view("12345678901").apply(SessionBuilder.buildRequestWithSession(userId))
-    test(result)
+    def viewWithAuthorisedUser(changeLiabilityReturnOpt: Option[PropertyDetails])(test: Future[Result] => Any): Unit = {
+      val userId = s"user-${UUID.randomUUID}"
+      val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
+      setAuthMocks(authMock)
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(btaNavigationLinksView()(messages, mockAppConfig)))
+      when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+      when(mockChangeLiabilityReturnService.retrieveSubmittedLiabilityReturnAndCache
+        (ArgumentMatchers.eq("12345678901"), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(changeLiabilityReturnOpt))
+      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any()))
+        .thenReturn(Future.successful(Some("http://backlink")))
+      val result = testHasBankDetailsController.view("12345678901").apply(SessionBuilder.buildRequestWithSession(userId))
+      test(result)
+    }
+
+    def editFromSummary(changeLiabilityReturnOpt: Option[PropertyDetails])(test: Future[Result] => Any): Unit = {
+      val userId = s"user-${UUID.randomUUID}"
+      val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
+      setAuthMocks(authMock)
+      when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(btaNavigationLinksView()(messages, mockAppConfig)))
+      when(mockChangeLiabilityReturnService.retrieveSubmittedLiabilityReturnAndCache
+        (ArgumentMatchers.eq("12345678901"), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(changeLiabilityReturnOpt))
+      when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      val result = testHasBankDetailsController.editFromSummary("12345678901").apply(SessionBuilder.buildRequestWithSession(userId))
+      test(result)
+    }
+
+    def saveWithAuthorisedFormUser(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded])(test: Future[Result] => Any): Unit = {
+      val userId = s"user-${UUID.randomUUID}"
+      val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
+      setAuthMocks(authMock)
+      when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
+        (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(btaNavigationLinksView()(messages, mockAppConfig)))
+      val changeLiabilityReturn = ChangeLiabilityReturnBuilder.generateChangeLiabilityReturn("123456789012")
+      when(mockChangeLiabilityReturnService.cacheChangeLiabilityReturnHasBankDetails
+        (ArgumentMatchers.eq("12345678901"), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(Some(changeLiabilityReturn)))
+      val result = testHasBankDetailsController.save("12345678901").apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
+      test(result)
+    }
   }
-
-  def editFromSummary(changeLiabilityReturnOpt: Option[PropertyDetails])(test: Future[Result] => Any): Unit = {
-    val userId = s"user-${UUID.randomUUID}"
-    val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
-    setAuthMocks(authMock)
-    when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-      (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
-    when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-      .thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
-    when(mockChangeLiabilityReturnService.retrieveSubmittedLiabilityReturnAndCache
-    (ArgumentMatchers.eq("12345678901"), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
-      .thenReturn(Future.successful(changeLiabilityReturnOpt))
-    when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
-    val result = testHasBankDetailsController.editFromSummary("12345678901").apply(SessionBuilder.buildRequestWithSession(userId))
-    test(result)
-  }
-
-  def saveWithAuthorisedFormUser(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded])(test: Future[Result] => Any): Unit = {
-    val userId = s"user-${UUID.randomUUID}"
-    val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
-    setAuthMocks(authMock)
-    when(mockDataCacheService.fetchAndGetData[String](ArgumentMatchers.eq(AtedConstants.DelegatedClientAtedRefNumber))
-      (using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("XN1200000100001")))
-    when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-      .thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
-    val changeLiabilityReturn = ChangeLiabilityReturnBuilder.generateChangeLiabilityReturn("123456789012")
-    when(mockChangeLiabilityReturnService.cacheChangeLiabilityReturnHasBankDetails
-    (ArgumentMatchers.eq("12345678901"), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
-      .thenReturn(Future.successful(Some(changeLiabilityReturn)))
-    val result = testHasBankDetailsController.save("12345678901").apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
-    test(result)
-  }
-}
 
   override def beforeEach(): Unit = {
     reset(mockChangeLiabilityReturnService)
@@ -197,9 +200,9 @@ class HasBankDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite 
           .withFormUrlEncodedBody(
             "hasBankDetails" -> "2")
         ) { result =>
-             status(result) must be(BAD_REQUEST)
-            verify(mockChangeLiabilityReturnService, times(0))
-              .cacheChangeLiabilityReturnHasBankDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
+          status(result) must be(BAD_REQUEST)
+          verify(mockChangeLiabilityReturnService, times(0))
+            .cacheChangeLiabilityReturnHasBankDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
         }
       }
 
@@ -211,10 +214,10 @@ class HasBankDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite 
           .withFormUrlEncodedBody(
             "hasBankDetails" -> "true")
         ) { result =>
-            status(result) must be(SEE_OTHER)
-            redirectLocation(result) must be(Some("/ated/liability/12345678901/change/has-uk-bank-account"))
-            verify(mockChangeLiabilityReturnService, times(1))
-              .cacheChangeLiabilityReturnHasBankDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
+          status(result) must be(SEE_OTHER)
+          redirectLocation(result) must be(Some("/ated/liability/12345678901/change/has-uk-bank-account"))
+          verify(mockChangeLiabilityReturnService, times(1))
+            .cacheChangeLiabilityReturnHasBankDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
         }
       }
 
@@ -226,10 +229,10 @@ class HasBankDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite 
           .withFormUrlEncodedBody(
             "hasBankDetails" -> "false")
         ) { result =>
-            status(result) must be(SEE_OTHER)
-            redirectLocation(result) must be(Some("/ated/liability/12345678901/change/view-summary"))
-            verify(mockChangeLiabilityReturnService, times(1))
-              .cacheChangeLiabilityReturnHasBankDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
+          status(result) must be(SEE_OTHER)
+          redirectLocation(result) must be(Some("/ated/liability/12345678901/change/view-summary"))
+          verify(mockChangeLiabilityReturnService, times(1))
+            .cacheChangeLiabilityReturnHasBankDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
         }
       }
     }

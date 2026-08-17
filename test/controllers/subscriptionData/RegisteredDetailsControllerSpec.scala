@@ -97,13 +97,13 @@ class RegisteredDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSui
       testRegisteredDetailsController.edit()(SessionBuilder.buildRequestWithSession(userId))
     }
 
-  def submitWithAuthorisedUserSuccess(updatedDetails: Option[RegisteredDetails]=None)
-                                     (fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded])(test: Future[Result] => Any): Unit = {
-    val userId = s"user-${UUID.randomUUID}"
-    val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
-    setAuthMocks(authMock)
-    when(mockSubscriptionDataService.updateRegisteredDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(updatedDetails))
-    val result = testRegisteredDetailsController.submit().apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
+    def submitWithAuthorisedUserSuccess(updatedDetails: Option[RegisteredDetails] = None)
+                                       (fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded])(test: Future[Result] => Any): Unit = {
+      val userId = s"user-${UUID.randomUUID}"
+      val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
+      setAuthMocks(authMock)
+      when(mockSubscriptionDataService.updateRegisteredDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(updatedDetails))
+      val result = testRegisteredDetailsController.submit().apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
 
       test(result)
     }

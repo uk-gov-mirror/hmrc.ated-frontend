@@ -80,11 +80,11 @@ class PropertyDetailsNewValuationControllerSpec extends PropertyDetailsTestFixtu
     "redirect to next page: date-of-revalue" when {
       "user inputs valid value" in new Setup {
 
-          val fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest()
-            .withMethod("POST")
-            .withFormUrlEncodedBody(
-              "revaluedValue"   -> "12345678",
-            )
+        val fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest()
+          .withMethod("POST")
+          .withFormUrlEncodedBody(
+            "revaluedValue" -> "12345678",
+          )
         setupPropertyDetailServiceMockExpectations()
         val result = testController.save("1", 2015, None).apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
         status(result) mustBe SEE_OTHER

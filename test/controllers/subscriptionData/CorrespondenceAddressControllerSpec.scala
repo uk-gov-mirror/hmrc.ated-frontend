@@ -45,14 +45,18 @@ import scala.concurrent.Future
 class CorrespondenceAddressControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with MockAuthUtil {
 
   given hc: HeaderCarrier = HeaderCarrier()
+
   given mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
   val mockMcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   val mockDataCacheService: DataCacheService = mock[DataCacheService]
   val mockSubscriptionDataService: SubscriptionDataService = mock[SubscriptionDataService]
   val mockDetailsService: DetailsService = mock[DetailsService]
   val mockEnvironment: Environment = app.injector.instanceOf[Environment]
   val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+
   given messages: MessagesImpl = MessagesImpl(Lang("en-GB"), messagesApi)
+
   val btaNavigationLinksView: BtaNavigationLinks = app.injector.instanceOf[BtaNavigationLinks]
   val mockServiceInfoService: ServiceInfoService = mock[ServiceInfoService]
   val injectedViewInstance: correspondenceAddress = app.injector.instanceOf[views.html.subcriptionData.correspondenceAddress]
@@ -77,11 +81,11 @@ class CorrespondenceAddressControllerSpec extends PlaySpec with GuiceOneServerPe
       injectedViewInstanceError
     )
 
-    def getWithAuthorisedUser(companyDetails: Option[Address]=None)(test: Future[Result] => Any): Unit = {
+    def getWithAuthorisedUser(companyDetails: Option[Address] = None)(test: Future[Result] => Any): Unit = {
       val userId = s"user-${UUID.randomUUID}"
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
-      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages,mockAppConfig)))
+      when(mockServiceInfoService.getPartial(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(btaNavigationLinksView()(messages, mockAppConfig)))
       when(mockSubscriptionDataService.getCorrespondenceAddress(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(companyDetails))
       val result = testCorrespondenceAddressController.editAddress.apply(SessionBuilder.buildRequestWithSession(userId))
       test(result)
@@ -102,7 +106,7 @@ class CorrespondenceAddressControllerSpec extends PlaySpec with GuiceOneServerPe
       setAuthMocks(authMock)
       when(mockSubscriptionDataService.updateCorrespondenceAddressDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(testAddress))
-      val result = testCorrespondenceAddressController.submit().apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
+      val result = testCorrespondenceAddressController.submit.apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
 
       test(result)
     }
@@ -115,6 +119,7 @@ class CorrespondenceAddressControllerSpec extends PlaySpec with GuiceOneServerPe
       test(result)
     }
   }
+
   override def beforeEach(): Unit = {
     reset(mockAuthConnector)
     reset(mockSubscriptionDataService)
@@ -151,7 +156,7 @@ class CorrespondenceAddressControllerSpec extends PlaySpec with GuiceOneServerPe
             result =>
               val document = Jsoup.parse(contentAsString(result))
 
-              document.title() must be (TitleBuilder.buildTitle("Edit your correspondence address"))
+              document.title() must be(TitleBuilder.buildTitle("Edit your correspondence address"))
               document.select("h1").text() must include("Edit your correspondence address")
               assert(document.getElementById("service-info-list").text() === "Home Manage account Messages Help and contact")
               document.getElementById("addressLine1").attr("value") must be("")
@@ -174,7 +179,7 @@ class CorrespondenceAddressControllerSpec extends PlaySpec with GuiceOneServerPe
             result =>
               val document = Jsoup.parse(contentAsString(result))
 
-              document.title() must be (TitleBuilder.buildTitle("Edit your correspondence address"))
+              document.title() must be(TitleBuilder.buildTitle("Edit your correspondence address"))
               document.select("h1").text() must include("Edit your correspondence address")
               document.getElementById("addressType").attr("value") must be("Correspondence")
               document.getElementById("addressLine1").attr("value") must be("  ")
@@ -195,7 +200,7 @@ class CorrespondenceAddressControllerSpec extends PlaySpec with GuiceOneServerPe
             result =>
               val document = Jsoup.parse(contentAsString(result))
 
-              document.title() must be (TitleBuilder.buildTitle("Edit your correspondence address"))
+              document.title() must be(TitleBuilder.buildTitle("Edit your correspondence address"))
               document.select("h1").text() must include("Edit your correspondence address")
               document.getElementById("addressType").attr("value") must be("Correspondence")
               document.getElementById("addressLine1").attr("value") must be("line_1")
@@ -274,7 +279,7 @@ class CorrespondenceAddressControllerSpec extends PlaySpec with GuiceOneServerPe
                   result =>
                     val document = Jsoup.parse(contentAsString(result))
                     status(result) must be(OK)
-                    document.title() must be ("Sorry, there is a problem with the service")
+                    document.title() must be("Sorry, there is a problem with the service")
                     contentAsString(result) must include("Sorry, there is a problem with the service")
                     contentAsString(result) must include("You will be able to use the service later.")
                     contentAsString(result) must include("Your saved returns and drafts are not affected by this problem.")
@@ -324,66 +329,66 @@ class CorrespondenceAddressControllerSpec extends PlaySpec with GuiceOneServerPe
                 }
               }
 
-            "If entered, Address line 1 must be maximum of 35 characters" in new Setup {
+              "If entered, Address line 1 must be maximum of 35 characters" in new Setup {
 
-              val addressDetails = AddressDetails(
-                addressType = "Permanent",
-                addressLine1 = "AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDD",
-                addressLine2 = "Line Two",
-                addressLine3 = Some("Line Three"),
-                addressLine4 = Some("Line Four"),
-                postalCode = Some("XX1 1XX"),
-                countryCode = "GB"
-              )
-
-              val fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest()
-                .withMethod("POST")
-                .withFormUrlEncodedBody(
-                  "addressType" -> "Permanent",
-                  "addressLine1" -> "AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDD",
-                  "addressLine2" -> "Line Two",
-                  "addressLine3" -> "Line Three",
-                  "addressLine4" -> "Line Four",
-                  "postalCode" -> "XX1 1XX",
-                  "countryCode" -> "GB"
+                val addressDetails = AddressDetails(
+                  addressType = "Permanent",
+                  addressLine1 = "AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDD",
+                  addressLine2 = "Line Two",
+                  addressLine3 = Some("Line Three"),
+                  addressLine4 = Some("Line Four"),
+                  postalCode = Some("XX1 1XX"),
+                  countryCode = "GB"
                 )
 
-              submitWithAuthorisedUserSuccess(Some(addressDetails))(fakeRequest) {
-                result =>
-                  status(result) must be(BAD_REQUEST)
-                  contentAsString(result) must include("Address line 1 cannot be more than 35 characters")
+                val fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest()
+                  .withMethod("POST")
+                  .withFormUrlEncodedBody(
+                    "addressType" -> "Permanent",
+                    "addressLine1" -> "AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDD",
+                    "addressLine2" -> "Line Two",
+                    "addressLine3" -> "Line Three",
+                    "addressLine4" -> "Line Four",
+                    "postalCode" -> "XX1 1XX",
+                    "countryCode" -> "GB"
+                  )
+
+                submitWithAuthorisedUserSuccess(Some(addressDetails))(fakeRequest) {
+                  result =>
+                    status(result) must be(BAD_REQUEST)
+                    contentAsString(result) must include("Address line 1 cannot be more than 35 characters")
+                }
               }
-            }
 
-            "If entered, Address line 2 must be maximum of 35 characters" in new Setup {
-              val addressDetails = AddressDetails(
-                addressType = "Permanent",
-                addressLine1 = "Line One",
-                addressLine2 = "AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDD",
-                addressLine3 = Some("Line Three"),
-                addressLine4 = Some("Line Four"),
-                postalCode = Some("XX1 1XX"),
-                countryCode = "GB"
-              )
-
-              val fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest()
-                .withMethod("POST")
-                .withFormUrlEncodedBody(
-                  "addressType" -> "Permanent",
-                  "addressLine1" -> "Line One",
-                  "addressLine2" -> "AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDD",
-                  "addressLine3" -> "Line Three",
-                  "addressLine4" -> "Line Four",
-                  "postalCode" -> "XX1 1XX",
-                  "countryCode" -> "GB"
+              "If entered, Address line 2 must be maximum of 35 characters" in new Setup {
+                val addressDetails = AddressDetails(
+                  addressType = "Permanent",
+                  addressLine1 = "Line One",
+                  addressLine2 = "AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDD",
+                  addressLine3 = Some("Line Three"),
+                  addressLine4 = Some("Line Four"),
+                  postalCode = Some("XX1 1XX"),
+                  countryCode = "GB"
                 )
 
-              submitWithAuthorisedUserSuccess(Some(addressDetails))(fakeRequest) {
-                result =>
-                  status(result) must be(BAD_REQUEST)
-                  contentAsString(result) must include("Address line 2 cannot be more than 35 characters")
+                val fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest()
+                  .withMethod("POST")
+                  .withFormUrlEncodedBody(
+                    "addressType" -> "Permanent",
+                    "addressLine1" -> "Line One",
+                    "addressLine2" -> "AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDD",
+                    "addressLine3" -> "Line Three",
+                    "addressLine4" -> "Line Four",
+                    "postalCode" -> "XX1 1XX",
+                    "countryCode" -> "GB"
+                  )
+
+                submitWithAuthorisedUserSuccess(Some(addressDetails))(fakeRequest) {
+                  result =>
+                    status(result) must be(BAD_REQUEST)
+                    contentAsString(result) must include("Address line 2 cannot be more than 35 characters")
+                }
               }
-            }
 
               "If entered, Address line 3 must be maximum of 35 characters" in new Setup {
                 val addressDetails = AddressDetails(
@@ -445,30 +450,30 @@ class CorrespondenceAddressControllerSpec extends PlaySpec with GuiceOneServerPe
                 }
               }
 
-               "Postcode must not be more than 9 characters" in new Setup {
-                 val addressDetails = AddressDetails(
-                   addressType = "Permanent",
-                   addressLine1 = "Line One",
-                   addressLine2 = "Line Two",
-                   addressLine3 = Some("Line Three"),
-                   addressLine4 = Some("Line Four"),
-                   postalCode = Some("asssaa34aaaaaa"),
-                   countryCode = "GB"
-                 )
+              "Postcode must not be more than 9 characters" in new Setup {
+                val addressDetails = AddressDetails(
+                  addressType = "Permanent",
+                  addressLine1 = "Line One",
+                  addressLine2 = "Line Two",
+                  addressLine3 = Some("Line Three"),
+                  addressLine4 = Some("Line Four"),
+                  postalCode = Some("asssaa34aaaaaa"),
+                  countryCode = "GB"
+                )
 
-                 val fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest()
-                   .withMethod("POST")
-                   .withFormUrlEncodedBody(
-                     "addressType" -> "Permanent",
-                     "addressLine1" -> "Line One",
-                     "addressLine2" -> "Line Two",
-                     "addressLine3" -> "Line Three",
-                     "addressLine4" -> "Line Four",
-                     "postalCode" -> "asssaa34aaaaaa",
-                     "countryCode" -> "GB"
-                   )
+                val fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest()
+                  .withMethod("POST")
+                  .withFormUrlEncodedBody(
+                    "addressType" -> "Permanent",
+                    "addressLine1" -> "Line One",
+                    "addressLine2" -> "Line Two",
+                    "addressLine3" -> "Line Three",
+                    "addressLine4" -> "Line Four",
+                    "postalCode" -> "asssaa34aaaaaa",
+                    "countryCode" -> "GB"
+                  )
 
-                 submitWithAuthorisedUserSuccess(Some(addressDetails))(fakeRequest) {
+                submitWithAuthorisedUserSuccess(Some(addressDetails))(fakeRequest) {
                   result =>
                     status(result) must be(BAD_REQUEST)
                     contentAsString(result) must include("The postcode cannot be more than 9 characters")
@@ -560,8 +565,8 @@ class CorrespondenceAddressControllerSpec extends PlaySpec with GuiceOneServerPe
 
                 submitWithAuthorisedUserSuccess(Some(addressDetails))(fakeRequest) {
                   result =>
-                  status(result) must be(BAD_REQUEST)
-                  contentAsString(result) must include("Enter a country")
+                    status(result) must be(BAD_REQUEST)
+                    contentAsString(result) must include("Enter a country")
                 }
               }
             }

@@ -100,13 +100,13 @@ class EditContactDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSu
       test(result)
     }
 
-  def submitWithAuthorisedUserSuccess(testAddress: Option[EditContactDetails] = None)
-                                     (fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded])(test: Future[Result] => Any): Unit = {
-    val userId = s"user-${UUID.randomUUID}"
-    val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
-    setAuthMocks(authMock)
-    when(mockSubscriptionDataService.editContactDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(testAddress))
-    val result = testEditContactDetailsController.submit().apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
+    def submitWithAuthorisedUserSuccess(testAddress: Option[EditContactDetails] = None)
+                                       (fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded])(test: Future[Result] => Any): Unit = {
+      val userId = s"user-${UUID.randomUUID}"
+      val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
+      setAuthMocks(authMock)
+      when(mockSubscriptionDataService.editContactDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(testAddress))
+      val result = testEditContactDetailsController.submit.apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
 
       test(result)
     }
@@ -223,8 +223,8 @@ class EditContactDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSu
                   "lastName" -> "TestLastName",
                   "phoneNumber" -> phoneNum)
               ) { result =>
-                  status(result) must be(BAD_REQUEST)
-                  contentAsString(result) must include("Enter a first name")
+                status(result) must be(BAD_REQUEST)
+                contentAsString(result) must include("Enter a first name")
               }
             }
 
@@ -239,8 +239,8 @@ class EditContactDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSu
                   "lastName" -> "TestLastName",
                   "phoneNumber" -> phoneNum)
               ) { result =>
-                  status(result) must be(BAD_REQUEST)
-                  contentAsString(result) must include("First name cannot be more than 35 characters")
+                status(result) must be(BAD_REQUEST)
+                contentAsString(result) must include("First name cannot be more than 35 characters")
               }
             }
 
@@ -255,8 +255,8 @@ class EditContactDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSu
                   "lastName" -> lastNameMax,
                   "phoneNumber" -> phoneNum)
               ) { result =>
-                  status(result) must be(BAD_REQUEST)
-                  contentAsString(result) must include("Last name cannot be more than 35 characters")
+                status(result) must be(BAD_REQUEST)
+                contentAsString(result) must include("Last name cannot be more than 35 characters")
               }
             }
 
@@ -270,8 +270,8 @@ class EditContactDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSu
                   "lastName" -> "TestLastName",
                   "phoneNumber" -> phoneNum)
               ) { result =>
-                  status(result) must be(BAD_REQUEST)
-                  contentAsString(result) must include("Telephone number must not be more than 24 characters")
+                status(result) must be(BAD_REQUEST)
+                contentAsString(result) must include("Telephone number must not be more than 24 characters")
               }
             }
 
@@ -284,8 +284,8 @@ class EditContactDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSu
                   "lastName" -> "TestLastName",
                   "phoneNumber" -> "@@@@@@@@")
               ) { result =>
-                  status(result) must be(BAD_REQUEST)
-                  contentAsString(result) must include("Telephone number is not valid")
+                status(result) must be(BAD_REQUEST)
+                contentAsString(result) must include("Telephone number is not valid")
               }
             }
 
@@ -298,8 +298,8 @@ class EditContactDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSu
                   "lastName" -> "TestLastName",
                   "phoneNumber" -> "0191222x123")
               ) { result =>
-                  status(result) must be(BAD_REQUEST)
-                  contentAsString(result) must include("Telephone number is not valid")
+                status(result) must be(BAD_REQUEST)
+                contentAsString(result) must include("Telephone number is not valid")
               }
             }
 
@@ -313,8 +313,8 @@ class EditContactDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSu
                   "lastName" -> "TestLastName",
                   "phoneNumber" -> "9999999999")
               ) { result =>
-                  status(result) must be(SEE_OTHER)
-                  redirectLocation(result).get must include("/ated/company-details")
+                status(result) must be(SEE_OTHER)
+                redirectLocation(result).get must include("/ated/company-details")
               }
             }
 
@@ -326,8 +326,8 @@ class EditContactDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSu
                   "lastName" -> "TestLastName",
                   "phoneNumber" -> "9999999999")
               ) { result =>
-                  status(result) must be(BAD_REQUEST)
-                  contentAsString(result) must include("Something has gone wrong, try again later.")
+                status(result) must be(BAD_REQUEST)
+                contentAsString(result) must include("Something has gone wrong, try again later.")
               }
             }
           }

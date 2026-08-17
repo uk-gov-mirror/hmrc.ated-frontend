@@ -26,7 +26,7 @@ import views.html.propertyDetails.propertyDetailsHasBeenRevalued
 class PropertyDetailsHasBeenRevaluedControllerSpec extends PropertyDetailsTestFixture {
   val injectedViewInstance: propertyDetailsHasBeenRevalued = app.injector.instanceOf[views.html.propertyDetails.propertyDetailsHasBeenRevalued]
 
-  val testController: Propert   yDetailsHasBeenRevaluedController = new PropertyDetailsHasBeenRevaluedController(
+  val testController: PropertyDetailsHasBeenRevaluedController = new PropertyDetailsHasBeenRevaluedController(
     mockMcc,
     mockAuthAction,
     injectedViewInstance,

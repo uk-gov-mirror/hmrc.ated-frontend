@@ -192,7 +192,7 @@ class EditLiabilityHasValueChangedControllerSpec
 
       "for invalid data, return BAD_REQUEST" in new Setup {
         val changeLiabilityReturn: PropertyDetails = PropertyDetailsBuilder.getPropertyDetailsWithFormBundleReturn("12345678901")
-        when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(None))
         saveWithAuthorisedFormUser(Some(changeLiabilityReturn), FakeRequest()
           .withMethod("POST")
           .withFormUrlEncodedBody(
@@ -206,7 +206,7 @@ class EditLiabilityHasValueChangedControllerSpec
       }
 
       "for valid date when we have indicated that the value has changed, save and redirect to change in acquisition page" in new Setup {
-        when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockBackLinkCacheService.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
           .thenReturn(Future.successful(None))
         saveWithAuthorisedFormUser(None, FakeRequest()
           .withMethod("POST")

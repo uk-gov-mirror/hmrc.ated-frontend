@@ -145,7 +145,7 @@ class PropertyDetailsValueAcquiredControllerSpec extends PlaySpec with GuiceOneS
       setAuthMocks(authMock)
       val result = testPropertyDetailsValueAcquiredController
         .save("1", periodKey, None, testDate)
-        .apply(SessionBuilder.updateRequestFormWithSession(FakeRequest().withMethod("POST")withFormUrlEncodedBody(formBody: _*), userId))
+        .apply(SessionBuilder.updateRequestFormWithSession(FakeRequest().withMethod("POST").withFormUrlEncodedBody(formBody: _*), userId))
 
       test(result)
     }

@@ -110,7 +110,7 @@ class EditContactEmailControllerSpec extends PlaySpec with GuiceOneServerPerSuit
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
       when(mockSubscriptionDataService.editEmailWithConsent(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(testAddress))
-      val result = testEditContactEmailController.submit().apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
+      val result = testEditContactEmailController.submit.apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
 
       test(result)
 

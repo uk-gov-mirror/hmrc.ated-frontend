@@ -106,7 +106,7 @@ class OverseasCompanyRegistrationControllerSpec extends PlaySpec with GuiceOneSe
       val authMock = authResultDefault(AffinityGroup.Organisation, defaultEnrolmentSet)
       setAuthMocks(authMock)
       when(mockSubscriptionDataService.updateOverseasCompanyRegistration(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(input))
-      val result = testOverseasCompanyRegistrationController.submit().apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
+      val result = testOverseasCompanyRegistrationController.submit.apply(SessionBuilder.updateRequestFormWithSession(fakeRequest, userId))
 
       test(result)
 

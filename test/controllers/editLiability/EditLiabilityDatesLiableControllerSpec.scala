@@ -226,7 +226,7 @@ class EditLiabilityDatesLiableControllerSpec extends PlaySpec with GuiceOneServe
             "endDate.day" -> "",
             "endDate.month" -> "",
             "endDate.year" -> "")
-          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
+          when(mockBackLinkCacheService.fetchAndGetBackLink(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Some("")))
           submitWithAuthorisedUser(startAndEndDatesList) {
             result =>
               status(result) must be(BAD_REQUEST)
