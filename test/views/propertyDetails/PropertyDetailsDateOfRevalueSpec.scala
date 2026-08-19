@@ -94,6 +94,33 @@ class PropertyDetailsDateOfRevalueSpec extends AtedViewSpec with MockAuthUtil {
         doc(view).getElementById("dateOfRevalue-error").className() mustBe("govuk-error-message")
         doc(view).getElementById("dateOfRevalue-error").text() mustBe "Error: The date when you revalued the property must be a valid date"
       }
+
+      "style the month and year as errors when both are missing" in {
+        val form = propertyDetailsDateOfRevalueForm.withError("dateOfRevalue.month", "ated.error.date.monthyear.missing", messages("ated.property-details-value.dateOfRevalue.messageKey"))
+        def view: Html = injectedViewInstance("anything", 2024, form, None, HtmlFormat.empty, Some("localhost"))
+
+        doc(view).getElementById("dateOfRevalue.day").className() must not include "govuk-input--error"
+        doc(view).getElementById("dateOfRevalue.month").className() must include("govuk-input--error")
+        doc(view).getElementById("dateOfRevalue.year").className() must include("govuk-input--error")
+      }
+
+      "style only the year as an error when the year is not 4 digits" in {
+        val form = propertyDetailsDateOfRevalueForm.withError("dateOfRevalue.year", "ated.error.date.year.length", messages("ated.property-details-value.dateOfRevalue.messageKey"))
+        def view: Html = injectedViewInstance("anything", 2024, form, None, HtmlFormat.empty, Some("localhost"))
+
+        doc(view).getElementById("dateOfRevalue.day").className() must not include "govuk-input--error"
+        doc(view).getElementById("dateOfRevalue.month").className() must not include "govuk-input--error"
+        doc(view).getElementById("dateOfRevalue.year").className() must include("govuk-input--error")
+      }
+
+      "style the whole date as an error when nothing is entered" in {
+        val form = propertyDetailsDateOfRevalueForm.withError("dateOfRevalue", "ated.error.date.empty", messages("ated.property-details-value.dateOfRevalue.messageKey"))
+        def view: Html = injectedViewInstance("anything", 2024, form, None, HtmlFormat.empty, Some("localhost"))
+
+        doc(view).getElementById("dateOfRevalue.day").className() must include("govuk-input--error")
+        doc(view).getElementById("dateOfRevalue.month").className() must include("govuk-input--error")
+        doc(view).getElementById("dateOfRevalue.year").className() must include("govuk-input--error")
+      }
     }
   }
 }

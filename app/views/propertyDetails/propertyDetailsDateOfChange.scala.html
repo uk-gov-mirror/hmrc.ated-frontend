@@ -19,6 +19,7 @@
 @import play.twirl.api.HtmlFormat
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
+@import views.DateInputErrors
 @import views.ViewUtils.titleBuilder
 @import views.html.helpers._
 @import _root_.utils._
@@ -47,11 +48,11 @@
 
     @formHelper(action = controllers.propertyDetails.routes.PropertyDetailsDateOfChangeController.save(id, periodKey, mode)){
 
-        @govukDateInput(DateInput(
+        @govukDateInput(DateInputErrors.withDayMonthYear(DateInput(
             hint = Some(Hint(
                 content = Text(messages("ated.property-details-value.dateOfChange.hint", PeriodUtils.periodStartDate(periodKey).toString(messages("ated.date-format.numeric"))))
             ))
-        ).withDayMonthYearFormField(propertyDetailsForm("dateOfChange"))
+        ), propertyDetailsForm, "dateOfChange")
         .withHeading(heading = Text(messages("ated.property-details-value.dateOfChange.header")))
     )
 

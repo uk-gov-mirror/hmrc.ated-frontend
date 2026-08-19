@@ -88,5 +88,50 @@ class DateFirstOccupiedSpec extends AnyFeatureSpec with GuiceOneAppPerSuite with
       assert(document.select(".govuk-width-container > a.govuk-back-link").text === "Back")
       assert(document.getElementsByClass("govuk-back-link").attr("href") === "http://backLink")
     }
+
+    Scenario("the client enters a day but no month or year") {
+
+      Given("the client has entered the day only")
+      When("The client views the page")
+      val form = dateFirstOccupiedForm.withError("dateFirstOccupied.month", "ated.error.date.monthyear.missing",
+        messages("ated.property-details.first-occupied-date.messageKey"))
+      val html = injectedViewInstance("1", 1, form, None, Html(""), Some("http://backLink"))
+      val document = Jsoup.parse(html.toString())
+
+      Then("The month and year inputs are styled as errors and the day is not")
+      assert(!document.getElementById("dateFirstOccupied.day").className().contains("govuk-input--error"))
+      assert(document.getElementById("dateFirstOccupied.month").className().contains("govuk-input--error"))
+      assert(document.getElementById("dateFirstOccupied.year").className().contains("govuk-input--error"))
+    }
+
+    Scenario("the client enters a day and month but no year") {
+
+      Given("the client has left the year blank")
+      When("The client views the page")
+      val form = dateFirstOccupiedForm.withError("dateFirstOccupied.year", "ated.error.date.year.missing",
+        messages("ated.property-details.first-occupied-date.messageKey"))
+      val html = injectedViewInstance("1", 1, form, None, Html(""), Some("http://backLink"))
+      val document = Jsoup.parse(html.toString())
+
+      Then("Only the year input is styled as an error")
+      assert(!document.getElementById("dateFirstOccupied.day").className().contains("govuk-input--error"))
+      assert(!document.getElementById("dateFirstOccupied.month").className().contains("govuk-input--error"))
+      assert(document.getElementById("dateFirstOccupied.year").className().contains("govuk-input--error"))
+    }
+
+    Scenario("the client enters nothing at all") {
+
+      Given("the client has left the whole date blank")
+      When("The client views the page")
+      val form = dateFirstOccupiedForm.withError("dateFirstOccupied", "ated.error.date.empty",
+        messages("ated.property-details.first-occupied-date.messageKey"))
+      val html = injectedViewInstance("1", 1, form, None, Html(""), Some("http://backLink"))
+      val document = Jsoup.parse(html.toString())
+
+      Then("All three inputs are styled as errors")
+      assert(document.getElementById("dateFirstOccupied.day").className().contains("govuk-input--error"))
+      assert(document.getElementById("dateFirstOccupied.month").className().contains("govuk-input--error"))
+      assert(document.getElementById("dateFirstOccupied.year").className().contains("govuk-input--error"))
+    }
   }
 }

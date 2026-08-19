@@ -94,6 +94,58 @@ class PropertyDetailsDateOfChangeSpec extends AtedViewSpec with MockAuthUtil {
         doc(view).getElementById("dateOfChange-error").className() mustBe("govuk-error-message")
         doc(view).getElementById("dateOfChange-error").text() mustBe "Error: The date when you made the change of £40,000 or more must be a valid date"
       }
+
+      "style the month and year as errors when both are missing" in {
+        val form = propertyDetailsDateOfChangeForm.withError("dateOfChange.month", "ated.error.date.monthyear.missing", messages("ated.property-details-value.dateOfChange.messageKey"))
+        def view: Html = injectedViewInstance("anything", 2024, form, None, HtmlFormat.empty, Some("localhost"))
+
+        doc(view).getElementById("dateOfChange.day").className() must not include "govuk-input--error"
+        doc(view).getElementById("dateOfChange.month").className() must include("govuk-input--error")
+        doc(view).getElementById("dateOfChange.year").className() must include("govuk-input--error")
+      }
+
+      "style the day and year as errors when both are missing" in {
+        val form = propertyDetailsDateOfChangeForm.withError("dateOfChange.day", "ated.error.date.dayyear.missing", messages("ated.property-details-value.dateOfChange.messageKey"))
+        def view: Html = injectedViewInstance("anything", 2024, form, None, HtmlFormat.empty, Some("localhost"))
+
+        doc(view).getElementById("dateOfChange.day").className() must include("govuk-input--error")
+        doc(view).getElementById("dateOfChange.month").className() must not include "govuk-input--error"
+        doc(view).getElementById("dateOfChange.year").className() must include("govuk-input--error")
+      }
+
+      "style only the year as an error when only the year is missing" in {
+        val form = propertyDetailsDateOfChangeForm.withError("dateOfChange.year", "ated.error.date.year.missing", messages("ated.property-details-value.dateOfChange.messageKey"))
+        def view: Html = injectedViewInstance("anything", 2024, form, None, HtmlFormat.empty, Some("localhost"))
+
+        doc(view).getElementById("dateOfChange.day").className() must not include "govuk-input--error"
+        doc(view).getElementById("dateOfChange.month").className() must not include "govuk-input--error"
+        doc(view).getElementById("dateOfChange.year").className() must include("govuk-input--error")
+      }
+
+      "style the whole date as an error when nothing is entered" in {
+        val form = propertyDetailsDateOfChangeForm.withError("dateOfChange", "ated.error.date.empty", messages("ated.property-details-value.dateOfChange.messageKey"))
+        def view: Html = injectedViewInstance("anything", 2024, form, None, HtmlFormat.empty, Some("localhost"))
+
+        doc(view).getElementById("dateOfChange.day").className() must include("govuk-input--error")
+        doc(view).getElementById("dateOfChange.month").className() must include("govuk-input--error")
+        doc(view).getElementById("dateOfChange.year").className() must include("govuk-input--error")
+      }
+
+      "keep the input widths when styling errors" in {
+        val form = propertyDetailsDateOfChangeForm.withError("dateOfChange.month", "ated.error.date.monthyear.missing", messages("ated.property-details-value.dateOfChange.messageKey"))
+        def view: Html = injectedViewInstance("anything", 2024, form, None, HtmlFormat.empty, Some("localhost"))
+
+        doc(view).getElementById("dateOfChange.month").className() must include("govuk-input--width-2")
+        doc(view).getElementById("dateOfChange.year").className() must include("govuk-input--width-4")
+      }
+    }
+
+    "rendered with a valid form" must {
+      "style none of the inputs as errors" in {
+        doc.getElementById("dateOfChange.day").className() must not include "govuk-input--error"
+        doc.getElementById("dateOfChange.month").className() must not include "govuk-input--error"
+        doc.getElementById("dateOfChange.year").className() must not include "govuk-input--error"
+      }
     }
   }
 }
