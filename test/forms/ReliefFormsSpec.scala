@@ -273,12 +273,92 @@ class ReliefFormsSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoS
     val field = "rentalBusiness"
     val fieldStartDate = field + "Date"
 
+    val dateName: String = messages(s"ated.choose-reliefs.messageKey.$fieldStartDate")
+
+    def boundWith(day: String, month: String, year: String): Form[Reliefs] =
+      validateForm(reliefsForm.bind(
+        Json.obj("periodKey" -> periodKey, field -> true,
+          fieldStartDate -> Map("day" -> day, "month" -> month, "year" -> year)), maxChars))
+
+    "raise the error against only the fields at fault" when {
+
+      "the day is entered but the month and year are blank" in {
+        boundWith("1", "", "").errors mustBe
+          Seq(FormError(s"$fieldStartDate.month", Seq("ated.error.date.monthyear.missing"), Seq(dateName)))
+      }
+
+      "the day and month are entered but the year is blank" in {
+        boundWith("1", "4", "").errors mustBe
+          Seq(FormError(s"$fieldStartDate.year", Seq("ated.error.date.year.missing"), Seq(dateName)))
+      }
+
+      "the month and year are entered but the day is blank" in {
+        boundWith("", "4", periodKey.toString).errors mustBe
+          Seq(FormError(s"$fieldStartDate.day", Seq("ated.error.date.day.missing"), Seq(dateName)))
+      }
+
+      "only the year is entered" in {
+        boundWith("", "", periodKey.toString).errors mustBe
+          Seq(FormError(s"$fieldStartDate.day", Seq("ated.error.date.daymonth.missing"), Seq(dateName)))
+      }
+
+      "only the month is entered" in {
+        boundWith("", "4", "").errors mustBe
+          Seq(FormError(s"$fieldStartDate.day", Seq("ated.error.date.dayyear.missing"), Seq(dateName)))
+      }
+
+      "the day is out of range" in {
+        boundWith("32", "4", periodKey.toString).errors mustBe
+          Seq(FormError(s"$fieldStartDate.day", Seq("ated.error.day.invalid"), Seq(dateName.toLowerCase)))
+      }
+
+      "the month is out of range" in {
+        boundWith("1", "13", periodKey.toString).errors mustBe
+          Seq(FormError(s"$fieldStartDate.month", Seq("ated.error.month.invalid"), Seq(dateName.toLowerCase)))
+      }
+
+      "the year is not 4 digits" in {
+        boundWith("1", "4", "19").errors mustBe
+          Seq(FormError(s"$fieldStartDate.year", Seq("ated.error.date.year.length"), Seq(dateName.toLowerCase)))
+      }
+
+      "the year is outside the accepted range" in {
+        boundWith("1", "4", "1899").errors mustBe
+          Seq(FormError(s"$fieldStartDate.year", Seq("ated.error.date.notInRange"), Seq(dateName.capitalize)))
+      }
+
+      "the day is not valid for the month" in {
+        boundWith("31", "4", periodKey.toString).errors mustBe
+          Seq(FormError(s"$fieldStartDate.day", Seq("ated.error.date.invalid.day.month"), Seq(dateName.toLowerCase)))
+      }
+    }
+
+    "name the relief using the wording shown on the checkbox" when {
+
+      "the period predates the social housing rewording" in {
+        val errors = validateForm(reliefsForm.bind(
+          Json.obj("periodKey" -> periodKey, "socialHousing" -> true,
+            "socialHousingDate" -> Map("day" -> "1", "month" -> "4", "year" -> "")), maxChars)).errors
+
+        errors mustBe Seq(FormError("socialHousingDate.year", Seq("ated.error.date.year.missing"),
+          Seq(messages("ated.choose-reliefs.messageKey.socialHousingDate"))))
+      }
+
+      "the period uses the provider of social housing wording" in {
+        val errors = validateForm(reliefsForm.bind(
+          Json.obj("periodKey" -> periodKey2021, "socialHousing" -> true,
+            "socialHousingDate" -> Map("day" -> "1", "month" -> "4", "year" -> "")), maxChars)).errors
+
+        errors mustBe Seq(FormError("socialHousingDate.year", Seq("ated.error.date.year.missing"),
+          Seq(messages("ated.choose-reliefs.messageKey.providerSocialOrHousingDate"))))
+      }
+    }
+
     "throw validation error" when {
       "reliefSelected is true and start date is empty" in {
 
         val formWithErrors: Form[Reliefs] = validateForm(reliefsForm.bind(Json.obj("periodKey" -> periodKey, field -> true), maxChars))
-        val expectedError = s"ated.choose-reliefs.error.date.mandatory.$fieldStartDate"
-        formWithErrors.errors mustBe Seq(FormError(fieldStartDate, expectedError))
+        formWithErrors.errors mustBe Seq(FormError(fieldStartDate, Seq("ated.error.date.empty"), Seq(dateName)))
       }
 
       "reliefSelected is true and period is too early" in {
@@ -309,20 +389,17 @@ class ReliefFormsSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoS
 
     " reliefSelected is true but letters are passed into the day field" in {
       val formWithErrors: Form[Reliefs] = validateForm(reliefsForm.bind(Json.obj("periodKey" -> periodKey, field -> true, fieldStartDate -> Map("day" -> "aa", "month" -> "4", "year" -> (periodKey + 1).toString)), maxChars))
-      val expectedError = s"ated.choose-reliefs.error.date.mandatory.$fieldStartDate"
-      formWithErrors.errors mustBe Seq(FormError(fieldStartDate, expectedError))
+      formWithErrors.errors mustBe Seq(FormError(s"$fieldStartDate.day", Seq("ated.error.date.invalid"), Seq(dateName)))
     }
 
     " reliefSelected is true but letters are passed into the month field" in {
       val formWithErrors: Form[Reliefs] = validateForm(reliefsForm.bind(Json.obj("periodKey" -> periodKey, field -> true, fieldStartDate -> Map("day" -> "31", "month" -> "aa", "year" -> (periodKey + 1).toString)), maxChars))
-      val expectedError = s"ated.choose-reliefs.error.date.mandatory.$fieldStartDate"
-      formWithErrors.errors mustBe Seq(FormError(fieldStartDate, expectedError))
+      formWithErrors.errors mustBe Seq(FormError(s"$fieldStartDate.day", Seq("ated.error.date.invalid"), Seq(dateName)))
     }
 
     " reliefSelected is true but letters are passed into the year field" in {
       val formWithErrors: Form[Reliefs] = validateForm(reliefsForm.bind(Json.obj("periodKey" -> periodKey, field -> true, fieldStartDate -> Map("day" -> "31", "month" -> "4", "year" -> "aaaa")), maxChars))
-      val expectedError = s"ated.choose-reliefs.error.date.mandatory.$fieldStartDate"
-      formWithErrors.errors mustBe Seq(FormError(fieldStartDate, expectedError))
+      formWithErrors.errors mustBe Seq(FormError(s"$fieldStartDate.day", Seq("ated.error.date.invalid"), Seq(dateName)))
     }
 
   }

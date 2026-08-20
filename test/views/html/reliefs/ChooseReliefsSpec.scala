@@ -218,6 +218,8 @@ class ChooseReliefsSpec extends AtedViewSpec with MockitoSugar with MockAuthUtil
   override def haveErrorNotification(expectedText: String) = new CssSelectorWithTextMatcher(expectedText, ".govuk-error-message")
 
 
+  def dateName(fieldStartDate: String): String = messages(s"ated.choose-reliefs.messageKey.$fieldStartDate")
+
   def haveChooseReliefFormError(field: String): Unit = {
     val fieldStartDate = field + "Date"
     val formWithErrors: Form[Reliefs] = validateForm(reliefsForm.bind(Json.obj("periodKey" -> periodKey, field -> true), Int.MaxValue))
@@ -225,9 +227,14 @@ class ChooseReliefsSpec extends AtedViewSpec with MockitoSugar with MockAuthUtil
     def view: Html = injectedViewInstance(periodKey, formWithErrors, periodStartDate, Html(""), Some("backLink"))
 
     val errorDoc = doc(view)
+    val expected = messages("ated.error.date.empty", dateName(fieldStartDate))
 
-    errorDoc must haveErrorSummary(messages(s"ated.choose-reliefs.error.date.mandatory.$fieldStartDate"))
-    errorDoc must haveErrorNotification("Error: " + messages(s"ated.choose-reliefs.error.date.mandatory.$fieldStartDate"))
+    errorDoc must haveErrorSummary(expected)
+    errorDoc must haveErrorNotification("Error: " + expected)
+
+    Seq("day", "month", "year").foreach { part =>
+      errorDoc.getElementById(s"$fieldStartDate.$part").className() must include("govuk-input--error")
+    }
   }
 
   def haveChooseReliefStartDateFormError(field: String): Unit = {
@@ -238,9 +245,14 @@ class ChooseReliefsSpec extends AtedViewSpec with MockitoSugar with MockAuthUtil
     def view: Html = injectedViewInstance(periodKey, formWithErrors, periodStartDate, Html(""), Some("backLink"))
 
     val errorDoc = doc(view)
+    val expected = messages("ated.error.date.monthyear.missing", dateName(fieldStartDate))
 
-    errorDoc must haveErrorSummary(messages(s"ated.choose-reliefs.error.date.mandatory.$fieldStartDate"))
-    errorDoc must haveErrorNotification("Error: " + messages(s"ated.choose-reliefs.error.date.mandatory.$fieldStartDate"))
+    errorDoc must haveErrorSummary(expected)
+    errorDoc must haveErrorNotification("Error: " + expected)
+
+    errorDoc.getElementById(s"$fieldStartDate.day").className() must not include "govuk-input--error"
+    errorDoc.getElementById(s"$fieldStartDate.month").className() must include("govuk-input--error")
+    errorDoc.getElementById(s"$fieldStartDate.year").className() must include("govuk-input--error")
   }
 
   val reliefsForm: Form[Reliefs] = ReliefForms.reliefsForm

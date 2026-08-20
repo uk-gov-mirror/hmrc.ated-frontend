@@ -243,6 +243,17 @@ ated.choose-reliefs.dates.month = month
 ated.choose-reliefs.dates.year = year
 ated.choose-reliefs.error.general.reliefs = Select at least one relief
 
+ated.choose-reliefs.messageKey.rentalBusinessDate = Rental business start date
+ated.choose-reliefs.messageKey.openToPublicDate = Open to the public start date
+ated.choose-reliefs.messageKey.propertyDeveloperDate = Property developers start date
+ated.choose-reliefs.messageKey.propertyTradingDate = Property trading start date
+ated.choose-reliefs.messageKey.lendingDate = Lending start date
+ated.choose-reliefs.messageKey.employeeOccupationDate = Employee occupation start date
+ated.choose-reliefs.messageKey.farmHousesDate = Farmhouses start date
+ated.choose-reliefs.messageKey.socialHousingDate = Social housing start date
+ated.choose-reliefs.messageKey.providerSocialOrHousingDate = Provider of social housing or housing co-operative start date
+ated.choose-reliefs.messageKey.equityReleaseDate = Equity release start date
+
 ated.choose-reliefs.error.date.mandatory.rentalBusinessDate = Rental business start date must be valid
 ated.choose-reliefs.error.date.mandatory.openToPublicDate = Open to the public start date must be valid
 ated.choose-reliefs.error.date.mandatory.propertyDeveloperDate = Property developers start date must be valid
