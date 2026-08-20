@@ -16,18 +16,16 @@
 
 package forms
 
+import forms.mappings.DateTupleCustomError
 import models.*
 import java.time.LocalDate
 import play.api.data.Forms.*
 import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.data.{Form, FormError, Mapping}
+import play.api.i18n.Messages
 import utils.PeriodUtils.*
 import scala.annotation.tailrec
 import scala.util.Try
-
-sealed trait DateError
-case object EmptyDate extends DateError
-case object InvalidDate extends DateError
 
 object ReliefForms {
 
@@ -35,7 +33,7 @@ object ReliefForms {
 
   val avoidanceSchemeConstraint: Constraint[IsTaxAvoidance] = Constraint("isAvoidanceScheme")({
     model =>
-      if (model.isAvoidanceScheme.isDefined ) {
+      if (model.isAvoidanceScheme.isDefined) {
         Valid
       } else {
         Invalid("ated.claim-relief.avoidance-scheme.selected", "isAvoidanceScheme")
@@ -75,62 +73,62 @@ object ReliefForms {
     "equityReleaseDate" -> dateTuple(),
     "isAvoidanceScheme" -> optional(boolean)
   )
-  (Reliefs.apply)(x => Some(Tuple.fromProductTyped(x)))
+    (Reliefs.apply)(x => Some(Tuple.fromProductTyped(x)))
     .verifying(reliefSelectedConstraint)
   )
 
-    val fields = Seq(
-      ("rentalBusiness", "rentalBusinessDate"),
-      ("openToPublic", "openToPublicDate"),
-      ("propertyDeveloper", "propertyDeveloperDate"),
-      ("propertyTrading", "propertyTradingDate"),
-      ("lending", "lendingDate"),
-      ("employeeOccupation", "employeeOccupationDate"),
-      ("farmHouses", "farmHousesDate"),
-      ("socialHousing", "socialHousingDate"),
-      ("equityRelease", "equityReleaseDate")
-    )
+  val fields = Seq(
+    ("rentalBusiness", "rentalBusinessDate"),
+    ("openToPublic", "openToPublicDate"),
+    ("propertyDeveloper", "propertyDeveloperDate"),
+    ("propertyTrading", "propertyTradingDate"),
+    ("lending", "lendingDate"),
+    ("employeeOccupation", "employeeOccupationDate"),
+    ("farmHouses", "farmHousesDate"),
+    ("socialHousing", "socialHousingDate"),
+    ("equityRelease", "equityReleaseDate")
+  )
 
-  //scalastyle:off cyclomatic.complexity
-  def validateForm(f: Form[Reliefs]): Form[Reliefs] = {
-    val formErrors = {
-      fields.map { x =>
-        val reliefBool = f.data.get(x._1)
-        val periodKey = f.data.get("periodKey").get.toInt
-        val reliefDate: Either[DateError, LocalDate] = {
-          (f.data.get(s"${x._2}.day"), f.data.get(s"${x._2}.month"), f.data.get(s"${x._2}.year")) match {
-            case (Some(d), Some(m), Some(y)) if(d.isEmpty && m.isEmpty && y.isEmpty) => Left(EmptyDate)
-            case (Some(d), Some(m), Some(y)) => try {
-              Right(LocalDate.of(y.trim.toInt, m.trim.toInt, d.trim.toInt))
-            } catch {
-              case _ : Throwable => Left(InvalidDate)
-            }
-            case (None, None, None) => Left(EmptyDate)
-            case _ => Left(InvalidDate)
-          }
-        }
-        reliefBool match {
-          case Some("true") => {
-            reliefDate match {
-              // Keeping the empty and invalid cases separate as a reminder that we should differentiate these error messages
-              case Left(EmptyDate) => Seq(FormError(s"${x._2}", s"ated.choose-reliefs.error.date.mandatory.${x._2}"))
-              case Left(InvalidDate) => Seq(FormError(s"${x._2}", s"ated.choose-reliefs.error.date.mandatory.${x._2}"))
-              case Right(date) if (isPeriodTooEarly(periodKey, Some(date)) || isPeriodTooLate(periodKey, Some(date))) => Seq(FormError(s"${x._2}", s"ated.choose-reliefs.error.date.chargePeriod.${x._2}"))
-              case _ => Nil
-            }
-          }
+  private[forms] def dateMessageSuffix(periodKey: Int, dateField: String): String =
+    if (dateField == "socialHousingDate" && periodKey >= 2020) "providerSocialOrHousingDate" else dateField
+
+  private def reliefDate(f: Form[Reliefs], dateField: String): Option[LocalDate] =
+    (f.data.get(s"$dateField.day"), f.data.get(s"$dateField.month"), f.data.get(s"$dateField.year")) match {
+      case (Some(d), Some(m), Some(y)) => Try(LocalDate.of(y.trim.toInt, m.trim.toInt, d.trim.toInt)).toOption
+      case _ => None
+    }
+
+  def validateForm(f: Form[Reliefs])(implicit messages: Messages): Form[Reliefs] = {
+    val periodKey = f.data.get("periodKey").get.toInt
+
+    val formErrors = fields.flatMap { case (reliefField, dateField) =>
+      if (f.data.get(reliefField).contains("true")) {
+        val messageSuffix = dateMessageSuffix(periodKey, dateField)
+
+        val dateErrors = DateTupleCustomError.validateDateFields(
+          f.data.get(s"$dateField.day").orElse(Some("")),
+          f.data.get(s"$dateField.month").orElse(Some("")),
+          f.data.get(s"$dateField.year").orElse(Some("")),
+          Seq((dateField, messages(s"ated.choose-reliefs.messageKey.$messageSuffix")))
+        )
+
+        if (dateErrors.nonEmpty) dateErrors
+        else reliefDate(f, dateField) match {
+          case Some(date) if isPeriodTooEarly(periodKey, Some(date)) || isPeriodTooLate(periodKey, Some(date)) =>
+            Seq(FormError(dateField, s"ated.choose-reliefs.error.date.chargePeriod.$messageSuffix"))
           case _ => Nil
         }
-      }
+      } else Nil
     }
-    addErrorsToForm(f, formErrors.flatten)
+
+    addErrorsToForm(f, formErrors)
   }
 
   val isTaxAvoidanceForm: Form[IsTaxAvoidance] = Form(mapping(
 
     "isAvoidanceScheme" -> optional(boolean)
   )
-  (IsTaxAvoidance.apply)(x => Some(x.isAvoidanceScheme))
+    (IsTaxAvoidance.apply)(x => Some(x.isAvoidanceScheme))
     .verifying(avoidanceSchemeConstraint)
   )
 
@@ -154,13 +152,13 @@ object ReliefForms {
     "equityReleaseScheme" -> optional(text),
     "equityReleaseSchemePromoter" -> optional(text)
   )
-  (TaxAvoidance.apply)(x => Some(Tuple.fromProductTyped(x)))
+    (TaxAvoidance.apply)(x => Some(Tuple.fromProductTyped(x)))
   )
 
   //scalastyle:off cyclomatic.complexity
   def validateTaxAvoidance(f: Form[TaxAvoidance], periodKey: Int): Form[TaxAvoidance] = {
     def validateAvoidanceScheme(avoidanceFieldName: String): Seq[Option[FormError]] = {
-      val messageKeySuffix =  if (periodKey >= 2020 && avoidanceFieldName == "socialHousingScheme") "providerSocialOrHousingScheme" else avoidanceFieldName
+      val messageKeySuffix = if (periodKey >= 2020 && avoidanceFieldName == "socialHousingScheme") "providerSocialOrHousingScheme" else avoidanceFieldName
       val avoidanceSchemeNo = f.data.get(avoidanceFieldName)
       avoidanceSchemeNo.getOrElse("") match {
         case a if a.isEmpty => Seq(Some(FormError(avoidanceFieldName, s"ated.avoidance-scheme-error.general.empty.$messageKeySuffix")))
@@ -169,8 +167,9 @@ object ReliefForms {
         case _ => Seq(None)
       }
     }
+
     def validatePromoterReference(promoterFieldName: String): Seq[Option[FormError]] = {
-      val messageKeySuffix =  if (periodKey >= 2020 && promoterFieldName == "socialHousingSchemePromoter") "providerSocialOrHousingSchemePromoter" else promoterFieldName
+      val messageKeySuffix = if (periodKey >= 2020 && promoterFieldName == "socialHousingSchemePromoter") "providerSocialOrHousingSchemePromoter" else promoterFieldName
       val promoterReference = f.data.get(promoterFieldName)
       promoterReference.getOrElse("") match {
         case a if a.isEmpty => Seq(Some(FormError(promoterFieldName, s"ated.avoidance-scheme-error.general.empty.$messageKeySuffix")))
@@ -180,7 +179,7 @@ object ReliefForms {
       }
     }
 
-    def validateAvoidance(avoidanceFieldName: String, promoterFieldName : String): Seq[Option[FormError]] = {
+    def validateAvoidance(avoidanceFieldName: String, promoterFieldName: String): Seq[Option[FormError]] = {
       val avoidanceValue = f.data.get(avoidanceFieldName)
       val promoterValue = f.data.get(promoterFieldName)
 
@@ -202,8 +201,8 @@ object ReliefForms {
               validateAvoidance("lendingScheme", "lendingSchemePromoter") ++
               validateAvoidance("employeeOccupationScheme", "employeeOccupationSchemePromoter") ++
               validateAvoidance("farmHousesScheme", "farmHousesSchemePromoter") ++
-            validateAvoidance("socialHousingScheme", "socialHousingSchemePromoter") ++
-            validateAvoidance("equityReleaseScheme", "equityReleaseSchemePromoter")
+              validateAvoidance("socialHousingScheme", "socialHousingSchemePromoter") ++
+              validateAvoidance("equityReleaseScheme", "equityReleaseSchemePromoter")
 
           addErrorsToForm(f, errors.flatten)
         case false => f.withError("", "ated.avoidance-schemes.scheme.empty") // message parameter doesn't matter as we get a message using the error key
@@ -231,14 +230,15 @@ object ReliefForms {
       if (fe.isEmpty) f
       else y(f.withError(fe.head), fe.tail)
     }
+
     y(form, formErrors)
   }
 
   private def dateTuple(): Mapping[Option[LocalDate]] =
     tuple(
-      "year"  -> optional(text),
+      "year" -> optional(text),
       "month" -> optional(text),
-      "day"   -> optional(text)
+      "day" -> optional(text)
     ).transform(
       {
         case (Some(y), Some(m), Some(d)) =>
@@ -246,12 +246,12 @@ object ReliefForms {
           catch {
             case _: Exception => None
           }
-        case (a, b, c)                   => None
+        case (a, b, c) => None
       },
       (date: Option[LocalDate]) =>
         date match {
           case Some(d) => (Some(d.getYear.toString), Some(d.getMonthValue().toString), Some(d.getDayOfMonth.toString))
-          case _       => (None, None, None)
+          case _ => (None, None, None)
         }
     )
 }

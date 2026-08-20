@@ -19,6 +19,7 @@
 @import play.twirl.api.HtmlFormat
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
+@import views.DateInputErrors
 @import views.ViewUtils.titleBuilder
 @import views.html.helpers._
 @import _root_.utils._
@@ -62,7 +63,7 @@
 
     @formHelper(action = controllers.propertyDetails.routes.DateFirstOccupiedController.save(id, periodKey, mode)) {
 
-        @govukDateInput(DateInput(
+        @govukDateInput(DateInputErrors.withDayMonthYear(DateInput(
             hint = Some(Hint(
               content = Text(messages("ated.property-details.first-occupied-date.exampleDate",
                                       PeriodUtils.periodStartDate(periodKey).toString(messages("ated.date-format.numeric"))))
@@ -73,7 +74,7 @@
                 classes = "govuk-visually-hidden"
               ))
             )),
-        ).withDayMonthYearFormField(propertyDetailsForm("dateFirstOccupied")))
+        ), propertyDetailsForm, "dateFirstOccupied"))
 
         @govukButton(Button(
             content = Text(messages("ated.save-and-continue")),

@@ -17,6 +17,7 @@
 @import _root_.utils._
 @import models.StringFormatting._
 @import play.twirl.api.HtmlFormat
+@import views.DateInputErrors
 
 @(
         field: String,
@@ -38,7 +39,7 @@
 
 @fieldLevelErrorClass(dateField: String) = @{
     val num = if(dateField == "year") "4" else "2"
-    if(form.errors.exists(er => er.key == field || (er.key.startsWith(field) && er.message.toLowerCase.contains(dateField)))) {
+    if(DateInputErrors.fieldsInError(form, field).contains(dateField)) {
         s"govuk-input govuk-date-input__input govuk-input--width-$num govuk-input--error"
     } else {
         s"govuk-input govuk-date-input__input govuk-input--width-$num"

@@ -18,6 +18,7 @@
 @import models._
 @import play.twirl.api.HtmlFormat
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import views.DateInputErrors
 @import views.ViewUtils.titleBuilder
 
 @this(newMain: newMain,
@@ -59,7 +60,7 @@
             @messages("ated.property-details.pre-header-dispose")
         </h2>
 
-        @govukDateInput(DateInput(
+        @govukDateInput(DateInputErrors.withDayMonthYear(DateInput(
             fieldset = Some(Fieldset(
               legend = Some(Legend(
                   content = Text(messages("ated.dispose-property.disposal-date.header")),
@@ -70,7 +71,7 @@
             hint = Some(Hint(
                 content = Text(messages("ated.date.hint"))
             ))
-            ).withDayMonthYearFormField(disposeLiabilityForm("dateOfDisposal"))
+            ), disposeLiabilityForm, "dateOfDisposal")
         )
 
         @govukButton(Button(
