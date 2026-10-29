@@ -100,7 +100,7 @@ class DisposeLiabilitySentController @Inject()(mcc: MessagesControllerComponents
                     Some(submittedResponse),
                     returnType,
                     organisationNameOpt,
-                    liabilityReturn.paymentReference.orElse(Some("")),
+                    liabilityReturn.paymentReference,
                     liabilityReturn.amountDueOrRefund,
                     liabilityReturn.liabilityAmount
                   )
